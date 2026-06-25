@@ -65,6 +65,8 @@ class SimResult:
             "chord_skip": self.config.chord_skip,
             "w0": self.config.w0, "wavelength": self.config.wavelength,
             "reflectivity": self.config.reflectivity,
+            "input_offset_z": self.config.input_offset_z,
+            "input_angle": self.config.input_angle,
             "bounces": self.bounces, "opl_m": self.opl * 1e-3,
             "w_max_mm": self.w_max, "clipped": int(self.clipped),
             "throughput": self.throughput, "stability_g": self.stability_g,
