@@ -44,6 +44,12 @@ PRESETS = {
         w0=0.75, input_offset_z=1.6, input_angle=0.018,
         n_passes=120, reflectivity=0.98,
         label="Sweet spot: 27.7 m @ 8.85% T"),
+    "toroidal_lissajous": dict(
+        N=16, chord_skip=7, R_ring=119.24, H=36.43,
+        R_t=500.0, R_s=300.0, mirror_aperture=11.4,
+        w0=1.17, input_offset_z=2.2, input_angle=0.022,
+        n_passes=128, reflectivity=0.98,
+        label="Toroidal (R_t=500, R_s=300) -- Lissajous demo"),
 }
 
 
@@ -97,7 +103,49 @@ def _per_bounce_beam_radius(cfg: TMPCConfig, n_bounces: int):
     return w_t[:n_bounces], w_s[:n_bounces]
 
 
-def build_mirror_constellations(cfg: TMPCConfig, spots: np.ndarray):
+def compute_abcd_spot_pattern(cfg: TMPCConfig, n_bounces: int) -> np.ndarray:
+    """Predict bounce-by-bounce spot positions from the paraxial ABCD model.
+
+    For each bounce the (position, slope) pair in the tangential and
+    sagittal axes is propagated by the per-bounce ray-transfer matrix
+        M = [[1, c], [-2/R, 1 - 2c/R]]
+    where c is the chord length between mirrors. The eigenvalues are
+    exp(+/- i*theta) with cos(theta) = 1 - c/R, so the position on each
+    successive bounce traces a sinusoid in i. When R_t != R_s the two
+    axes have different phase advances and the per-mirror revisit
+    pattern is a Lissajous figure -- the realistic Herriott / toroidal
+    spot constellation.
+    """
+    c = 2 * cfg.R_ring * np.sin(np.pi * cfg.chord_skip / cfg.N)
+    def per_bounce(R):
+        return np.array([[1.0,        c],
+                         [-2.0 / R,   1.0 - 2 * c / R]])
+    M_t = per_bounce(cfg.R_t)
+    M_s = per_bounce(cfg.R_s)
+
+    # initial (position, slope) on mirror 0 in local (tangential, sagittal)
+    # tangential: enter on-axis with tilt = input_angle
+    # sagittal:   enter at z = input_offset_z, zero slope
+    state_t = np.array([0.0, cfg.input_angle])
+    state_s = np.array([cfg.input_offset_z, 0.0])
+
+    positions = np.zeros((n_bounces, 3))
+    for i in range(n_bounces):
+        k = (i * cfg.chord_skip) % cfg.N
+        theta = 2 * np.pi * k / cfg.N
+        centre = np.array([cfg.R_ring * np.cos(theta),
+                           cfg.R_ring * np.sin(theta), 0.0])
+        normal = -np.array([np.cos(theta), np.sin(theta), 0.0])
+        sag = np.array([0.0, 0.0, 1.0])
+        tan = np.cross(sag, normal)
+        positions[i] = centre + state_t[0] * tan + state_s[0] * sag
+        state_t = M_t @ state_t
+        state_s = M_s @ state_s
+    return positions
+
+
+def build_mirror_constellations(cfg: TMPCConfig, spots: np.ndarray,
+                                model_label: str = "raytrace"):
     """For each mirror, project the hits onto the mirror's local (tangential,
     sagittal) plane. Returns a plotly Figure with one subplot per mirror.
     """
@@ -157,7 +205,8 @@ def build_mirror_constellations(cfg: TMPCConfig, spots: np.ndarray):
                          row=row, col=col)
 
     fig.update_layout(
-        title=f"Per-mirror spot constellations  (aperture = {cfg.mirror_aperture} mm)",
+        title=(f"Per-mirror spot constellations &mdash; <b>{model_label}</b> "
+               f"model  (aperture = {cfg.mirror_aperture} mm)"),
         paper_bgcolor="#101418", plot_bgcolor="#181c20",
         font=dict(color="#eaeaea", size=11),
         height=260 * nrows, width=260 * ncols + 80,
@@ -300,13 +349,18 @@ def main():
         fig, res = build_figure(cfg, label)
         out_path = os.path.join(args.out, f"{name}.html")
         fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
-        # per-mirror spot constellation
-        const_fig = build_mirror_constellations(cfg, res.spot_pattern)
-        const_path = os.path.join(args.out, f"{name}_mirrors.html")
-        const_fig.write_html(const_path, include_plotlyjs="cdn", full_html=True)
+        # per-mirror spot constellations: raytrace + ABCD model
+        const_rt = build_mirror_constellations(cfg, res.spot_pattern, "raytrace")
+        const_rt_path = os.path.join(args.out, f"{name}_mirrors_raytrace.html")
+        const_rt.write_html(const_rt_path, include_plotlyjs="cdn", full_html=True)
+        abcd_spots = compute_abcd_spot_pattern(cfg, res.bounces)
+        const_abcd = build_mirror_constellations(cfg, abcd_spots, "ABCD / Lissajous")
+        const_abcd_path = os.path.join(args.out, f"{name}_mirrors_abcd.html")
+        const_abcd.write_html(const_abcd_path, include_plotlyjs="cdn", full_html=True)
         print(f"[viz] {name}: bounces={res.bounces} OPL={res.opl*1e-3:.2f} m "
-              f"T={res.throughput*100:.2f}% -> {out_path}, {const_path}")
-        index_links.append((name, label, out_path, const_path, res))
+              f"T={res.throughput*100:.2f}%")
+        index_links.append((name, label, out_path,
+                            const_rt_path, const_abcd_path, res))
 
     # index.html with thumbnails / links
     if len(index_links) > 1:
@@ -315,8 +369,9 @@ def main():
             f"(OPL {r.opl*1e-3:.2f} m, T {r.throughput*100:.2f}%, "
             f"{r.bounces} bounces)<br>"
             f"&nbsp;&nbsp;<a href='{os.path.basename(p3d)}'>3D cell view</a> &middot; "
-            f"<a href='{os.path.basename(pcon)}'>per-mirror spots</a></li>"
-            for (n, lab, p3d, pcon, r) in index_links)
+            f"<a href='{os.path.basename(prt)}'>spots (raytrace)</a> &middot; "
+            f"<a href='{os.path.basename(pab)}'>spots (ABCD / Lissajous)</a></li>"
+            for (n, lab, p3d, prt, pab, r) in index_links)
         idx_path = os.path.join(args.out, "index.html")
         with open(idx_path, "w") as f:
             f.write(f"<html><body style='font-family:sans-serif;background:#101418;color:#eee'>"
