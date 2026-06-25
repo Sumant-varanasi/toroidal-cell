@@ -97,6 +97,74 @@ def _per_bounce_beam_radius(cfg: TMPCConfig, n_bounces: int):
     return w_t[:n_bounces], w_s[:n_bounces]
 
 
+def build_mirror_constellations(cfg: TMPCConfig, spots: np.ndarray):
+    """For each mirror, project the hits onto the mirror's local (tangential,
+    sagittal) plane. Returns a plotly Figure with one subplot per mirror.
+    """
+    import math
+    from plotly.subplots import make_subplots
+
+    # build per-mirror local frame matching multipass._build_mirror_ring
+    per_mirror_hits = [[] for _ in range(cfg.N)]
+    # assign each spot to its mirror by index in the chord sequence
+    for i, p in enumerate(spots):
+        k = (i * cfg.chord_skip) % cfg.N  # mirror visited at bounce i
+        per_mirror_hits[k].append(p)
+
+    ncols = min(cfg.N, 4)
+    nrows = math.ceil(cfg.N / ncols)
+    fig = make_subplots(
+        rows=nrows, cols=ncols,
+        subplot_titles=[f"mirror {k}" for k in range(cfg.N)],
+        horizontal_spacing=0.04, vertical_spacing=0.06)
+
+    for k in range(cfg.N):
+        theta = 2 * np.pi * k / cfg.N
+        c = np.array([cfg.R_ring * np.cos(theta),
+                      cfg.R_ring * np.sin(theta), 0.0])
+        normal = -np.array([np.cos(theta), np.sin(theta), 0.0])
+        sag = np.array([0.0, 0.0, 1.0])
+        tan = np.cross(sag, normal); tan /= np.linalg.norm(tan)
+        hits = np.array(per_mirror_hits[k]) if per_mirror_hits[k] else np.empty((0, 3))
+        if len(hits):
+            local = hits - c
+            u = local @ tan       # tangential offset
+            v = local @ sag       # sagittal (z) offset
+            order = np.arange(len(hits))
+        else:
+            u, v, order = [], [], []
+        row, col = k // ncols + 1, k % ncols + 1
+        # aperture circle
+        th = np.linspace(0, 2*np.pi, 64)
+        fig.add_trace(go.Scatter(
+            x=cfg.mirror_aperture*np.cos(th),
+            y=cfg.mirror_aperture*np.sin(th),
+            mode="lines", line=dict(color="#5b88b0", width=1),
+            showlegend=False, hoverinfo="skip"), row=row, col=col)
+        fig.add_trace(go.Scatter(
+            x=u, y=v, mode="markers+lines",
+            marker=dict(size=5, color=order, colorscale="Plasma",
+                        showscale=(k == 0),
+                        colorbar=dict(title="visit #", x=1.02) if k == 0 else None),
+            line=dict(color="rgba(255,200,100,0.25)", width=1),
+            showlegend=False,
+            hovertemplate="visit %{marker.color}<br>u=%{x:.2f}<br>v=%{y:.2f}<extra></extra>"),
+            row=row, col=col)
+        fig.update_xaxes(scaleanchor=f"y{k+1 if k else ''}",
+                         scaleratio=1, row=row, col=col,
+                         range=[-cfg.mirror_aperture*1.1, cfg.mirror_aperture*1.1])
+        fig.update_yaxes(range=[-cfg.mirror_aperture*1.1, cfg.mirror_aperture*1.1],
+                         row=row, col=col)
+
+    fig.update_layout(
+        title=f"Per-mirror spot constellations  (aperture = {cfg.mirror_aperture} mm)",
+        paper_bgcolor="#101418", plot_bgcolor="#181c20",
+        font=dict(color="#eaeaea", size=11),
+        height=260 * nrows, width=260 * ncols + 80,
+        margin=dict(l=20, r=20, t=70, b=20))
+    return fig
+
+
 def build_figure(cfg: TMPCConfig, label: str):
     res = simulate_tmpc(cfg)
     spots = res.spot_pattern  # (n,3)
@@ -232,17 +300,23 @@ def main():
         fig, res = build_figure(cfg, label)
         out_path = os.path.join(args.out, f"{name}.html")
         fig.write_html(out_path, include_plotlyjs="cdn", full_html=True)
+        # per-mirror spot constellation
+        const_fig = build_mirror_constellations(cfg, res.spot_pattern)
+        const_path = os.path.join(args.out, f"{name}_mirrors.html")
+        const_fig.write_html(const_path, include_plotlyjs="cdn", full_html=True)
         print(f"[viz] {name}: bounces={res.bounces} OPL={res.opl*1e-3:.2f} m "
-              f"T={res.throughput*100:.2f}% -> {out_path}")
-        index_links.append((name, label, out_path, res))
+              f"T={res.throughput*100:.2f}% -> {out_path}, {const_path}")
+        index_links.append((name, label, out_path, const_path, res))
 
     # index.html with thumbnails / links
     if len(index_links) > 1:
         rows = "\n".join(
-            f"<li><a href='{os.path.basename(p)}'>{n}</a> &mdash; {lab} "
+            f"<li><b>{n}</b> &mdash; {lab} "
             f"(OPL {r.opl*1e-3:.2f} m, T {r.throughput*100:.2f}%, "
-            f"{r.bounces} bounces)</li>"
-            for (n, lab, p, r) in index_links)
+            f"{r.bounces} bounces)<br>"
+            f"&nbsp;&nbsp;<a href='{os.path.basename(p3d)}'>3D cell view</a> &middot; "
+            f"<a href='{os.path.basename(pcon)}'>per-mirror spots</a></li>"
+            for (n, lab, p3d, pcon, r) in index_links)
         idx_path = os.path.join(args.out, "index.html")
         with open(idx_path, "w") as f:
             f.write(f"<html><body style='font-family:sans-serif;background:#101418;color:#eee'>"
