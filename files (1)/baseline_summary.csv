@@ -1,0 +1,20 @@
+Parameter,Value,Units,Notes
+N_mirrors,8.0,—,ring mirrors
+R_ring_radius,50.0,mm,centre of mirror to cell axis
+H_cell_height,40.0,mm,axial extent (entry plane to top retro)
+D_mirror,25.4,mm,ring mirror diameter
+ROC,inf,m,inf = flat (v1)
+chord_length,38.26834323650898,mm,2 R sin(pi/N)
+AOI,67.5,deg,pi/2 - pi/N
+alpha_outOfPlane,0.2268489466366836,deg,out-of-plane spiral tilt
+M_halfLaps,66.0,—,half-laps before top retro
+j_up,264.0,—,upgoing reflections
+n_reflections_total,528.0,—,ring bounces (2 j_up); top retro folded in
+OPL_traced,20.20584359952433,m,cumulative path at exit
+wavelength,1.654,um,"CH4 R(3) line, 2 nu3 band"
+w0_input,1.0,mm,1/e^2 input waist
+M2,1.2,—,beam quality
+w_max,6.460698874598088,mm,max spot radius on any mirror
+min_spot_sep,0.15151515151514902,mm,smallest centre-to-centre separation
+mirror_fill_frac,1.0,—,geometric beam coverage of busiest mirror
+spots_overlap_flag,1.0,—,1 = at least one pair within 2 w_mean

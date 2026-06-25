@@ -1,0 +1,5 @@
+chord_skip,gcd_skip_N,L_chord_mm,AOI_deg,n_bounces,OPL_m,throughput,max_spot_radius_mm,mirror_fill_fraction,volume_utilisation,threshold_used_mm,median_dist_to_path_mm,mirrors_visited
+1,1,38.2683,67.5,528,20.2058,0.589628,6.4607,1,0.226133,3.43033,11.7257,8
+2,2,70.7107,45,528,37.3353,0.589628,11.8362,1,0.397,6.05219,7.93356,4
+3,1,92.388,22.5,528,48.7809,0.589628,15.4418,1,0.813733,7.83221,3.43407,8
+5,1,92.388,22.5,528,48.7809,0.589628,15.4418,1,0.813733,7.83221,3.4358,8

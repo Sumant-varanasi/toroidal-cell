@@ -1,0 +1,27 @@
+# Default platform configuration
+dataset:
+  n_samples: 2000
+  seed: 0
+  out_path: results/dataset.csv
+
+simulator:
+  wavelength_mm: 1.654e-3
+  default_reflectivity: 0.999
+  passes_per_mirror: 8
+
+ml:
+  targets: [opl_m, throughput_full, quality, stability_g]
+  test_size: 0.2
+  out_dir: results/models
+
+optimization:
+  bo_calls: 40
+  ga_generations: 25
+  use_surrogate: false
+
+paths:
+  results: results
+  plots:   results/plots
+  models:  results/models
+  optim:   results/optim
+  explain: results/explain
