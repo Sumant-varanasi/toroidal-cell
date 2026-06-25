@@ -35,13 +35,13 @@ PRESETS = {
     "longest_opl": dict(
         N=16, chord_skip=7, R_ring=119.24, H=36.43,
         R_t=500.0, R_s=500.0, mirror_aperture=11.4,
-        w0=1.17, input_offset_z=0.0, input_angle=0.0,
+        w0=1.17, input_offset_z=2.2, input_angle=0.022,
         n_passes=128, reflectivity=0.98,
         label="Longest OPL (29.9 m @ R=0.98 -> 7.3% T)"),
     "sweet_spot_120": dict(
         N=15, chord_skip=7, R_ring=116.18, H=20.97,
         R_t=1500.0, R_s=1500.0, mirror_aperture=11.4,
-        w0=0.75, input_offset_z=0.0, input_angle=0.0,
+        w0=0.75, input_offset_z=1.6, input_angle=0.018,
         n_passes=120, reflectivity=0.98,
         label="Sweet spot: 27.7 m @ 8.85% T"),
 }
