@@ -5,15 +5,15 @@ spectroscopy of methane (CH₄) at **1.654 µm**. A TMPC folds tens of metres of
 optical absorption path into a palm-sized cell by bouncing the laser around a
 ring of curved mirrors — the more path, the more sensitive the gas sensor.
 
-The current, definitive model lives in **[`tmpc_platform_v5/`](tmpc_platform_v5/)**.
+The current, definitive model lives in **[`_CURRENT/tmpc_platform_v5/`](_CURRENT/tmpc_platform_v5/)**.
 It simulates the real 3-D ray path and astigmatic Gaussian beam, estimates
 **build tolerances**, optimises designs, validates against
 [Optiland](https://github.com/HarrisonKramer/optiland), and renders everything
 in 3-D.
 
 <p align="center">
-  <img src="tmpc_platform_v5/examples/figures/bo_best_one_inch_cell3d.png" width="48%" alt="3D ray path + beam tube">
-  <img src="tmpc_platform_v5/examples/figures/bo_best_one_inch_experiment.png" width="48%" alt="As-built experiment render">
+  <img src="_CURRENT/tmpc_platform_v5/examples/figures/bo_best_one_inch_cell3d.png" width="48%" alt="3D ray path + beam tube">
+  <img src="_CURRENT/tmpc_platform_v5/examples/figures/bo_best_one_inch_experiment.png" width="48%" alt="As-built experiment render">
 </p>
 
 *Left: the true ray-traced path with the beam rendered as a tube. Right: the
@@ -37,11 +37,11 @@ the laser bouncing through it.*
 - **Validation** — analytic checks (AOI = π/2 − π/N) and an Optiland
   cross-check that reproduces the ray-tracer to ~0 µm.
 
-See the **[figure gallery](tmpc_platform_v5/examples/README.md)** for the full
+See the **[figure gallery](_CURRENT/tmpc_platform_v5/examples/README.md)** for the full
 set of rendered outputs.
 
 <p align="center">
-  <img src="tmpc_platform_v5/examples/figures/toroidal_lissajous_constellations.png" width="70%" alt="Per-mirror spot constellations">
+  <img src="_CURRENT/tmpc_platform_v5/examples/figures/toroidal_lissajous_constellations.png" width="70%" alt="Per-mirror spot constellations">
 </p>
 
 *Per-mirror spot pattern for a toroidal (R_t ≠ R_s) design — the astigmatic
@@ -52,9 +52,11 @@ Lissajous footprints on each mirror face.*
 ## Quick start
 
 ```bash
-# use the project virtualenv (numpy, scipy, matplotlib, plotly, scikit-learn,
-# scikit-optimize, optiland are already installed there)
-PY=./.venv/Scripts/python.exe
+# the current model lives in _CURRENT/ — run from there so `-m tmpc_platform_v5`
+# resolves. the project virtualenv (numpy, scipy, matplotlib, plotly,
+# scikit-learn, scikit-optimize, optiland) sits one level up at ../.venv
+cd _CURRENT
+PY=../.venv/Scripts/python.exe
 
 # one design, full physics report
 $PY -m tmpc_platform_v5 simulate --preset bo_best_one_inch
@@ -75,7 +77,7 @@ $PY -m tmpc_platform_v5 presets
 ```
 
 Full documentation, the Python API, and the module map are in
-**[`tmpc_platform_v5/README.md`](tmpc_platform_v5/README.md)**.
+**[`_CURRENT/tmpc_platform_v5/README.md`](_CURRENT/tmpc_platform_v5/README.md)**.
 
 ---
 
@@ -83,11 +85,13 @@ Full documentation, the Python API, and the module map are in
 
 | Path | What it is |
 |---|---|
-| **`tmpc_platform_v5/`** | **Current model** — physics + tolerances + 3-D viz + CLI + tests |
-| `tmpc_platform_v5/examples/` | Regenerable figure gallery |
+| **`_CURRENT/`** | **Everything current** — the definitive model, gathered for easy access |
+| **`_CURRENT/tmpc_platform_v5/`** | **Current model** — physics + tolerances + 3-D viz + CLI + tests |
+| `_CURRENT/tmpc_platform_v5/examples/` | Regenerable figure gallery |
 | `tmpc_platform_v4/`, `tmpc_platform_v2/`, `tmpc_platform/` | Earlier iterations (kept for reference) |
 | `toroidal-cell/` | Original analytic-spiral lineage + Optiland validation |
 | `test.py` | Standalone Optiland cross-validation of the original tracer |
+| `.venv/`, `requirements.txt` | Shared Python runtime (numpy/scipy/plotly/sklearn/optiland …) |
 
 > IP note: per the IITD-Abu Dhabi / Aston joint brief, all IP belongs to Aston.
 > Internal use only.
