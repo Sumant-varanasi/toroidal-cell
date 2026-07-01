@@ -190,20 +190,22 @@ def render_experiment(res,
                       cfg,
                       out_path: str,
                       family: str = "one_inch",
-                      show_beam: bool = True) -> str:
+                      show_beam: bool = True,
+                      return_fig: bool = False):
     """Render a photo-realistic Plotly 3-D view of the TMPC assembly.
 
     Parameters
     ----------
-    res       : SimResult (from simulate_tmpc)
-    cfg       : TMPCConfig
-    out_path  : where to write the standalone HTML file
-    family    : mirror catalogue family ('one_inch' or 'half_inch')
-    show_beam : whether to draw the intra-cavity beam tube
+    res        : SimResult (from simulate_tmpc)
+    cfg        : TMPCConfig
+    out_path   : where to write the standalone HTML file
+    family     : mirror catalogue family ('one_inch' or 'half_inch')
+    show_beam  : whether to draw the intra-cavity beam tube
+    return_fig : if True, also return the Plotly Figure (for PNG export)
 
     Returns
     -------
-    out_path  : same string that was passed in
+    out_path, or (out_path, fig) if return_fig=True
     """
     # --- soft-import Plotly ---------------------------------------------------
     try:
@@ -516,6 +518,8 @@ def render_experiment(res,
     os.makedirs(out_dir, exist_ok=True)
 
     fig.write_html(out_path, include_plotlyjs="cdn")
+    if return_fig:
+        return out_path, fig
     return out_path
 
 

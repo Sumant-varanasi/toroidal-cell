@@ -12,6 +12,9 @@ visualisation.
 > scikit-optimize, optiland). Run all commands from the repo root so
 > `import tmpc_platform_v5` resolves.
 
+**See the [figure gallery](examples/README.md)** for rendered 3-D cell views,
+as-built renders, spot constellations, and tolerance-analysis plots.
+
 ---
 
 ## What it does (capability map)
