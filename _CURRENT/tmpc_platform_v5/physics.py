@@ -259,7 +259,7 @@ def compute_losses(bounces: int, reflectivity: float,
         ap_loss = 1.0
     else:
         ap_loss = float(np.exp(-2.0 * (aperture / max(w_max, 1e-6)) ** 2))
-    if beam_diameter_in >= hole_diameter:
+    if beam_diameter_in > hole_diameter:
         trunc_loss = 1.0
     else:
         trunc_loss = float(np.exp(-2.0 * (hole_diameter / max(beam_diameter_in, 1e-6)) ** 2))
