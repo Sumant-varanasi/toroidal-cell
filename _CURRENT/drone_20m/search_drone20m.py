@@ -82,14 +82,18 @@ ENVELOPE_MAX = 190.0     # hard assembly-diameter cap [mm]
 RADIAL_ALLOWANCE = 18.0  # mirror substrate (~6.4) + housing wall + margin [mm]
 PACK_GAP = 1.0           # minimum web between adjacent mirror substrates [mm]
 
-OPL_MIN_M = 19.5         # accept window on verified OPL
-OPL_EST_LO_M = 19.5      # Stage A estimate window
-OPL_EST_HI_M = 26.0
-N_EXIT_MIN = 100         # bounce-count window (throughput vs OPL trade)
-N_EXIT_MAX = 200
-K_SET = (5, 7, 9, 11, 13)  # spots per mirror -- odd only: for even k the
-#   tangential pi-slot coincides with a sagittal near-return and an
+OPL_MIN_M = 19.5         # default verified-OPL floor (per-class override)
+OPL_EST_LO_M = 4.5       # Stage A estimate window (classes filter later)
+OPL_EST_HI_M = 26.5
+N_EXIT_MIN = 40          # bounce-count window (throughput vs OPL trade)
+N_EXIT_MAX = 208
+K_SET = (5, 7, 9, 11, 13)  # spots per mirror -- odd only: for even k
+#   the tangential pi-slot coincides with a sagittal near-return and an
 #   intermediate spot can leak into the hole (star-polygon parity rule)
+LISSAJOUS_EXTENT = 1.30    # 2-D constellation reaches ~1.3x the per-plane
+#   amplitude, so the aperture-fit test must use it (1.0 was optimistic)
+FAMILIES_USE = ("one_inch",)   # 1" confirmed by user; with N<=16 the
+#   half-inch aperture cannot reach the 20 m class anyway
 EXIT_TOL = 0.5           # spot-centre distance counting as "through the hole"
 PHASE_TOL_T = 0.45       # tan closure tol [rad] -- R_ring scan zeroes this
 PHASE_TOL_S = 0.30       # sag closure tol [rad] -- amplitude polish absorbs
@@ -98,7 +102,7 @@ W_TYP = 1.45             # typical in-cell beam radius for sizing [mm]
 
 R_RING_MAX = (ENVELOPE_MAX - 2.0 * RADIAL_ALLOWANCE) / 2.0        # 77 mm
 R_RING_MIN = 25.0
-N_RANGE = range(7, 41)
+N_RANGE = range(8, 17)   # mirror count 8..16 (user constraint, 2026-07-02)
 
 
 # ---------------------------------------------------------------------------
@@ -112,10 +116,12 @@ def _circ_dist(phase: np.ndarray) -> np.ndarray:
 def stage_a() -> pd.DataFrame:
     rows: List[Dict] = []
     r_grid = np.arange(R_RING_MIN, R_RING_MAX + 1e-9, 0.25)
-    for family, fam in FAMILIES.items():
+    for family in FAMILIES_USE:
+        fam = FAMILIES[family]
         ap = fam["clear_aperture_radius_mm"]
         diam = fam["diameter_mm"]
-        A_cap = ap - W_TYP - 0.5           # max usable pattern amplitude
+        # max per-plane amplitude whose 2-D constellation still fits
+        A_cap = (ap - W_TYP - 0.3) / LISSAJOUS_EXTENT
         for sku, _f, roc in fam["catalog"]:
             for N in N_RANGE:
                 pack_ok = 2.0 * r_grid * np.sin(np.pi / N) >= diam + PACK_GAP
@@ -197,8 +203,10 @@ def stage_a() -> pd.DataFrame:
                                 ))
     df = pd.DataFrame(rows)
     if len(df):
-        df = df.sort_values(["throughput_est", "phase_err_s"],
-                            ascending=[False, True]).reset_index(drop=True)
+        # prefer fewer bounces, then roomier constellations, then closure
+        df = df.sort_values(
+            ["throughput_est", "A_req_mm", "phase_err_s"],
+            ascending=[False, True, True]).reset_index(drop=True)
     return df
 
 
@@ -353,15 +361,17 @@ def evaluate(p: Dict) -> Dict:
     out["H_req_mm"] = float(2.0 * (np.max(np.abs(v_all)) + W0 + 3.0))
     out["envelope_mm"] = 2.0 * (cfg.R_ring + RADIAL_ALLOWANCE)
 
+    opl_min = float(p.get("opl_min", OPL_MIN_M))
+    env_max = float(p.get("envelope_max", ENVELOPE_MAX))
     checks = [
-        (out["opl_m"] >= OPL_MIN_M, f"OPL {out['opl_m']:.2f} m < {OPL_MIN_M}"),
+        (out["opl_m"] >= opl_min, f"OPL {out['opl_m']:.2f} m < {opl_min}"),
         (out["exit_miss_mm"] < 0.35, "exit miss > 0.35 mm"),
         (out["hole_margin_mm"] >= 0.0, "intermediate spot leaks into hole"),
         (out["ap_margin_mm"] >= 0.0, "beam edge clips aperture"),
         (out["sep_margin_mm"] >= 0.0, "spots overlap"),
         (abs(out["stab_tan"]) <= 1.0, "tangentially unstable"),
         (abs(out["stab_sag"]) <= 1.0, "sagittally unstable"),
-        (out["envelope_mm"] <= ENVELOPE_MAX, "envelope too big"),
+        (out["envelope_mm"] <= env_max, "envelope too big"),
     ]
     bad = [msg for okc, msg in checks if not okc]
     out["feasible"] = not bad
@@ -381,7 +391,7 @@ def _objective(r: Dict) -> float:
     if not r["n_exit"]:
         obj += 1.0
     for key, want, wt in (("hole_margin_mm", 0.30, 5.0),
-                          ("sep_margin_mm", 0.20, 5.0),
+                          ("sep_margin_mm", 0.35, 8.0),
                           ("ap_margin_mm", 0.30, 5.0)):
         v = r[key]
         if np.isfinite(v):
@@ -397,9 +407,14 @@ def _obj_eval(p: Dict) -> float:
     return _objective(evaluate({**p, "exit_at_target": True}))
 
 
+def _r_max_of(base: Dict) -> float:
+    env_max = float(base.get("envelope_max", ENVELOPE_MAX))
+    return (env_max - 2.0 * RADIAL_ALLOWANCE) / 2.0
+
+
 def _polish_objective(x: np.ndarray, base: Dict) -> float:
     p = dict(base)
-    p["R_ring"] = float(np.clip(x[0], R_RING_MIN, R_RING_MAX))
+    p["R_ring"] = float(np.clip(x[0], R_RING_MIN, _r_max_of(base)))
     p["input_offset_z"] = float(x[1])
     p["input_angle"] = float(x[2])
     p["input_angle_sag"] = float(x[3])
@@ -420,9 +435,10 @@ def scan_refine(base: Dict) -> Dict:
     from scipy.optimize import minimize
     base = {**{"input_angle_sag": 0.0, "w0_waist": W0}, **base}
     base.pop("exit_at_target", None)   # honest verdict at the end
+    r_max = _r_max_of(base)
     best_obj, best_R = np.inf, base["R_ring"]
     for dR in np.arange(-1.5, 1.5 + 1e-9, 0.02):
-        R = float(np.clip(base["R_ring"] + dR, R_RING_MIN, R_RING_MAX))
+        R = float(np.clip(base["R_ring"] + dR, R_RING_MIN, r_max))
         o = _obj_eval({**base, "R_ring": R})
         if o < best_obj:
             best_obj, best_R = o, R
@@ -438,7 +454,7 @@ def scan_refine(base: Dict) -> Dict:
                                      [0, 0, 0, 0.0012, 0],
                                      [0, 0, 0, 0, -0.10]])))
     p = dict(base)
-    p["R_ring"] = float(np.clip(res.x[0], R_RING_MIN, R_RING_MAX))
+    p["R_ring"] = float(np.clip(res.x[0], R_RING_MIN, r_max))
     p["input_offset_z"] = float(res.x[1])
     p["input_angle"] = float(res.x[2])
     p["input_angle_sag"] = float(res.x[3])
@@ -446,7 +462,7 @@ def scan_refine(base: Dict) -> Dict:
     # micro-scan of R_ring around the polished point
     best_obj, best_R = np.inf, p["R_ring"]
     for dR in np.arange(-0.03, 0.03 + 1e-9, 0.002):
-        R = float(np.clip(p["R_ring"] + dR, R_RING_MIN, R_RING_MAX))
+        R = float(np.clip(p["R_ring"] + dR, R_RING_MIN, r_max))
         o = _obj_eval({**p, "R_ring": R})
         if o < best_obj:
             best_obj, best_R = o, R
@@ -474,40 +490,44 @@ def _seed_jobs(c: Dict) -> List[Dict]:
                           / np.sqrt(np.sin(c["th_t"]) * np.sin(c["th_s"]))))
     w_match = float(np.clip(np.sqrt(w_eig * W0), 0.35, W0))
     jobs = []
-    for f in (1.0, 1.15):
+    # amplitude-ratio seeds: equal, enlarged, and asymmetric Lissajous
+    # (unequal per-plane amplitudes spread the worst-pair spot distance)
+    for f_t, f_s in ((1.0, 1.0), (1.3, 1.3), (1.5, 1.0), (1.0, 1.5)):
         for sign in (+1.0, -1.0):
             for w0w in (W0, w_match):
                 j = dict(
                     family=c["family"], sku=c["sku"], roc=float(c["roc"]),
                     N=int(c["N"]), chord_skip=int(c["chord_skip"]),
                     R_ring=float(c["R_ring"]), n_target=int(c["n_exit"]),
-                    mode_s=c["mode_s"], input_angle=sign * ang_t * f,
+                    mode_s=c["mode_s"], input_angle=sign * ang_t * f_t,
                     w0_waist=w0w,
+                    size_class=c.get("size_class", "D190"),
+                    envelope_max=c.get("envelope_max", ENVELOPE_MAX),
+                    opl_min=c.get("opl_min", OPL_MIN_M),
                     exit_at_target=True)   # continuous scoring for seeds
                 if c["mode_s"] == "cos":
-                    j["input_offset_z"] = A * f
+                    j["input_offset_z"] = A * f_s
                     j["input_angle_sag"] = 0.0
                 else:
                     j["input_offset_z"] = 0.0
-                    j["input_angle_sag"] = ang_s * f
+                    j["input_angle_sag"] = ang_s * f_s
                 jobs.append(j)
     return jobs
 
 
-def stage_b(dfa: pd.DataFrame, top: int, workers: int,
-            refine_top: int):
-    cands = dfa.head(top).to_dict("records")
+def stage_b(cands: List[Dict], workers: int, refine_top: int):
     jobs: List[Dict] = []
     for c in cands:
         jobs.extend(_seed_jobs(c))
-    print(f"Stage B: {len(jobs)} seed traces over {len(cands)} candidates")
+    print(f"  seeds: {len(jobs)} traces over {len(cands)} candidates",
+          flush=True)
     results: List[Dict] = []
     t0 = time.time()
     with ProcessPoolExecutor(max_workers=workers) as ex:
         for i, r in enumerate(ex.map(evaluate, jobs, chunksize=8)):
             results.append(r)
-            if (i + 1) % 500 == 0:
-                print(f"  {i + 1}/{len(jobs)} traces "
+            if (i + 1) % 1000 == 0:
+                print(f"    {i + 1}/{len(jobs)} "
                       f"({time.time() - t0:.0f}s)", flush=True)
     dfb = pd.DataFrame(results)
 
@@ -517,30 +537,35 @@ def stage_b(dfa: pd.DataFrame, top: int, workers: int,
                  .groupby(key, as_index=False).first())
     to_refine = best_seed.sort_values(
         ["seed_score"], ascending=False).head(refine_top).to_dict("records")
-    print(f"Stage B: refining {len(to_refine)} best candidates "
-          f"(R_ring scan + polish)")
+    print(f"  refining {len(to_refine)} best candidates", flush=True)
     refined: List[Dict] = []
     with ProcessPoolExecutor(max_workers=workers) as ex:
         futs = [ex.submit(scan_refine, {k: p[k] for k in (
             "family", "sku", "roc", "N", "chord_skip", "R_ring",
             "n_target", "mode_s", "input_offset_z", "input_angle",
-            "input_angle_sag", "w0_waist")})
+            "input_angle_sag", "w0_waist", "size_class",
+            "envelope_max", "opl_min")})
             for p in to_refine]
         for i, f in enumerate(as_completed(futs)):
             refined.append(f.result())
-            if (i + 1) % 10 == 0:
-                print(f"  refined {i + 1}/{len(to_refine)}", flush=True)
+            if (i + 1) % 20 == 0:
+                print(f"    refined {i + 1}/{len(to_refine)}", flush=True)
     dfp = pd.DataFrame(refined)
     return dfb, dfp
 
 
 # ---------------------------------------------------------------------------
+# Size classes: (envelope cap [mm], verified-OPL floor [m]). One verified
+# design menu per class exposes the size <-> OPL <-> throughput trade.
+DEFAULT_CLASSES = ((190.0, 19.5), (160.0, 14.0), (140.0, 10.0),
+                   (120.0, 7.0), (110.0, 4.5))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--workers", type=int, default=8)
-    ap.add_argument("--top", type=int, default=240,
-                    help="Stage A candidates carried into Stage B")
-    ap.add_argument("--refine-top", type=int, default=80)
+    ap.add_argument("--top-per-class", type=int, default=120)
+    ap.add_argument("--refine-top", type=int, default=60)
     ap.add_argument("--out-dir", default=os.path.join(_HERE, "results"))
     args = ap.parse_args(argv)
     os.makedirs(args.out_dir, exist_ok=True)
@@ -555,23 +580,47 @@ def main(argv=None):
         print("No analytic candidates -- constraints are infeasible.")
         return 1
 
-    dfb, dfp = stage_b(dfa, top=args.top, workers=args.workers,
-                       refine_top=args.refine_top)
+    all_b, all_p = [], []
+    for env_cap, opl_min in DEFAULT_CLASSES:
+        label = f"D{int(env_cap)}"
+        opl_hi = opl_min * 1.45 + 1.5
+        sub = dfa[(dfa["envelope_mm"] <= env_cap + 1e-9)
+                  & (dfa["opl_est_m"] >= opl_min)
+                  & (dfa["opl_est_m"] <= opl_hi)].copy()
+        sub = sub.head(args.top_per_class)
+        print(f"\n=== class {label}: envelope <= {env_cap:.0f} mm, "
+              f"OPL in [{opl_min}, {opl_hi:.1f}] m -- "
+              f"{len(sub)} candidates ===", flush=True)
+        if not len(sub):
+            continue
+        recs = sub.to_dict("records")
+        for r in recs:
+            r["size_class"] = label
+            r["envelope_max"] = env_cap
+            r["opl_min"] = opl_min
+        dfb, dfp = stage_b(recs, workers=args.workers,
+                           refine_top=args.refine_top)
+        all_b.append(dfb)
+        all_p.append(dfp)
+        feas = dfp[dfp["feasible"]]
+        print(f"  class {label}: {len(feas)} feasible of {len(dfp)}")
+
+    dfb = pd.concat(all_b, ignore_index=True)
+    dfp = pd.concat(all_p, ignore_index=True)
     dfb.to_csv(os.path.join(args.out_dir, "stage_b_seeds.csv"), index=False)
-    dfp = dfp.sort_values(["feasible", "throughput", "opl_m"],
-                          ascending=[False, False, False])
+    dfp = dfp.sort_values(["size_class", "feasible", "throughput", "opl_m"],
+                          ascending=[True, False, False, False])
     dfp.to_csv(os.path.join(args.out_dir, "stage_b_polished.csv"),
                index=False)
 
     feas = dfp[dfp["feasible"]]
-    print(f"\n{len(feas)} fully feasible designs "
-          f"(of {len(dfp)} refined)")
-    cols = ["family", "sku", "N", "chord_skip", "R_ring", "n_exit",
+    print(f"\n{len(feas)} fully feasible designs (of {len(dfp)} refined)")
+    cols = ["size_class", "sku", "N", "chord_skip", "R_ring", "n_exit",
             "opl_m", "throughput", "envelope_mm", "H_req_mm",
             "exit_miss_mm", "hole_margin_mm", "sep_margin_mm",
             "ap_margin_mm", "min_sep_mm", "w_max_mm", "aoi_deg"]
     with pd.option_context("display.width", 250):
-        print(feas[cols].head(20).to_string(index=False))
+        print(feas[cols].head(30).to_string(index=False))
     print(f"\nTotal {time.time() - t0:.0f}s")
     return 0
 
