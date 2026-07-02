@@ -13,6 +13,24 @@ aperture, no spot overlap anywhere (fringe safety), per-plane astigmatic
 stability, mirror packing, and the envelope cap. Optiland cross-validation
 reproduces the traced path to 0.000 µm RMS.
 
+<p align="center">
+  <img src="designs/figures/drone_20m_cell3d.png" width="49%" alt="drone_20m: 144-bounce light path in the 16-mirror ring">
+  <img src="designs/figures/drone_20m_experiment.png" width="49%" alt="drone_20m as-built render">
+</p>
+
+*Left: the traced light path of `drone_20m` — 144 chords between 16 catalog
+gold mirrors, input (green) and exit beams through the hole in mirror 0.
+Right: the same cell rendered as built. Interactive versions:
+[cell3d.html](designs/figures/drone_20m_cell3d.html),
+[experiment.html](designs/figures/drone_20m_experiment.html).*
+
+<p align="center">
+  <img src="designs/figures/drone_20m_constellations.png" width="70%" alt="per-mirror spot constellations">
+</p>
+
+*The 9-spot constellation each mirror carries — same Lissajous, different
+phase origin per mirror; worst pair distance is a verified check.*
+
 ## The verified menu
 
 | class | design | mirrors | R_ring | chords | **OPL** | T @ R=0.985 | T(R) | envelope | height | optics cost |
