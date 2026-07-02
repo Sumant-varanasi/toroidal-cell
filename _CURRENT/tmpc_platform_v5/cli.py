@@ -38,7 +38,8 @@ _CFG_DEFAULTS = {
     "N": 12, "R_ring": 60.0, "H": 40.0, "R_t": 120.0, "R_s": 120.0,
     "mirror_aperture": 8.0, "chord_skip": 5, "w0": 0.5, "M2": 1.0,
     "wavelength": 1.654e-3, "input_offset_z": 0.0, "input_offset_t": 0.0,
-    "input_angle": 0.0, "input_angle_sag": 0.0, "reflectivity": 0.999,
+    "input_angle": 0.0, "input_angle_sag": 0.0, "input_waist_offset": 0.0,
+    "reflectivity": 0.999,
     "hole_radius": 1.5, "topology": "ring", "M_halflaps": 8,
     "astigmatic": True,
 }
@@ -72,6 +73,9 @@ def add_cfg_args(p: argparse.ArgumentParser):
                    help="launch tilt about sagittal axis (in-plane) rad (0)")
     p.add_argument("--input_angle_sag", type=float, default=None,
                    help="launch tilt about tangential axis (out-of-plane) rad (0)")
+    p.add_argument("--input_waist_offset", type=float, default=None,
+                   help="waist position past the entrance hole mm (0 = "
+                        "waist at the hole); >0 = converging injection")
     p.add_argument("--reflectivity", type=float, default=None, help="per-mirror R (0.999)")
     p.add_argument("--hole_radius", type=float, default=None,
                    help="entrance/exit hole radius mm (1.5)")
