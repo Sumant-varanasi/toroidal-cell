@@ -91,9 +91,10 @@ OPL_EST_LO_M = 4.5       # Stage A estimate window (classes filter later)
 OPL_EST_HI_M = 32.5      # n <= 208 x max chord caps ~32 m anyway
 N_EXIT_MIN = 40          # bounce-count window (throughput vs OPL trade)
 N_EXIT_MAX = 208
-K_SET = (5, 7, 9, 11, 13)  # spots per mirror -- odd only: for even k
+K_SET = (5, 7, 9, 11, 13, 15)  # spots per mirror -- odd only: for even k
 #   the tangential pi-slot coincides with a sagittal near-return and an
-#   intermediate spot can leak into the hole (star-polygon parity rule)
+#   intermediate spot can leak into the hole (star-polygon parity rule);
+#   k=15 only reaches N <= 13 through the N_EXIT_MAX bounce cap
 AMP_RATIOS = (0.7, 1.0, 1.4)   # sag/tan amplitude ratios tried per pattern
 FAMILIES_USE = ("one_inch",)   # 1" confirmed by user; with N<=16 the
 #   half-inch aperture cannot reach the 20 m class anyway
@@ -165,9 +166,9 @@ def constellation_quality(N: int, s: int, n: int,
     return best
 
 
-def stage_a() -> pd.DataFrame:
+def stage_a(r_step: float = 0.25) -> pd.DataFrame:
     rows: List[Dict] = []
-    r_grid = np.arange(R_RING_MIN, R_RING_MAX + 1e-9, 0.25)
+    r_grid = np.arange(R_RING_MIN, R_RING_MAX + 1e-9, r_step)
     for family in FAMILIES_USE:
         fam = FAMILIES[family]
         ap = fam["clear_aperture_radius_mm"]
@@ -353,7 +354,8 @@ def evaluate(p: Dict) -> Dict:
             N=int(p["N"]), R_ring=float(p["R_ring"]), H=40.0,
             R_t=float(p["roc"]), R_s=float(p["roc"]),
             mirror_aperture=ap, chord_skip=int(p["chord_skip"]),
-            n_passes=n_passes, wavelength=WAVELENGTH, w0=w0_waist, M2=M2,
+            n_passes=n_passes, wavelength=WAVELENGTH, w0=w0_waist,
+            M2=float(p.get("M2", M2)),
             input_waist_offset=z_off,
             input_offset_z=float(p["input_offset_z"]),
             input_angle=float(p["input_angle"]),
@@ -694,12 +696,22 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--top-per-class", type=int, default=120)
     ap.add_argument("--refine-top", type=int, default=60)
+    ap.add_argument("--r-step", type=float, default=0.25,
+                    help="Stage A ring-radius grid step [mm]")
+    ap.add_argument("--classes", default=None,
+                    help="comma list of envelope caps to run, e.g. "
+                         "'140,130,120,110' (default: all)")
     ap.add_argument("--out-dir", default=os.path.join(_HERE, "results"))
     args = ap.parse_args(argv)
     os.makedirs(args.out_dir, exist_ok=True)
 
+    classes = DEFAULT_CLASSES
+    if args.classes:
+        want = {float(x) for x in args.classes.split(",")}
+        classes = tuple(c for c in DEFAULT_CLASSES if c[0] in want)
+
     t0 = time.time()
-    dfa = stage_a()
+    dfa = stage_a(r_step=args.r_step)
     print(f"Stage A: {len(dfa)} analytic candidates "
           f"({time.time() - t0:.0f}s)", flush=True)
     dfa.to_csv(os.path.join(args.out_dir, "stage_a_candidates.csv"),
@@ -709,7 +721,7 @@ def main(argv=None):
         return 1
 
     all_b, all_p = [], []
-    for env_cap, opl_min in DEFAULT_CLASSES:
+    for env_cap, opl_min in classes:
         label = f"D{int(env_cap)}"
         # physical OPL ceiling of the class: n <= 208 near-diameter chords
         opl_hi = min(32.5, 0.21 * (env_cap - 2.0 * RADIAL_ALLOWANCE))

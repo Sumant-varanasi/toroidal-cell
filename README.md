@@ -17,6 +17,25 @@ The current, definitive model lives in
 **[`_CURRENT/tmpc_platform_v5/`](_CURRENT/tmpc_platform_v5/)** — a self-contained
 superset of the earlier iterations.
 
+## Headline result — verified drone cell designs (July 2026)
+
+**[`_CURRENT/drone_20m/`](_CURRENT/drone_20m/README.md)** holds a menu of
+**fully verified drone-mountable designs using only catalog Thorlabs 1″ gold
+mirrors** (N = 8–16, exact 3-D ray trace, Optiland-cross-validated, every
+physical check enforced):
+
+| envelope | OPL | throughput @ R=0.985 | build |
+|---|---|---|---|
+| Ø180 mm | **24.8 m** | 7.1 % | 16 × CM254-200-M01 |
+| Ø180 mm | **20.4 m** | **11.5 %** | 16 × CM254-150-M01 (preset `drone_20m`) |
+| Ø159 mm | **20.6 m** | 7.9 % | 13 × CM254-050-M01 (preset `drone_16cm`) |
+| Ø143 mm | 13.6 m | 13.8 % | 12 × CM254-250-M01 |
+
+(Published toroidal cells of this size class demonstrate ~10 m.) Each design
+ships with an as-built spec — machined mirror placements, mode-matching lens
+setting, launch tilts, detector pickoff, per-mirror spot maps — plus
+Monte-Carlo tolerances and an ROC-compensation assembly rule.
+
 <p align="center">
   <img src="_CURRENT/tmpc_platform_v5/examples/figures/bo_best_one_inch_cell3d.png" width="48%" alt="3D ray path + beam tube">
   <img src="_CURRENT/tmpc_platform_v5/examples/figures/bo_best_one_inch_experiment.png" width="48%" alt="As-built experiment render">
