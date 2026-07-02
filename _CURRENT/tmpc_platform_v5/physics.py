@@ -343,6 +343,10 @@ class TMPCConfig:
     input_offset_t: float = 0.0     # launch in-plane (tangential) offset [mm]
     input_angle: float = 0.0        # launch tilt about sagittal axis [rad]
     input_angle_sag: float = 0.0    # launch tilt about tangential axis [rad]
+    input_waist_offset: float = 0.0  # waist position past the entrance hole
+    #   [mm]; > 0 = converging injection with the waist inside the cell
+    #   (w0 is the waist radius there; the beam is larger AT the hole).
+    #   0 keeps the legacy waist-at-the-hole launch.
     reflectivity: float = 0.999
     hole_radius: float = 1.5        # entrance/exit hole radius [mm]
     # ---- topology ----
@@ -762,7 +766,9 @@ def simulate_tmpc(cfg: TMPCConfig,
         Rt = np.full(n_b, eff_cfg.R_t)
         Rs = np.full(n_b, eff_cfg.R_s)
         aoi_for_beam = np.zeros(n_b)
-    beam = AstigBeam(wavelength=eff_cfg.wavelength, w0=eff_cfg.w0, M2=eff_cfg.M2)
+    beam = AstigBeam(wavelength=eff_cfg.wavelength, w0=eff_cfg.w0,
+                     M2=eff_cfg.M2,
+                     z_from_waist=-eff_cfg.input_waist_offset)
     prop = propagate_astigmatic(beam, list(seg), list(Rt), list(Rs),
                                 list(aoi_for_beam))
     w_t = prop["w_tangential"]
@@ -771,10 +777,13 @@ def simulate_tmpc(cfg: TMPCConfig,
     w_mean = prop["w_mean"]
     clipped = bool(geom_clip or w_max >= eff_cfg.mirror_aperture)
 
+    # hole truncation is set by the beam size AT the hole (index 0), which
+    # only equals 2*w0 for the legacy waist-at-the-hole launch
     loss = compute_losses(
         bounces=bounces, reflectivity=eff_cfg.reflectivity,
         w_max=w_max, aperture=eff_cfg.mirror_aperture,
-        beam_diameter_in=2 * eff_cfg.w0, hole_diameter=hole_diameter,
+        beam_diameter_in=2.0 * float(max(w_t[0], w_s[0])),
+        hole_diameter=hole_diameter,
         clipped=clipped,
     )
     throughput = loss.throughput

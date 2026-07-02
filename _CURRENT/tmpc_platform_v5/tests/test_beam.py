@@ -50,3 +50,25 @@ def test_astigmatic_radii_differ_under_tilt():
     aoi = [np.radians(60)] * 8
     out = propagate_astigmatic(AstigBeam(1.654e-3, 0.5), seg, Rt, Rs, aoi)
     assert not np.allclose(out["w_tangential"], out["w_sagittal"])
+
+
+def test_converging_injection_waist_inside_cell():
+    # with input_waist_offset > 0 the beam is LARGER at the hole than its
+    # waist, reaches the waist inside the cell, and the truncation loss is
+    # driven by the hole-plane size, not the waist size
+    from tmpc_platform_v5 import TMPCConfig, simulate_tmpc
+
+    w0, off = 0.6, 400.0
+    zR = np.pi * w0 ** 2 / 1.654e-3
+    w_hole_expected = w0 * np.sqrt(1.0 + (off / zR) ** 2)
+
+    base = dict(N=12, R_ring=60.0, H=40.0, R_t=120.0, R_s=120.0,
+                chord_skip=5, w0=w0, n_passes=12, hole_radius=1.5)
+    res0 = simulate_tmpc(TMPCConfig(**base))                    # legacy
+    res1 = simulate_tmpc(TMPCConfig(**base, input_waist_offset=off))
+
+    # legacy launch starts exactly at the waist
+    assert np.isclose(res0.w_tangential[0], w0, rtol=1e-6)
+    # converging launch starts larger, at the analytic hole-plane radius
+    assert np.isclose(res1.w_tangential[0], w_hole_expected, rtol=1e-6)
+    assert res1.w_tangential[0] > w0
