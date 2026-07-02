@@ -66,7 +66,7 @@ sys.path.insert(0, os.path.dirname(_HERE))          # _CURRENT/ on sys.path
 
 from tmpc_platform_v5 import TMPCConfig, simulate_tmpc            # noqa: E402
 from tmpc_platform_v5.physics import mirror_footprints            # noqa: E402
-from tmpc_platform_v5.samplers import FAMILIES, REFLECTIVITY_1654NM  # noqa: E402
+from tmpc_platform_v5.samplers import FAMILIES                    # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Fixed design constants (from the 2026-07-02 brief)
@@ -75,7 +75,9 @@ W0 = 1.3                 # input beam waist radius [mm] (user-fixed)
 HOLE_R = 1.3             # entrance/exit hole radius [mm] (user-fixed)
 WAVELENGTH = 1.654e-3    # CH4 line [mm]
 M2 = 1.0                 # design-nominal beam quality
-REFL = REFLECTIVITY_1654NM               # 0.97, protected gold @ 1654 nm
+REFL = 0.985             # user-spec 2026-07-02 (~98.4-98.5 %); geometry and
+#   feasibility never depend on R -- throughput scales as REFL**n_refl, so
+#   any coating number can be substituted later
 TRUNC = 1.0 - np.exp(-2.0)               # Gaussian power through r = w hole
 
 ENVELOPE_MAX = 190.0     # hard assembly-diameter cap [mm]
@@ -84,7 +86,7 @@ PACK_GAP = 1.0           # minimum web between adjacent mirror substrates [mm]
 
 OPL_MIN_M = 19.5         # default verified-OPL floor (per-class override)
 OPL_EST_LO_M = 4.5       # Stage A estimate window (classes filter later)
-OPL_EST_HI_M = 26.5
+OPL_EST_HI_M = 32.5      # n <= 208 x max chord caps ~32 m anyway
 N_EXIT_MIN = 40          # bounce-count window (throughput vs OPL trade)
 N_EXIT_MAX = 208
 K_SET = (5, 7, 9, 11, 13)  # spots per mirror -- odd only: for even k
@@ -557,8 +559,12 @@ def stage_b(cands: List[Dict], workers: int, refine_top: int):
 # ---------------------------------------------------------------------------
 # Size classes: (envelope cap [mm], verified-OPL floor [m]). One verified
 # design menu per class exposes the size <-> OPL <-> throughput trade.
-DEFAULT_CLASSES = ((190.0, 19.5), (160.0, 14.0), (140.0, 10.0),
-                   (120.0, 7.0), (110.0, 4.5))
+# 1" mirrors with N >= 8 cannot pack below ~105 mm, so the menu starts at
+# 110 mm. Per class, BOTH corners are hunted: fewest-bounce (throughput)
+# and max-OPL.
+DEFAULT_CLASSES = ((190.0, 19.5), (180.0, 18.0), (170.0, 16.0),
+                   (160.0, 14.0), (150.0, 12.0), (140.0, 10.0),
+                   (130.0, 8.5), (120.0, 7.0), (110.0, 4.5))
 
 
 def main(argv=None):
@@ -583,14 +589,22 @@ def main(argv=None):
     all_b, all_p = [], []
     for env_cap, opl_min in DEFAULT_CLASSES:
         label = f"D{int(env_cap)}"
-        opl_hi = opl_min * 1.45 + 1.5
-        sub = dfa[(dfa["envelope_mm"] <= env_cap + 1e-9)
-                  & (dfa["opl_est_m"] >= opl_min)
-                  & (dfa["opl_est_m"] <= opl_hi)].copy()
-        sub = sub.head(args.top_per_class)
+        # physical OPL ceiling of the class: n <= 208 near-diameter chords
+        opl_hi = min(32.5, 0.21 * (env_cap - 2.0 * RADIAL_ALLOWANCE))
+        band = dfa[(dfa["envelope_mm"] <= env_cap + 1e-9)
+                   & (dfa["opl_est_m"] >= opl_min)
+                   & (dfa["opl_est_m"] <= opl_hi)]
+        half = args.top_per_class // 2
+        sub_t = band.head(half)                       # fewest bounces
+        sub_o = band.sort_values(
+            ["opl_est_m", "A_req_mm", "phase_err_s"],
+            ascending=[False, True, True]).head(half)  # longest paths
+        sub = pd.concat([sub_t, sub_o]).drop_duplicates(
+            subset=["sku", "N", "chord_skip", "n_exit", "mode_s",
+                    "R_ring"]).copy()
         print(f"\n=== class {label}: envelope <= {env_cap:.0f} mm, "
               f"OPL in [{opl_min}, {opl_hi:.1f}] m -- "
-              f"{len(sub)} candidates ===", flush=True)
+              f"{len(sub)} candidates (both corners) ===", flush=True)
         if not len(sub):
             continue
         recs = sub.to_dict("records")
