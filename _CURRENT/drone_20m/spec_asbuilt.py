@@ -30,8 +30,9 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(_HERE))
 sys.path.insert(0, _HERE)
 
-from search_drone20m import (EXIT_TOL, HOLE_R, M2, REFL, TRUNC, W0,      # noqa: E402
+from search_drone20m import (EXIT_TOL, HOLE_R, M2, REFL, W0,             # noqa: E402
                              WAVELENGTH, RADIAL_ALLOWANCE, evaluate,
+                             hole_plane_radius, hole_transmission,
                              waist_offset_for)
 from tmpc_platform_v5 import TMPCConfig, simulate_tmpc                   # noqa: E402
 from tmpc_platform_v5.physics import mirror_footprints                   # noqa: E402
@@ -44,7 +45,14 @@ HOUSING_G_PER_MM = 2.6      # machined Al ring, ~3 mm wall, per mm dia
 
 def cfg_from_row(row: dict) -> TMPCConfig:
     fam = FAMILIES[row["family"]]
-    w0w = float(np.clip(row.get("w0_waist", W0), 0.25, W0))
+    w0w = float(np.clip(row.get("w0_waist", W0), 0.20, W0))
+    wf = row.get("waist_frac")
+    if wf is None or (isinstance(wf, float) and np.isnan(wf)):
+        z_off = waist_offset_for(w0w)          # legacy launch
+    else:
+        chord = 2.0 * float(row["R_ring"]) * np.sin(
+            np.pi * int(row["chord_skip"]) / int(row["N"]))
+        z_off = float(np.clip(wf, 0.0, 1.5)) * chord / 2.0
     return TMPCConfig(
         N=int(row["N"]), R_ring=float(row["R_ring"]), H=40.0,
         R_t=float(row["roc"]), R_s=float(row["roc"]),
@@ -52,7 +60,7 @@ def cfg_from_row(row: dict) -> TMPCConfig:
         chord_skip=int(row["chord_skip"]),
         n_passes=int(row["n_target"]) + 2 * int(row["N"]),
         wavelength=WAVELENGTH, w0=w0w, M2=M2,
-        input_waist_offset=waist_offset_for(w0w),
+        input_waist_offset=z_off,
         input_offset_z=float(row["input_offset_z"]),
         input_angle=float(row["input_angle"]),
         input_angle_sag=float(row.get("input_angle_sag", 0.0)),
@@ -63,7 +71,8 @@ def write_spec(row: dict, out_md: str, out_json: str) -> dict:
     r = evaluate({k: row[k] for k in (
         "family", "sku", "roc", "N", "chord_skip", "R_ring", "n_target",
         "mode_s", "input_offset_z", "input_angle", "input_angle_sag",
-        "w0_waist", "envelope_max", "opl_min")})
+        "w0_waist", "waist_frac", "envelope_max", "opl_min")
+        if k in row})
     assert r["feasible"], f"row no longer feasible: {r['reason']}"
 
     cfg = cfg_from_row(row)
@@ -136,6 +145,8 @@ def write_spec(row: dict, out_md: str, out_json: str) -> dict:
         L.append(f"| M{k} | {x:+8.3f} | {y:+8.3f} | {azd:7.2f} | "
                  f"{nazd:7.2f} |")
     L.append("")
+    w_hole = hole_plane_radius(w0w, z_off)
+    T_hole = hole_transmission(w_hole)
     L.append("## 2. Injection / extraction optics (behind mirror M0)")
     L.append("")
     L.append(f"| item | value |")
@@ -143,10 +154,15 @@ def write_spec(row: dict, out_md: str, out_json: str) -> dict:
     L.append(f"| entrance hole | radius {HOLE_R} mm through M0, centred "
              f"at (u, v) = ({hole_uv[0]:+.2f}, {hole_uv[1]:+.2f}) mm on "
              f"the mirror face (u = in-plane, v = height) |")
-    L.append(f"| beam at the hole | 1/e^2 radius {W0} mm |")
+    L.append(f"| input beam | {W0} mm collimated (laser collimator), "
+             f"mode-matched down by a small lens |")
+    L.append(f"| beam at the hole | 1/e^2 radius {w_hole:.3f} mm "
+             f"(passes the {HOLE_R} mm hole with "
+             f"{T_hole * 100:.2f} % transmission) |")
     L.append(f"| in-cell waist | {w0w:.3f} mm, located "
-             f"{z_off:.0f} mm past the hole (set collimator focus to "
-             f"{z_off:.0f} mm) |")
+             f"{z_off:.1f} mm past the hole (mode-matching lens focus; "
+             f"cell eigenmode ride, beam stays "
+             f"{r['w_max_mm']:.2f} mm max) |")
     L.append(f"| launch tilt, in-plane | {cfg.input_angle * 1e3:+.2f} mrad "
              f"from the M0->M{cfg.chord_skip % N} chord |")
     L.append(f"| launch tilt, out-of-plane | "
@@ -172,12 +188,12 @@ def write_spec(row: dict, out_md: str, out_json: str) -> dict:
              f"- {r['w_max_mm']:.2f} mm |")
     L.append(f"| throughput @ R = {REFL} | "
              f"**{r['throughput'] * 100:.2f} %** "
-             f"= {TRUNC ** 2 * 100:.1f} % (hole in+out) x "
+             f"= {T_hole ** 2 * 100:.2f} % (hole in+out) x "
              f"{REFL ** n_refl * 100:.2f} % (mirrors) |")
     L.append(f"| throughput, parametric | T(R) = "
-             f"{TRUNC ** 2:.4f} x R^{n_refl}  "
-             f"(R = 0.984 -> {TRUNC**2 * 0.984**n_refl * 100:.2f} %, "
-             f"R = 0.97 -> {TRUNC**2 * 0.97**n_refl * 100:.2f} %) |")
+             f"{T_hole ** 2:.4f} x R^{n_refl}  "
+             f"(R = 0.984 -> {T_hole**2 * 0.984**n_refl * 100:.2f} %, "
+             f"R = 0.97 -> {T_hole**2 * 0.97**n_refl * 100:.2f} %) |")
     L.append(f"| stability | m_tan = {r['stab_tan']:+.3f}, "
              f"m_sag = {r['stab_sag']:+.3f} (|m| <= 1) |")
     L.append("")
@@ -251,7 +267,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", default=os.path.join(_HERE, "results",
                                                   "stage_b_polished.csv"))
-    ap.add_argument("--out-dir", default=os.path.join(_HERE, "results"))
+    ap.add_argument("--out-dir", default=os.path.join(_HERE, "designs"))
     args = ap.parse_args(argv)
 
     df = pd.read_csv(args.csv)

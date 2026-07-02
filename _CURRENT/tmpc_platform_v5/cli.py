@@ -96,6 +96,7 @@ def cfg_from_args(args) -> TMPCConfig:
         from .presets import get_preset
         base = get_preset(args.preset)
         kw = {f: getattr(base, f) for f in _CFG_FIELDS}
+        kw["n_passes"] = base.n_passes      # presets own their pass count
     else:
         kw = dict(_CFG_DEFAULTS)
     # 2) overlay only flags the user actually provided (non-None sentinel)
@@ -109,7 +110,9 @@ def cfg_from_args(args) -> TMPCConfig:
             kw.update(json.load(fh))
     cfg = TMPCConfig(**{k: v for k, v in kw.items()
                         if k in TMPCConfig.__dataclass_fields__})
-    cfg.n_passes = args.n_passes if getattr(args, "n_passes", None) else 8 * cfg.N
+    # priority: explicit CLI flag > JSON/preset value > 8*N default
+    cfg.n_passes = (args.n_passes if getattr(args, "n_passes", None)
+                    else kw.get("n_passes") or 8 * cfg.N)
     return cfg
 
 
