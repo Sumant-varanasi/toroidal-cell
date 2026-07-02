@@ -27,9 +27,26 @@ reproduces the traced path to 0.000 µm RMS.
 
 Hole transmission is ~100 % in and out (mode-matched beam ≪ hole), so
 **T(R) = R^(chords−1) exactly** — substitute your own coating number.
-Sub-Ø140 classes have no verified design yet (few catalog closure
-coincidences at small ring radii with N ≥ 8; a finer R_ring grid and k = 15
-patterns are the open leads).
+
+**Verified boundary**: Ø141 mm is the smallest feasible envelope found
+(N ≥ 8 packing floor is Ø105). Best near-miss outside it: 18.0 m in Ø140 mm
+failing only by an intermediate spot grazing the hole by 0.56 mm — placing
+the hole at a different constellation slot (tangential launch offset) is the
+open lever.
+
+## Engineering studies ([full report](designs/investigations.md))
+
+- **ROC-error compensation** (Thorlabs f is ±1 %): perfectly linear ring
+  trim — 0.72 mm per 1 % for the Ø180 designs, 0.62 mm for `drone_16cm` —
+  restores full feasibility across the whole band. Assembly rule: measure
+  the delivered ROC, machine the ring to the interpolated radius, walk in
+  the last µm with the temperature/shim trim.
+- **Thermal window** (aluminium ring, launch frozen, all checks passing):
+  `drone_20m` **±26 K**, `drone_25m` ±20 K, `drone_16cm` ±8 K; an invar
+  ring holds ≥ ±30 K everywhere. Plain 6061 is fine for the headline
+  design under drone conditions.
+- **Beam quality**: all three designs pass every check up to **M² = 1.3**
+  — comfortably beyond real DFB + fiber-collimator sources.
 
 Where this sits in the literature: the published toroidal record in the
 ~100–145 mm class is ~10 m demonstrated (Graf 2018 segmented, Chang 2020
