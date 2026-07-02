@@ -71,7 +71,9 @@ from tmpc_platform_v5.samplers import FAMILIES                    # noqa: E402
 # ---------------------------------------------------------------------------
 # Fixed design constants (from the 2026-07-02 brief)
 # ---------------------------------------------------------------------------
-W0 = 1.3                 # input beam waist radius [mm] (user-fixed)
+W0 = 1.3                 # collimated INPUT beam radius [mm] (user-fixed);
+#   a small mode-matching lens (or collimator refocus) may shrink the
+#   beam before the hole -- the cell-side constraint is w(hole) <= HOLE_R
 HOLE_R = 1.3             # entrance/exit hole radius [mm] (user-fixed)
 WAVELENGTH = 1.654e-3    # CH4 line [mm]
 M2 = 1.0                 # design-nominal beam quality
@@ -92,15 +94,14 @@ N_EXIT_MAX = 208
 K_SET = (5, 7, 9, 11, 13)  # spots per mirror -- odd only: for even k
 #   the tangential pi-slot coincides with a sagittal near-return and an
 #   intermediate spot can leak into the hole (star-polygon parity rule)
-LISSAJOUS_EXTENT = 1.30    # 2-D constellation reaches ~1.3x the per-plane
-#   amplitude, so the aperture-fit test must use it (1.0 was optimistic)
+AMP_RATIOS = (0.7, 1.0, 1.4)   # sag/tan amplitude ratios tried per pattern
 FAMILIES_USE = ("one_inch",)   # 1" confirmed by user; with N<=16 the
 #   half-inch aperture cannot reach the 20 m class anyway
 EXIT_TOL = 0.5           # spot-centre distance counting as "through the hole"
 PHASE_TOL_T = 0.45       # tan closure tol [rad] -- R_ring scan zeroes this
-PHASE_TOL_S = 0.30       # sag closure tol [rad] -- amplitude polish absorbs
-SEP_NEED = 3.2           # adjacent-spot spacing target ~ 2*w_typ + margin
-W_TYP = 1.45             # typical in-cell beam radius for sizing [mm]
+PHASE_TOL_S = 0.30       # sag residual tol [rad] after the R_ring sweep
+SEP_MARGIN = 0.30        # extra clearance beyond touching 1/e^2 edges [mm]
+W_BREATHE = 1.20         # residual breathing over a mode-matched launch
 
 R_RING_MAX = (ENVELOPE_MAX - 2.0 * RADIAL_ALLOWANCE) / 2.0        # 77 mm
 R_RING_MIN = 25.0
@@ -115,6 +116,55 @@ def _circ_dist(phase: np.ndarray) -> np.ndarray:
     return np.abs((phase + np.pi) % (2.0 * np.pi) - np.pi)
 
 
+def _swrap(phase: np.ndarray) -> np.ndarray:
+    """Signed wrap of a phase [rad] to [-pi, pi)."""
+    return (phase + np.pi) % (2.0 * np.pi) - np.pi
+
+
+def constellation_quality(N: int, s: int, n: int,
+                          M_t: int, tan_pi: bool,
+                          M_s: int, sag_pi: bool,
+                          mode_s: str) -> tuple:
+    """Exact constellation geometry of the FULL closed n-bounce pattern.
+
+    All n spots are computed at the phase-snapped (closure-exact) rates
+        u_j = sin(j * th_t'),  v_j = cos/sin(j * th_s'),  j = 0..n-1
+        th' = (2 pi M [+ pi]) / n
+    in units of the per-plane amplitudes (a, b = ratio*a), and grouped by
+    the mirror actually hit, mirror_j = (j*s) mod N. Every mirror carries
+    the same k-point pattern at a DIFFERENT phase origin along the
+    Lissajous, so the worst pair over ALL mirrors -- not mirror 0's --
+    sets the separation requirement (checking only mirror 0 is what let
+    'spots overlap' survive every earlier prescreen).
+
+    Returns the best (ratio, d_min, extent) over AMP_RATIOS, both in
+    units of a; degenerate patterns give d_min ~ 0.
+    """
+    th_t = (2 * np.pi * M_t + np.pi * tan_pi) / n
+    th_s = (2 * np.pi * M_s + np.pi * sag_pi) / n
+    j = np.arange(n)
+    u = np.sin(j * th_t)
+    v = np.cos(j * th_s) if mode_s == "cos" else np.sin(j * th_s)
+    mir = (j * s) % N
+    best = (1.0, 0.0, 1.0)
+    for rho in AMP_RATIOS:
+        pts = np.column_stack([u, rho * v])
+        d_min = np.inf
+        for q in range(N):
+            P = pts[mir == q]
+            if len(P) < 2:
+                continue
+            d = np.linalg.norm(P[:, None, :] - P[None, :, :], axis=2)
+            iu = np.triu_indices(len(P), 1)
+            d_min = min(d_min, float(np.min(d[iu])))
+        ext = float(np.max(np.linalg.norm(pts, axis=1)))
+        if (np.isfinite(d_min) and d_min > 1e-6
+                and (best[1] <= 1e-6
+                     or ext / d_min < best[2] / max(best[1], 1e-9))):
+            best = (rho, float(d_min), ext)
+    return best
+
+
 def stage_a() -> pd.DataFrame:
     rows: List[Dict] = []
     r_grid = np.arange(R_RING_MIN, R_RING_MAX + 1e-9, 0.25)
@@ -122,8 +172,6 @@ def stage_a() -> pd.DataFrame:
         fam = FAMILIES[family]
         ap = fam["clear_aperture_radius_mm"]
         diam = fam["diameter_mm"]
-        # max per-plane amplitude whose 2-D constellation still fits
-        A_cap = (ap - W_TYP - 0.3) / LISSAJOUS_EXTENT
         for sku, _f, roc in fam["catalog"]:
             for N in N_RANGE:
                 pack_ok = 2.0 * r_grid * np.sin(np.pi / N) >= diam + PACK_GAP
@@ -146,43 +194,71 @@ def stage_a() -> pd.DataFrame:
                         n = k * N
                         if n < N_EXIT_MIN or n > N_EXIT_MAX:
                             continue
-                        A_req = SEP_NEED / (2.0 * np.sin(np.pi / k))
-                        if A_req > A_cap:
-                            break              # grows with k
                         opl_m = n * L * 1e-3
-                        # tangential launch is a zero-crossing (hole at
-                        # u=0): position closes at phase 0 OR pi.
-                        e_t = np.minimum(_circ_dist(n * th_t),
-                                         _circ_dist(n * th_t - np.pi))
+                        # SIGNED accumulated phase residuals. Tangential
+                        # launch is a zero-crossing (hole at u=0):
+                        # position closes at phase 0 OR pi.
+                        eps_t0 = _swrap(n * th_t)
+                        eps_tpi = _swrap(n * th_t - np.pi)
+                        tan_pi = np.abs(eps_tpi) < np.abs(eps_t0)
+                        eps_t = np.where(tan_pi, eps_tpi, eps_t0)
+                        e_t = np.abs(eps_t)
                         # sagittal: cos-mode (height offset, hole at v=A,
                         # closes at 0) or sin-mode (vertical tilt launch,
                         # hole at v=0, closes at 0 or pi)
-                        e_s_cos = _circ_dist(n * th_s)
-                        e_s_sin = np.minimum(e_s_cos,
-                                             _circ_dist(n * th_s - np.pi))
+                        eps_s0 = _swrap(n * th_s)
+                        eps_spi = _swrap(n * th_s - np.pi)
+                        # R_ring moves both planes' accumulated phases in
+                        # near-parallel; only the residual off that line
+                        # is left for the amplitude/aberration knobs
+                        ratio_st = (ci ** 2) * np.sin(th_t) / np.sin(th_s)
                         base_ok = (ok0 & (e_t < PHASE_TOL_T)
                                    & (opl_m >= OPL_EST_LO_M)
                                    & (opl_m <= OPL_EST_HI_M))
-                        for mode_s, e_s in (("cos", e_s_cos),
-                                            ("sin", e_s_sin)):
-                            ok = base_ok & (e_s < PHASE_TOL_S)
+                        for mode_s in ("cos", "sin"):
+                            if mode_s == "cos":
+                                eps_s = eps_s0
+                                sag_pi = np.zeros(len(eps_s0), dtype=bool)
+                            else:
+                                sag_pi = np.abs(eps_spi) < np.abs(eps_s0)
+                                eps_s = np.where(sag_pi, eps_spi, eps_s0)
+                            eps_res = np.abs(eps_s - ratio_st * eps_t)
+                            ok = base_ok & (eps_res < PHASE_TOL_S)
                             if not ok.any():
                                 continue
                             idxs = np.where(ok)[0]
-                            # constellation quality: gcd(M, k) = 1 in both
-                            # planes -> k evenly-spaced spots per mirror
-                            M_t = np.rint(n * th_t[idxs]
-                                          / (2 * np.pi)).astype(int)
-                            M_s = np.rint(n * th_s[idxs]
-                                          / (2 * np.pi)).astype(int)
-                            cop = np.array([gcd(mt % k, k) == 1
-                                            and gcd(ms % k, k) == 1
-                                            for mt, ms in zip(M_t, M_s)])
-                            idxs = idxs[cop]
-                            if not len(idxs):
+                            keep = []
+                            for i in idxs:
+                                mt = int(np.rint(
+                                    (n * th_t[i]
+                                     - np.pi * tan_pi[i]) / (2 * np.pi)))
+                                ms = int(np.rint(
+                                    (n * th_s[i]
+                                     - np.pi * sag_pi[i]) / (2 * np.pi)))
+                                rho, d_min, ext = constellation_quality(
+                                    N, s, n, mt, bool(tan_pi[i]),
+                                    ms, bool(sag_pi[i]), mode_s)
+                                if d_min < 0.15:
+                                    continue        # self-crowding pattern
+                                # mode-matched spot size on the mirrors
+                                # (per plane w^2 = M2 lam L / pi sin th),
+                                # with a residual-breathing allowance
+                                w_typ = W_BREATHE * float(np.sqrt(
+                                    M2 * WAVELENGTH * L[i] / np.pi
+                                    / min(np.sin(th_t[i]),
+                                          np.sin(th_s[i]))))
+                                sep_need = 2.0 * w_typ + SEP_MARGIN
+                                A_req = sep_need / d_min
+                                A_max = (ap - w_typ - 0.3) / ext
+                                if A_req > A_max:
+                                    continue        # cannot fit aperture
+                                keep.append((i, rho, d_min, ext, A_req,
+                                             w_typ))
+                            if not keep:
                                 continue
-                            best = idxs[np.argsort(e_s[idxs])[:2]]
-                            for i in best:
+                            keep.sort(key=lambda t: eps_res[t[0]])
+                            for (i, rho, d_min, ext, A_req,
+                                 w_typ) in keep[:2]:
                                 rows.append(dict(
                                     family=family, sku=sku, roc=float(roc),
                                     N=N, chord_skip=s,
@@ -192,12 +268,17 @@ def stage_a() -> pd.DataFrame:
                                         np.pi / 2 - np.pi * s / N)),
                                     n_exit=n, spots_per_mirror=k,
                                     mode_s=mode_s,
+                                    amp_ratio=float(rho),
+                                    d_norm=float(d_min),
+                                    extent_norm=float(ext),
                                     A_req_mm=float(A_req),
+                                    w_typ_mm=float(w_typ),
                                     th_t=float(th_t[i]),
                                     th_s=float(th_s[i]),
                                     opl_est_m=float(opl_m[i]),
                                     phase_err_t=float(e_t[i]),
-                                    phase_err_s=float(e_s[i]),
+                                    phase_err_s=float(np.abs(eps_s[i])),
+                                    phase_err_res=float(eps_res[i]),
                                     throughput_est=float(
                                         TRUNC ** 2 * REFL ** (n - 1)),
                                     envelope_mm=float(
@@ -205,9 +286,10 @@ def stage_a() -> pd.DataFrame:
                                 ))
     df = pd.DataFrame(rows)
     if len(df):
-        # prefer fewer bounces, then roomier constellations, then closure
+        # prefer fewer bounces, then reachable closure (residual after the
+        # R_ring sweep), then roomy patterns
         df = df.sort_values(
-            ["throughput_est", "A_req_mm", "phase_err_s"],
+            ["throughput_est", "phase_err_res", "A_req_mm"],
             ascending=[False, True, True]).reset_index(drop=True)
     return df
 
@@ -218,12 +300,22 @@ def stage_a() -> pd.DataFrame:
 def waist_offset_for(w0_waist: float) -> float:
     """Waist-past-hole distance so the beam radius AT the hole equals W0.
 
-    Converging injection: the user-fixed 1.3 mm is the beam size at the
-    entrance hole; the actual waist w0_waist (<= W0) sits inside the cell.
+    Legacy converging injection: beam size at the hole pinned to 1.3 mm.
     """
     w0_waist = min(float(w0_waist), W0)
     zR = np.pi * w0_waist ** 2 / (M2 * WAVELENGTH)
     return float(zR * np.sqrt(max((W0 / w0_waist) ** 2 - 1.0, 0.0)))
+
+
+def hole_plane_radius(w0_waist: float, z_off: float) -> float:
+    """Beam 1/e^2 radius at the hole for a waist z_off past the hole."""
+    zR = np.pi * w0_waist ** 2 / (M2 * WAVELENGTH)
+    return float(w0_waist * np.sqrt(1.0 + (z_off / zR) ** 2))
+
+
+def hole_transmission(w_hole: float) -> float:
+    """Gaussian power fraction through the circular hole of radius HOLE_R."""
+    return float(1.0 - np.exp(-2.0 * (HOLE_R / max(w_hole, 1e-9)) ** 2))
 
 
 def evaluate(p: Dict) -> Dict:
@@ -231,8 +323,9 @@ def evaluate(p: Dict) -> Dict:
 
     p needs: family, sku, roc, N, chord_skip, R_ring, n_target,
              input_offset_z, input_angle; optional input_angle_sag,
-             w0_waist (in-cell waist radius; W0 = legacy waist-at-hole),
-             exit_at_target.
+             w0_waist (in-cell waist radius), waist_frac (waist position
+             past the hole in units of chord/2; absent = legacy launch
+             pinned to w=1.3 mm at the hole), exit_at_target.
     """
     fam = FAMILIES[p["family"]]
     ap = fam["clear_aperture_radius_mm"]
@@ -240,17 +333,28 @@ def evaluate(p: Dict) -> Dict:
     out.update(feasible=False, reason="", opl_m=0.0, n_exit=0,
                throughput=0.0, exit_miss_mm=np.inf, hole_margin_mm=-np.inf,
                ap_margin_mm=-np.inf, sep_margin_mm=-np.inf, min_sep_mm=0.0,
-               w_max_mm=0.0, H_req_mm=0.0, stab_tan=np.nan, stab_sag=np.nan,
-               aoi_deg=np.nan)
+               w_max_mm=0.0, w_hole_mm=W0, H_req_mm=0.0,
+               stab_tan=np.nan, stab_sag=np.nan, aoi_deg=np.nan)
     n_passes = min(int(p["n_target"]) + 2 * int(p["N"]), 2 * N_EXIT_MAX)
-    w0_waist = float(np.clip(p.get("w0_waist", W0), 0.25, W0))
+    w0_waist = float(np.clip(p.get("w0_waist", W0), 0.20, W0))
+    if p.get("waist_frac") is None:
+        z_off = waist_offset_for(w0_waist)         # legacy: w(hole) = 1.3
+    else:
+        chord = 2.0 * float(p["R_ring"]) * np.sin(
+            np.pi * int(p["chord_skip"]) / int(p["N"]))
+        z_off = float(np.clip(p["waist_frac"], 0.0, 1.5)) * chord / 2.0
+    w_hole = hole_plane_radius(w0_waist, z_off)
+    out["w_hole_mm"] = w_hole
+    if w_hole > HOLE_R + 1e-9:
+        out["reason"] = f"beam at hole {w_hole:.2f} mm > hole {HOLE_R} mm"
+        return out
     try:
         cfg = TMPCConfig(
             N=int(p["N"]), R_ring=float(p["R_ring"]), H=40.0,
             R_t=float(p["roc"]), R_s=float(p["roc"]),
             mirror_aperture=ap, chord_skip=int(p["chord_skip"]),
             n_passes=n_passes, wavelength=WAVELENGTH, w0=w0_waist, M2=M2,
-            input_waist_offset=waist_offset_for(w0_waist),
+            input_waist_offset=z_off,
             input_offset_z=float(p["input_offset_z"]),
             input_angle=float(p["input_angle"]),
             input_angle_sag=float(p.get("input_angle_sag", 0.0)),
@@ -352,15 +456,17 @@ def evaluate(p: Dict) -> Dict:
 
     # --- remaining physics bookkeeping ---
     n_refl = exit_idx - 1              # hole passes are not reflections
-    exit_overlap = float(np.exp(-2.0 * (out["exit_miss_mm"] / W0) ** 2))
-    out["throughput"] = float(TRUNC ** 2 * REFL ** n_refl * exit_overlap)
+    exit_overlap = float(np.exp(-2.0 * (out["exit_miss_mm"] / w_hole) ** 2))
+    T_hole = hole_transmission(w_hole)
+    out["throughput"] = float(T_hole ** 2 * REFL ** n_refl * exit_overlap)
     out["w_max_mm"] = float(np.max(w_eff[:exit_idx + 1]))
     out["stab_tan"] = float(res.stability_tan)
     out["stab_sag"] = float(res.stability_sag)
     out["aoi_deg"] = float(np.mean(res.aoi[1:exit_idx])) if exit_idx > 1 else 0.0
     v_all = np.concatenate([foot[k][foot[k][:, 2] <= exit_idx, 1]
                             for k in range(cfg.N) if len(foot[k])])
-    out["H_req_mm"] = float(2.0 * (np.max(np.abs(v_all)) + W0 + 3.0))
+    out["H_req_mm"] = float(2.0 * (np.max(np.abs(v_all))
+                                   + out["w_max_mm"] + 3.0))
     out["envelope_mm"] = 2.0 * (cfg.R_ring + RADIAL_ALLOWANCE)
 
     opl_min = float(p.get("opl_min", OPL_MIN_M))
@@ -420,7 +526,8 @@ def _polish_objective(x: np.ndarray, base: Dict) -> float:
     p["input_offset_z"] = float(x[1])
     p["input_angle"] = float(x[2])
     p["input_angle_sag"] = float(x[3])
-    p["w0_waist"] = float(np.clip(x[4], 0.30, W0))
+    p["w0_waist"] = float(np.clip(x[4], 0.20, W0))
+    p["waist_frac"] = float(np.clip(x[5], 0.0, 1.5))
     return _obj_eval(p)
 
 
@@ -435,7 +542,8 @@ def scan_refine(base: Dict) -> Dict:
     catalog-locked), and a final micro-scan of R_ring nails the floor.
     """
     from scipy.optimize import minimize
-    base = {**{"input_angle_sag": 0.0, "w0_waist": W0}, **base}
+    base = {**{"input_angle_sag": 0.0, "w0_waist": W0, "waist_frac": 1.0},
+            **base}
     base.pop("exit_at_target", None)   # honest verdict at the end
     r_max = _r_max_of(base)
     best_obj, best_R = np.inf, base["R_ring"]
@@ -444,23 +552,33 @@ def scan_refine(base: Dict) -> Dict:
         o = _obj_eval({**base, "R_ring": R})
         if o < best_obj:
             best_obj, best_R = o, R
+    if best_obj > 2.5:
+        # no closure valley anywhere in scan range: NM cannot rescue this;
+        # report the honest verdict and save the polish budget
+        out = evaluate({**base, "R_ring": best_R})
+        out["polished"] = False
+        return out
     x0 = np.array([best_R, base["input_offset_z"], base["input_angle"],
-                   base["input_angle_sag"], base["w0_waist"]])
+                   base["input_angle_sag"], base["w0_waist"],
+                   base["waist_frac"]])
     res = minimize(_polish_objective, x0, args=(base,),
                    method="Nelder-Mead",
-                   options=dict(maxfev=280, xatol=1e-5, fatol=1e-4,
+                   options=dict(maxfev=240, xatol=1e-5, fatol=1e-4,
                                 initial_simplex=x0 + np.array(
-                                    [[0, 0, 0, 0, 0], [0.01, 0, 0, 0, 0],
-                                     [0, 0.20, 0, 0, 0],
-                                     [0, 0, 0.0012, 0, 0],
-                                     [0, 0, 0, 0.0012, 0],
-                                     [0, 0, 0, 0, -0.10]])))
+                                    [[0, 0, 0, 0, 0, 0],
+                                     [0.01, 0, 0, 0, 0, 0],
+                                     [0, 0.20, 0, 0, 0, 0],
+                                     [0, 0, 0.0012, 0, 0, 0],
+                                     [0, 0, 0, 0.0012, 0, 0],
+                                     [0, 0, 0, 0, -0.08, 0],
+                                     [0, 0, 0, 0, 0, 0.15]])))
     p = dict(base)
     p["R_ring"] = float(np.clip(res.x[0], R_RING_MIN, r_max))
     p["input_offset_z"] = float(res.x[1])
     p["input_angle"] = float(res.x[2])
     p["input_angle_sag"] = float(res.x[3])
-    p["w0_waist"] = float(np.clip(res.x[4], 0.30, W0))
+    p["w0_waist"] = float(np.clip(res.x[4], 0.20, W0))
+    p["waist_frac"] = float(np.clip(res.x[5], 0.0, 1.5))
     # micro-scan of R_ring around the polished point
     best_obj, best_R = np.inf, p["R_ring"]
     for dR in np.arange(-0.03, 0.03 + 1e-9, 0.002):
@@ -482,37 +600,41 @@ def _seed_jobs(c: Dict) -> List[Dict]:
     of the vertical oscillation) or a vertical tilt (sin-mode, hole at its
     zero-crossing), per the Stage A closure mode.
     """
-    A = float(c["A_req_mm"])
+    A = float(c["A_req_mm"])                  # tan amplitude (from d_norm)
+    B = A * float(c.get("amp_ratio", 1.0))    # sag amplitude
     L = float(c["chord_mm"])
-    ang_t = A * np.sin(float(c["th_t"])) / L
-    ang_s = A * np.sin(float(c["th_s"])) / L
-    # eigenmode spot size on the mirrors (per plane): w^2 = M2*lam*L/(pi sin
-    # theta); a waist near sqrt(w_eig*W0) halves the breathing ratio
-    w_eig = float(np.sqrt(M2 * WAVELENGTH * L / np.pi
-                          / np.sqrt(np.sin(c["th_t"]) * np.sin(c["th_s"]))))
-    w_match = float(np.clip(np.sqrt(w_eig * W0), 0.35, W0))
+    th_t, th_s = float(c["th_t"]), float(c["th_s"])
+    ang_t = A * np.sin(th_t) / L
+    ang_s = B * np.sin(th_s) / L
+    # mode-matched launch: eigen waist at mid-chord, per-plane geometric
+    # mean; w at mirrors ~ sqrt(M2 lam L / pi sin th) ~ 0.3-0.5 mm
+    w_m = float(np.sqrt(M2 * WAVELENGTH * L / np.pi
+                        / np.sqrt(np.sin(th_t) * np.sin(th_s))))
+    cos_gm = float(np.sqrt(np.clip(np.cos(th_t) * np.cos(th_s), 1e-6, 1))
+                   if np.cos(th_t) > 0 and np.cos(th_s) > 0
+                   else 0.5 * abs(np.cos(th_t) + np.cos(th_s)))
+    w0_eig = float(np.clip(w_m * np.sqrt(max((1 + cos_gm) / 2, 0.05)),
+                           0.20, W0))
     jobs = []
-    # amplitude-ratio seeds: equal, enlarged, and asymmetric Lissajous
-    # (unequal per-plane amplitudes spread the worst-pair spot distance)
-    for f_t, f_s in ((1.0, 1.0), (1.3, 1.3), (1.5, 1.0), (1.0, 1.5)):
+    for f in (1.0, 1.15):
         for sign in (+1.0, -1.0):
-            for w0w in (W0, w_match):
+            for w0w in (w0_eig, min(1.4 * w0_eig, W0)):
                 j = dict(
                     family=c["family"], sku=c["sku"], roc=float(c["roc"]),
                     N=int(c["N"]), chord_skip=int(c["chord_skip"]),
                     R_ring=float(c["R_ring"]), n_target=int(c["n_exit"]),
-                    mode_s=c["mode_s"], input_angle=sign * ang_t * f_t,
-                    w0_waist=w0w,
+                    mode_s=c["mode_s"], input_angle=sign * ang_t * f,
+                    w0_waist=w0w, waist_frac=1.0,
                     size_class=c.get("size_class", "D190"),
                     envelope_max=c.get("envelope_max", ENVELOPE_MAX),
                     opl_min=c.get("opl_min", OPL_MIN_M),
                     exit_at_target=True)   # continuous scoring for seeds
                 if c["mode_s"] == "cos":
-                    j["input_offset_z"] = A * f_s
+                    j["input_offset_z"] = B * f
                     j["input_angle_sag"] = 0.0
                 else:
                     j["input_offset_z"] = 0.0
-                    j["input_angle_sag"] = ang_s * f_s
+                    j["input_angle_sag"] = ang_s * f
                 jobs.append(j)
     return jobs
 
@@ -545,7 +667,7 @@ def stage_b(cands: List[Dict], workers: int, refine_top: int):
         futs = [ex.submit(scan_refine, {k: p[k] for k in (
             "family", "sku", "roc", "N", "chord_skip", "R_ring",
             "n_target", "mode_s", "input_offset_z", "input_angle",
-            "input_angle_sag", "w0_waist", "size_class",
+            "input_angle_sag", "w0_waist", "waist_frac", "size_class",
             "envelope_max", "opl_min")})
             for p in to_refine]
         for i, f in enumerate(as_completed(futs)):
@@ -617,11 +739,15 @@ def main(argv=None):
         all_b.append(dfb)
         all_p.append(dfp)
         feas = dfp[dfp["feasible"]]
-        print(f"  class {label}: {len(feas)} feasible of {len(dfp)}")
+        print(f"  class {label}: {len(feas)} feasible of {len(dfp)}",
+              flush=True)
+        # checkpoint after every class so a crash loses nothing
+        pd.concat(all_b, ignore_index=True).to_csv(
+            os.path.join(args.out_dir, "stage_b_seeds.csv"), index=False)
+        pd.concat(all_p, ignore_index=True).to_csv(
+            os.path.join(args.out_dir, "stage_b_polished.csv"), index=False)
 
-    dfb = pd.concat(all_b, ignore_index=True)
     dfp = pd.concat(all_p, ignore_index=True)
-    dfb.to_csv(os.path.join(args.out_dir, "stage_b_seeds.csv"), index=False)
     dfp = dfp.sort_values(["size_class", "feasible", "throughput", "opl_m"],
                           ascending=[True, False, False, False])
     dfp.to_csv(os.path.join(args.out_dir, "stage_b_polished.csv"),
