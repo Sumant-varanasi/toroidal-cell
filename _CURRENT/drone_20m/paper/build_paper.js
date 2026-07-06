@@ -123,7 +123,7 @@ const body = [];
 // Title (no banner, no author block)
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 240 },
-  children: [R("Chord-skip toroidal multipass cells from catalogue mirrors: tolerance-tiered 20–29 m optical paths for drone-borne methane sensing", { bold: true, size: 30 })],
+  children: [R("Computational Design and Tolerance-Tiered Optimization of Chord-Skip Toroidal Multipass Cells for Airborne Methane Spectroscopy", { bold: true, size: 30 })],
 }));
 
 // Abstract
