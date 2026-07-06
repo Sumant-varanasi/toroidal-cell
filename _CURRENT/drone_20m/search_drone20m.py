@@ -77,9 +77,9 @@ W0 = 1.3                 # collimated INPUT beam radius [mm] (user-fixed);
 HOLE_R = 1.3             # entrance/exit hole radius [mm] (user-fixed)
 WAVELENGTH = 1.654e-3    # CH4 line [mm]
 M2 = 1.0                 # design-nominal beam quality
-REFL = 0.985             # user-spec 2026-07-02 (~98.4-98.5 %); geometry and
-#   feasibility never depend on R -- throughput scales as REFL**n_refl, so
-#   any coating number can be substituted later
+REFL = 0.999             # project mirrors achieve 99.9 % (user-confirmed
+#   2026-07-02); geometry and feasibility never depend on R -- throughput
+#   scales as REFL**n_refl, so any coating number can be substituted
 TRUNC = 1.0 - np.exp(-2.0)               # Gaussian power through r = w hole
 
 ENVELOPE_MAX = 190.0     # hard assembly-diameter cap [mm]

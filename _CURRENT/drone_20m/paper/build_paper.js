@@ -1,5 +1,5 @@
-/* Build the TMPC drone-cell draft paper (docx), v3 — prof-review draft.
-   Run:  node build_paper.js   ->  TMPC_drone_paper_draft_v3.docx        */
+/* Build the TMPC drone-cell draft paper (docx), v4 — prof-review draft.
+   Run:  node build_paper.js   ->  TMPC_drone_paper_draft_v4.docx        */
 const fs = require("fs");
 const path = require("path");
 const {
@@ -9,7 +9,7 @@ const {
 } = require(require("child_process").execSync("npm root -g").toString().trim() + "/docx");
 
 const FIG = path.resolve(__dirname, "..", "designs", "figures");
-const OUT = path.join(__dirname, "TMPC_drone_paper_draft_v3.docx");
+const OUT = path.join(__dirname, "TMPC_drone_paper_draft_v4.docx");
 
 // ---------- helpers ----------------------------------------------------
 const FONT = "Times New Roman";
@@ -112,7 +112,7 @@ body.push(new Paragraph({
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 120 },
-  children: [R("Draft v3 for internal review (simulation results) — 2 July 2026 — not for distribution", { italics: true, size: 20, color: "B00000" })],
+  children: [R("Draft v4 for internal review (simulation results) — 2 July 2026 — not for distribution", { italics: true, size: 20, color: "B00000" })],
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 60 },
@@ -161,20 +161,23 @@ body.push(H1("4. Results"));
 body.push(H2("4.1 Verified design menu"));
 body.push(...tbl(
   "Verified design menu. Every row passes the full check matrix in the exact ray trace. Transmission T = R^(chords−1) exactly (hole losses ≈ 0); quoted at R = 0.999 with sensitivity to coating in brackets (R = 0.985 / 0.97). Envelope = 2(R_ring + 18 mm).",
-  ["design", "mirrors", "R_ring [mm]", "chords", "OPL [m]", "T @0.999 (0.985/0.97)", "env. × height [mm]"],
+  ["design", "mirrors", "R_ring [mm]", "chords", "OPL [m]", "T @ R=0.999", "env. × height [mm]"],
   [
-    ["max OPL", "16 × CM254-200 (R 400)", "71.758", "176", "24.77", "83.9 % (7.1/0.5)", "180 × 22"],
-    ["mid Pareto", "14 × CM254-100 (R 200)", "67.849", "182", "22.25", "83.4 % (6.5/0.4)", "172 × 26"],
-    ["headline 20 m", "16 × CM254-150 (R 300)", "72.155", "144", "20.38", "86.7 % (11.5/1.3)", "180 × 16"],
-    ["mid", "12 × CM254-075 (R 150)", "67.489", "156", "20.34", "85.6 % (9.6/0.9)", "171 × 22"],
-    ["compact 20 m", "13 × CM254-050 (R 100)", "61.519", "169", "20.64", "84.5 % (7.9/0.6)", "159 × 18"],
-    ["compact max-T", "13 × CM254-150 (R 300)", "62.087", "143", "16.60", "86.8 % (11.7/1.3)", "160 × 20"],
-    ["small", "12 × CM254-250 (R 500)", "53.486", "132", "13.64", "87.7 % (13.8/1.9)", "143 × 16"],
+    ["max OPL", "16 × CM254-200 (R 400)", "71.758", "176", "24.77", "83.9 %", "180 × 22"],
+    ["mid Pareto", "14 × CM254-100 (R 200)", "67.849", "182", "22.25", "83.4 %", "172 × 26"],
+    ["headline 20 m", "16 × CM254-150 (R 300)", "72.155", "144", "20.38", "86.7 %", "180 × 16"],
+    ["mid", "12 × CM254-075 (R 150)", "67.489", "156", "20.34", "85.6 %", "171 × 22"],
+    ["compact 20 m", "13 × CM254-050 (R 100)", "61.519", "169", "20.64", "84.5 %", "159 × 18"],
+    ["compact max-T", "13 × CM254-150 (R 300)", "62.087", "143", "16.60", "86.8 %", "160 × 20"],
+    ["small", "12 × CM254-250 (R 500)", "53.486", "132", "13.64", "87.7 %", "143 × 16"],
   ],
-  [1450, 2350, 1150, 850, 850, 1650, 1060]));
+  [1450, 2450, 1150, 850, 850, 1200, 1410]));
 body.push(...fig("menu_pareto.png",
   "The verified design menu as an envelope–path map (marker colour = transmission at R = 0.999). The Pareto frontier is populated entirely by catalogue-mirror designs; the dashed line marks the ~10 m demonstrated record of published toroidal cells in this size class.", 540));
-body.push(P("At R = 0.999 — the reflectivity class of enhanced/dielectric coatings, adopted as the project baseline (a protected-gold build at R ≈ 0.985 is quoted in brackets; the coating is a procurement decision, not a design change) — all designs transmit 83–88 %, and the long-path corners become unambiguously preferred since 30–40 extra reflections cost only ~3 % of signal. Two boundaries of the architecture were established by exhaustive search (0.05 mm ring-radius grid, up to 240 bounces, k ≤ 15 spots per mirror). Downward: the smallest feasible envelope is 141 mm (13.4 m); the best near-miss — 18.0 m in 140 mm — fails only by an intermediate spot grazing the coupling hole by 0.56 mm, and re-slotting the hole within the constellation is an open lever; below 105 mm, eight 25.4 mm mirrors no longer pack. Upward: the verified path ceiling is ≈25 m — the 26–32 m corner never closes because 15-spot-per-mirror constellations self-crowd under the exact worst-pair rule. The ceiling is thus set by spot geometry on the 11.4 mm clear aperture, not by the photon budget, and larger-aperture mirrors (at the cost of packing) are the identified route past it."));
+body.push(P("The mirrors used in this project provide R = 0.999 at 1654 nm, so all designs transmit 83–88 % and the long-path corners become unambiguously preferred: 30–40 extra reflections cost only ~3 % of signal. (Transmission for any other coating follows exactly from T(R) = R^(chords−1), Fig. 7 — e.g. a protected-gold build at R = 0.985 would transmit 6–14 %.) Two boundaries of the architecture were established by exhaustive search (0.05 mm ring-radius grid, up to 240 bounces, k ≤ 15 spots per mirror). Downward: the smallest feasible envelope is 141 mm (13.4 m); the best near-miss — 18.0 m in 140 mm — fails only by an intermediate spot grazing the coupling hole by 0.56 mm, and re-slotting the hole within the constellation is an open lever; below 105 mm, eight 25.4 mm mirrors no longer pack. Upward: the verified path ceiling is ≈25 m — the 26–32 m corner never closes because 15-spot-per-mirror constellations self-crowd under the exact worst-pair rule. The ceiling is thus set by spot geometry on the 11.4 mm clear aperture, not by the photon budget, and larger-aperture mirrors (at the cost of packing) are the identified route past it."));
+
+body.push(...fig("drone_25m_cell3d_paper.png",
+  "The max-OPL corner (drone_25m): the same 16-mirror, 180 mm architecture driven to 176 chords (24.77 m, 11 spots per mirror). At R = 0.999 the 32 additional reflections relative to the headline design cost only 2.8 % of signal, which is why the long-path corner is preferred when the coating allows it.", 580));
 
 body.push(H2("4.2 The headline design"));
 body.push(P("The 20.38 m design uses sixteen CM254-150 mirrors (R = 300 mm) on a ring machined to R_ring = 72.155 mm (envelope 180 mm, inner height 16 mm, sampled volume 0.26 L). The beam enters at 11.25° mean incidence, completes 144 chords of mean 141.5 mm, deposits 9 spots on each mirror with a worst-pair separation of 0.99 mm against summed beam radii of ~0.64 mm, keeps 4.9 mm of aperture margin, and re-crosses the hole plane within 6 nm of the entrance point at the designed bounce; all eight intermediate visits to M0 clear the hole by at least 1.46 mm beyond the local beam radius. Mode matching sets a 0.326 mm waist 102 mm past the hole (radius at the hole 0.365 mm; hole transmission 100.0 %). Transmission is R^143 = 86.7 % at R = 0.999: a 10 mW DFB source delivers ≈8.7 mW to the detector, so the photon budget is not the limiting factor at any realistic coating."));

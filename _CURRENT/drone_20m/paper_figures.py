@@ -31,7 +31,7 @@ from tmpc_platform_v5 import viz3d, render                        # noqa: E402
 FIG = os.path.join(_HERE, "designs", "figures")
 os.makedirs(FIG, exist_ok=True)
 
-PRESETS = ("drone_20m", "drone_25m", "drone_16cm")
+PRESETS = ("drone_20m", "drone_25m", "drone_22m", "drone_16cm")
 
 
 DARK = "#1a1a1a"
@@ -155,7 +155,7 @@ def throughput_vs_R():
     fig, ax = plt.subplots(figsize=(7.0, 4.2), dpi=200)
     R = np.linspace(0.965, 0.9995, 400)
     styles = {"drone_20m": ("#1f77b4", "-"), "drone_25m": ("#c44536", "-"),
-              "drone_16cm": ("#2a9d8f", "-")}
+              "drone_22m": ("#8a5fbf", "-"), "drone_16cm": ("#2a9d8f", "-")}
     for preset in PRESETS:
         cfg = get_preset(preset)
         n_refl = cfg.n_passes - 1

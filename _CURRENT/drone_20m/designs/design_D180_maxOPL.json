@@ -14,7 +14,7 @@
     "input_offset_z": -0.0139,
     "input_angle": -0.030237,
     "input_angle_sag": 0.040548,
-    "reflectivity": 0.985,
+    "reflectivity": 0.999,
     "hole_radius": 1.3,
     "n_passes": 177
   },
@@ -39,7 +39,7 @@
     "feasible": 1.0,
     "opl_m": 24.77388428326552,
     "n_exit": 176.0,
-    "throughput": 0.071013405013223,
+    "throughput": 0.8393835224923043,
     "exit_miss_mm": 1.1434336092591228e-07,
     "hole_margin_mm": 3.8620547785132295,
     "ap_margin_mm": 1.8225363992858075,

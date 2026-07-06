@@ -1,6 +1,6 @@
 # As-built spec -- class D150: 13.64 m in a 143 mm envelope
 
-12 x Thorlabs **CM254-250-M01** (1" protected-gold concave, ROC 500 mm, CA radius 11.4 mm, R = 0.985 @ 1654 nm)
+12 x Thorlabs **CM254-250-M01** (1" protected-gold concave, ROC 500 mm, CA radius 11.4 mm, R = 0.999 @ 1654 nm)
 
 ## 1. Machined ring housing
 
@@ -51,11 +51,11 @@ Mirror placement (cell frame, z = 0 mid-height plane):
 |---|---|
 | OPL (hole -> hole) | **13.639 m** |
 | chords | 132 legs, mean 103.32 mm (min 100.57, max 105.96) |
-| reflections | 131 (R^131 = 13.81 %) |
+| reflections | 131 (R^131 = 87.72 %) |
 | spots per mirror | 11 |
 | AOI | mean 15.05 deg, max 16.85 deg |
 | beam radius in cell | 0.22 - 0.43 mm |
-| throughput @ R = 0.985 | **13.81 %** = 100.00 % (hole in+out) x 13.81 % (mirrors) |
+| throughput @ R = 0.999 | **87.72 %** = 100.00 % (hole in+out) x 87.72 % (mirrors) |
 | throughput, parametric | T(R) = 1.0000 x R^131  (R = 0.984 -> 12.09 %, R = 0.97 -> 1.85 %) |
 | stability | m_tan = +0.786, m_sag = +0.800 (|m| <= 1) |
 

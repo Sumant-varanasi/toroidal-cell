@@ -19,10 +19,20 @@ reproduces the traced path to 0.000 µm RMS.
 </p>
 
 *Left: the traced light path of `drone_20m` — 144 chords between 16 catalog
-gold mirrors, input (green) and exit beams through the hole in mirror 0.
+mirrors, input (green) and exit beams through the hole in mirror 0.
 Right: the same cell rendered as built. Interactive versions:
 [cell3d.html](designs/figures/drone_20m_cell3d.html),
 [experiment.html](designs/figures/drone_20m_experiment.html).*
+
+<p align="center">
+  <img src="designs/figures/drone_25m_cell3d.png" width="49%" alt="drone_25m: 176-bounce light path (24.8 m)">
+  <img src="designs/figures/drone_22m_cell3d.png" width="49%" alt="drone_22m: 182-bounce light path (22.3 m)">
+</p>
+
+*The longer-path corners: `drone_25m` (left — 176 chords, 24.77 m, 11 spots
+per mirror in the same 180 mm envelope) and the new `drone_22m` (right —
+182 chords, 22.25 m in 172 mm). At R = 0.999 these extra passes cost only
+~3 % of signal.*
 
 <p align="center">
   <img src="designs/figures/drone_20m_constellations.png" width="70%" alt="per-mirror spot constellations">
@@ -33,19 +43,19 @@ phase origin per mirror; worst pair distance is a verified check.*
 
 ## The verified menu
 
-Transmission quoted at R = 0.999 (project baseline; hole is lossless so
-**T(R) = R^(chords−1) exactly** — 0.985-gold values in brackets).
+Transmission at **R = 0.999** (the project's mirrors); the hole is lossless
+so **T(R) = R^(chords−1) exactly** for any other coating.
 
-| class | design | mirrors | R_ring | chords | **OPL** | T @0.999 (0.985) | envelope | height | optics cost |
+| class | design | mirrors | R_ring | chords | **OPL** | T @0.999 | envelope | height | optics cost |
 |---|---|---|---|---|---|---|---|---|---|
-| Ø180 max-OPL | [spec](designs/spec_D190_maxOPL.md) | 16 × CM254-200-M01 (ROC 400) | 71.758 | 176 | **24.77 m** | **83.9 %** (7.1) | 180 mm | 22 mm | ~$1184 |
-| Ø172 mid (new) | [spec](designs/spec_D180_22m.md) | 14 × CM254-100-M01 (ROC 200) | 67.849 | 182 | **22.25 m** | 83.4 % (6.5) | 172 mm | 26 mm | ~$1036 |
-| Ø180 max-T (**headline 20 m**) | [spec](designs/spec_D190_maxT.md) | 16 × CM254-150-M01 (ROC 300) | 72.155 | 144 | **20.38 m** | **86.7 %** (11.5) | 180 mm | 16 mm | ~$1184 |
-| Ø171 | [spec](designs/spec_D180_maxT.md) | 12 × CM254-075-M01 (ROC 150) | 67.489 | 156 | 20.34 m | 85.6 % (9.6) | 171 mm | 22 mm | ~$888 |
-| Ø159 (**compactness star**) | [spec](designs/spec_D170_maxOPL.md) | 13 × CM254-050-M01 (ROC 100) | 61.519 | 169 | **20.64 m** | 84.5 % (7.9) | 159 mm | 18 mm | ~$962 |
-| Ø160 max-T | [spec](designs/spec_D170_maxT.md) | 13 × CM254-150-M01 (ROC 300) | 62.087 | 143 | 16.60 m | 86.8 % (11.7) | 160 mm | 20 mm | ~$962 |
-| Ø143 | [spec](designs/spec_D150_maxOPL.md) | 12 × CM254-250-M01 (ROC 500) | 53.486 | 132 | 13.64 m | 87.7 % (13.8) | 143 mm | 16 mm | ~$888 |
-| Ø141 | — | 12 × CM254-050-M01 (ROC 100) | 52.402 | 132 | 13.36 m | 87.7 % (13.8) | 141 mm | 18 mm | ~$888 |
+| Ø180 max-OPL | [spec](designs/spec_D190_maxOPL.md) | 16 × CM254-200-M01 (ROC 400) | 71.758 | 176 | **24.77 m** | **83.9 %** | 180 mm | 22 mm | ~$1184 |
+| Ø172 mid (new) | [spec](designs/spec_D180_22m.md) | 14 × CM254-100-M01 (ROC 200) | 67.849 | 182 | **22.25 m** | 83.4 % | 172 mm | 26 mm | ~$1036 |
+| Ø180 max-T (**headline 20 m**) | [spec](designs/spec_D190_maxT.md) | 16 × CM254-150-M01 (ROC 300) | 72.155 | 144 | **20.38 m** | **86.7 %** | 180 mm | 16 mm | ~$1184 |
+| Ø171 | [spec](designs/spec_D180_maxT.md) | 12 × CM254-075-M01 (ROC 150) | 67.489 | 156 | 20.34 m | 85.6 % | 171 mm | 22 mm | ~$888 |
+| Ø159 (**compactness star**) | [spec](designs/spec_D170_maxOPL.md) | 13 × CM254-050-M01 (ROC 100) | 61.519 | 169 | **20.64 m** | 84.5 % | 159 mm | 18 mm | ~$962 |
+| Ø160 max-T | [spec](designs/spec_D170_maxT.md) | 13 × CM254-150-M01 (ROC 300) | 62.087 | 143 | 16.60 m | 86.8 % | 160 mm | 20 mm | ~$962 |
+| Ø143 | [spec](designs/spec_D150_maxOPL.md) | 12 × CM254-250-M01 (ROC 500) | 53.486 | 132 | 13.64 m | 87.7 % | 143 mm | 16 mm | ~$888 |
+| Ø141 | — | 12 × CM254-050-M01 (ROC 100) | 52.402 | 132 | 13.36 m | 87.7 % | 141 mm | 18 mm | ~$888 |
 
 The deep search (0.05 mm ring grid, k ≤ 15, up to 240 bounces) also
 established the **verified OPL ceiling of the architecture: ≈25 m** — the

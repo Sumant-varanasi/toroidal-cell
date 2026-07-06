@@ -157,26 +157,26 @@ PRESETS: Dict[str, dict] = {
 
     "drone_20m": dict(
         # 20.38 m in a 180 mm envelope; 16 x CM254-150-M01 (ROC 300).
-        # 144 chords / 143 reflections -> 11.5 % at R = 0.985.
+        # 144 chords / 143 reflections -> 86.7 % at R = 0.999.
         N=16, chord_skip=7, R_ring=72.1555, H=16.0,
         R_t=300.0, R_s=300.0, mirror_aperture=11.4,
         w0=0.3262, M2=1.0, input_waist_offset=102.07,
         input_offset_z=0.2709, input_angle=-0.030949,
         input_angle_sag=0.021673,
-        reflectivity=0.985, hole_radius=1.3, n_passes=144,
-        label="Drone 20.4 m @ 180 mm -- 16x CM254-150-M01, 11.5% T",
+        reflectivity=0.999, hole_radius=1.3, n_passes=144,
+        label="Drone 20.4 m @ 180 mm -- 16x CM254-150-M01, 86.7% T",
     ),
 
     "drone_25m": dict(
         # Max-OPL corner: 24.77 m in 180 mm; 16 x CM254-200-M01 (ROC 400).
-        # 176 chords / 175 reflections -> 7.1 % at R = 0.985.
+        # 176 chords / 175 reflections -> 83.9 % at R = 0.999.
         N=16, chord_skip=7, R_ring=71.7583, H=22.0,
         R_t=400.0, R_s=400.0, mirror_aperture=11.4,
         w0=0.3134, M2=1.0, input_waist_offset=78.82,
         input_offset_z=0.0762, input_angle=0.026612,
         input_angle_sag=0.037692,
-        reflectivity=0.985, hole_radius=1.3, n_passes=176,
-        label="Drone 24.8 m @ 180 mm -- 16x CM254-200-M01, 7.1% T",
+        reflectivity=0.999, hole_radius=1.3, n_passes=176,
+        label="Drone 24.8 m @ 180 mm -- 16x CM254-200-M01, 83.9% T",
     ),
 
     "drone_22m": dict(
@@ -187,20 +187,20 @@ PRESETS: Dict[str, dict] = {
         w0=0.2, M2=1.0, input_waist_offset=45.15,
         input_offset_z=7.6485, input_angle=0.048492,
         input_angle_sag=-0.005229,
-        reflectivity=0.985, hole_radius=1.3, n_passes=182,
+        reflectivity=0.999, hole_radius=1.3, n_passes=182,
         label="Drone 22.3 m @ 172 mm -- 14x CM254-100-M01",
     ),
 
     "drone_16cm": dict(
         # Compactness corner: 20.64 m in 159 mm; 13 x CM254-050-M01
-        # (ROC 100, cheapest SKU). 169 chords -> 7.9 % at R = 0.985.
+        # (ROC 100, cheapest SKU). 169 chords -> 84.5 % at R = 0.999.
         N=13, chord_skip=6, R_ring=61.5187, H=18.0,
         R_t=100.0, R_s=100.0, mirror_aperture=11.4,
         w0=0.2, M2=1.0, input_waist_offset=84.03,
         input_offset_z=-0.045, input_angle=-0.043739,
         input_angle_sag=0.039149,
-        reflectivity=0.985, hole_radius=1.3, n_passes=169,
-        label="Drone 20.6 m @ 159 mm -- 13x CM254-050-M01, 7.9% T",
+        reflectivity=0.999, hole_radius=1.3, n_passes=169,
+        label="Drone 20.6 m @ 159 mm -- 13x CM254-050-M01, 84.5% T",
     ),
 
     "astig_toroidal": dict(
@@ -301,3 +301,4 @@ def preset_label(name: str) -> str:
             f"Unknown preset {name!r}. Available: {list_presets()}"
         )
     return PRESETS[name].get("label", name)
+
