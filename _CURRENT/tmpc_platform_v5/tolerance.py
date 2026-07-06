@@ -257,6 +257,24 @@ def _trial(args):
         if m:
             centroid_walk = float(np.mean(
                 np.linalg.norm(res.spot_pattern[:m] - nom_centroid[:m], axis=1)))
+    # coupling-hole clearance in THIS trial: nearest revisit of the launch
+    # mirror to the (beam-defined) hole, minus hole radius + local beam
+    hole_clear = float("nan")
+    b = res.bounces
+    if b > 1 and len(res.spot_pattern) >= b:
+        from .physics import mirror_footprints
+        foot0 = mirror_footprints(res.spot_pattern[:b],
+                                  res.mirror_sequence[:b], cfg)[0]
+        if len(foot0) > 1:
+            order = foot0[:, 2].astype(int)
+            hole_uv = foot0[order == 0]
+            if len(hole_uv):
+                w_eff = np.maximum(res.w_tangential,
+                                   res.w_sagittal)[:b + 1]
+                mids = foot0[order > 0]
+                d = np.linalg.norm(mids[:, :2] - hole_uv[0, :2], axis=1)
+                w_at = w_eff[mids[:, 2].astype(int)]
+                hole_clear = float(np.min(d - (cfg.hole_radius + w_at)))
     return {
         "seed": int(seed),
         "bounces": res.bounces,
@@ -269,6 +287,9 @@ def _trial(args):
         "aoi_max":  float(np.max(res.aoi))  if len(res.aoi) else 0.0,
         "exit_drift_mrad": _drift_mrad(_exit_dir(res), nom_exit),
         "spot_walk_mm": centroid_walk,
+        "min_spot_sep_mm": float(res.min_spot_separation),
+        "spots_overlap": int(res.spots_overlap),
+        "hole_clear_mm": hole_clear,
         "refl_loss":  res.loss_budget.reflectivity_loss,
         "clip_loss":  res.loss_budget.clipping_loss,
         "ap_loss":    res.loss_budget.aperture_loss,
