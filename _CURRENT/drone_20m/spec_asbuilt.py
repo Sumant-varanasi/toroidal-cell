@@ -45,6 +45,9 @@ HOUSING_G_PER_MM = 2.6      # machined Al ring, ~3 mm wall, per mm dia
 
 def cfg_from_row(row: dict) -> TMPCConfig:
     fam = FAMILIES[row["family"]]
+    m2 = row.get("M2", M2)
+    m2 = float(M2 if (m2 is None or (isinstance(m2, float)
+                                     and np.isnan(m2))) else m2)
     w0w = float(np.clip(row.get("w0_waist", W0), 0.20, W0))
     wf = row.get("waist_frac")
     if wf is None or (isinstance(wf, float) and np.isnan(wf)):
@@ -59,7 +62,7 @@ def cfg_from_row(row: dict) -> TMPCConfig:
         mirror_aperture=fam["clear_aperture_radius_mm"],
         chord_skip=int(row["chord_skip"]),
         n_passes=int(row["n_target"]) + 2 * int(row["N"]),
-        wavelength=WAVELENGTH, w0=w0w, M2=M2,
+        wavelength=WAVELENGTH, w0=w0w, M2=m2,
         input_waist_offset=z_off,
         input_offset_z=float(row["input_offset_z"]),
         input_angle=float(row["input_angle"]),
@@ -246,7 +249,7 @@ def write_spec(row: dict, out_md: str, out_json: str) -> dict:
     cfg_kwargs = dict(
         N=N, chord_skip=cfg.chord_skip, R_ring=round(cfg.R_ring, 4),
         H=H, R_t=cfg.R_t, R_s=cfg.R_s,
-        mirror_aperture=cfg.mirror_aperture, w0=round(w0w, 4), M2=M2,
+        mirror_aperture=cfg.mirror_aperture, w0=round(w0w, 4), M2=cfg.M2,
         wavelength=WAVELENGTH,
         input_waist_offset=round(z_off, 2),
         input_offset_z=round(cfg.input_offset_z, 4),

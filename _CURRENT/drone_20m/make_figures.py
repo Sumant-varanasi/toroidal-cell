@@ -70,7 +70,8 @@ def figures(preset: str):
 
 
 def main():
-    for preset in ("drone_20m", "drone_25m", "drone_22m", "drone_16cm"):
+    for preset in ("drone_20m", "drone_25m", "drone_22m", "drone_16cm",
+                   "drone_29m", "drone_14cm"):
         figures(preset)
     print(f"\nFigures written to {FIG}")
 

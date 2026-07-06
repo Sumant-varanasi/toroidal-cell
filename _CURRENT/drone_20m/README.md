@@ -41,27 +41,45 @@ per mirror in the same 180 mm envelope) and the new `drone_22m` (right —
 *The 9-spot constellation each mirror carries — same Lissajous, different
 phase origin per mirror; worst pair distance is a verified check.*
 
-## The verified menu
+## The tolerance-tiered menu
 
 Transmission at **R = 0.999** (the project's mirrors); the hole is lossless
-so **T(R) = R^(chords−1) exactly** for any other coating.
+so **T(R) = R^(chords−1) exactly** for any other coating. Every design
+passes the full check matrix in the exact trace **and** a 100-trial
+Monte-Carlo at the stated build grade with physical criteria: full path
+completes in every trial, spots never merge, intermediate spots keep
+clearing the hole, and the exit still leaves the 1.3 mm hole with **no
+realignment** ([robust_menu.csv](designs/robust_menu.csv) /
+[flight](designs/robust_menu_flight.csv)).
 
-| class | design | mirrors | R_ring | chords | **OPL** | T @0.999 | envelope | height | optics cost |
-|---|---|---|---|---|---|---|---|---|---|
-| Ø180 max-OPL | [spec](designs/spec_D190_maxOPL.md) | 16 × CM254-200-M01 (ROC 400) | 71.758 | 176 | **24.77 m** | **83.9 %** | 180 mm | 22 mm | ~$1184 |
-| Ø172 mid (new) | [spec](designs/spec_D180_22m.md) | 14 × CM254-100-M01 (ROC 200) | 67.849 | 182 | **22.25 m** | 83.4 % | 172 mm | 26 mm | ~$1036 |
-| Ø180 max-T (**headline 20 m**) | [spec](designs/spec_D190_maxT.md) | 16 × CM254-150-M01 (ROC 300) | 72.155 | 144 | **20.38 m** | **86.7 %** | 180 mm | 16 mm | ~$1184 |
-| Ø171 | [spec](designs/spec_D180_maxT.md) | 12 × CM254-075-M01 (ROC 150) | 67.489 | 156 | 20.34 m | 85.6 % | 171 mm | 22 mm | ~$888 |
-| Ø159 (**compactness star**) | [spec](designs/spec_D170_maxOPL.md) | 13 × CM254-050-M01 (ROC 100) | 61.519 | 169 | **20.64 m** | 84.5 % | 159 mm | 18 mm | ~$962 |
-| Ø160 max-T | [spec](designs/spec_D170_maxT.md) | 13 × CM254-150-M01 (ROC 300) | 62.087 | 143 | 16.60 m | 86.8 % | 160 mm | 20 mm | ~$962 |
-| Ø143 | [spec](designs/spec_D150_maxOPL.md) | 12 × CM254-250-M01 (ROC 500) | 53.486 | 132 | 13.64 m | 87.7 % | 143 mm | 16 mm | ~$888 |
-| Ø141 | — | 12 × CM254-050-M01 (ROC 100) | 52.402 | 132 | 13.36 m | 87.7 % | 141 mm | 18 mm | ~$888 |
+**Tier 1 — standard lab build** (kinematic mounts, 0.5 mrad tilt class):
 
-The deep search (0.05 mm ring grid, k ≤ 15, up to 240 bounces) also
-established the **verified OPL ceiling of the architecture: ≈25 m** — the
-26–32 m corner does not close because 15-spot-per-mirror constellations
-self-crowd (exact worst-pair rule), i.e. the limit is spot geometry, not
-photon budget.
+| design | mirrors | chords | **OPL** | T @0.999 | envelope | preset |
+|---|---|---|---|---|---|---|
+| headline | 16 × CM254-150 (ROC 300) | 144 | **20.38 m** | **86.7 %** | Ø180 | `drone_20m` |
+
+**Tier 2 — precision (flight-grade) build** (glued/welded, 0.1 mrad tilt
+class — the drone-vibration spec anyway):
+
+| design | mirrors | chords | **OPL** | T @0.999 | envelope | preset / spec |
+|---|---|---|---|---|---|---|
+| **max OPL** | 12 × CM254-750 (ROC 1500) | 204 | **28.99 m** | 76.6 % | Ø183 | `drone_29m` · [spec](designs/spec_D190_29m.md) |
+| **compact star** | 12 × CM254-500 (ROC 1000) | 204 | **20.66 m** | 81.6 % | **Ø141** | `drone_14cm` · [spec](designs/spec_D150_14cm.md) |
+| balanced | 13 × CM254-150 (ROC 300) | 143 | 16.60 m | 86.8 % | Ø160 | [spec](designs/spec_D170_maxT.md) |
+| small | 10 × CM254-150 (ROC 300) | 190 | 14.85 m | 82.8 % | Ø133 | — |
+| small max-T | 12 × CM254-250 (ROC 500) | 132 | 13.64 m | 87.7 % | Ø143 | [spec](designs/spec_D150_maxOPL.md) |
+
+**Tier 3 — active alignment required** (feasible nominal designs whose
+dense patterns exceed passive build tolerances): 24.8 m/Ø180
+(`drone_25m`), 26.8 m/Ø172, 22.3 m/Ø172 (`drone_22m`), 20.6 m/Ø159
+(`drone_16cm`), up to **38.6 m/Ø169** (14 × CM254-100, 322 chords, 72.5 %)
+— the geometric ceiling of the architecture; buildable only with in-situ
+trim (ring temperature + launch piezo) or sub-0.1 mrad machining.
+
+The tier structure is the quantitative answer to "smaller, longer, and
+tolerant": at R = 0.999 the photon budget allows ~700 reflections, so the
+limit is spot-pattern geometry under build error — 20.4 m at standard
+tolerances, 29 m at flight-grade, 39 m only with active alignment.
 
 **Verified boundary**: Ø141 mm is the smallest feasible envelope found
 (N ≥ 8 packing floor is Ø105). Best near-miss outside it: 18.0 m in Ø140 mm

@@ -203,6 +203,32 @@ PRESETS: Dict[str, dict] = {
         label="Drone 20.6 m @ 159 mm -- 13x CM254-050-M01, 84.5% T",
     ),
 
+    "drone_29m": dict(
+        # Flight-tier max OPL: 28.99 m in 183 mm; 12 x CM254-750-M01
+        # (ROC 1500). 204 chords; robust at flight-grade build
+        # tolerances (0.1 mrad tilt class), design basis M2 = 1.1.
+        N=12, chord_skip=5, R_ring=73.5702, H=23.0,
+        R_t=1500.0, R_s=1500.0, mirror_aperture=11.4,
+        w0=0.4367, M2=1.1, input_waist_offset=75.02,
+        input_offset_z=0.0097, input_angle=0.022858,
+        input_angle_sag=0.022558,
+        reflectivity=0.999, hole_radius=1.3, n_passes=204,
+        label="Drone 29.0 m @ 183 mm -- 12x CM254-750-M01 (flight-grade)",
+    ),
+
+    "drone_14cm": dict(
+        # Flight-tier compactness star: 20.66 m in 141 mm; 12 x
+        # CM254-500-M01 (ROC 1000). 204 chords; robust at flight-grade
+        # build tolerances, design basis M2 = 1.1.
+        N=12, chord_skip=5, R_ring=52.4296, H=27.0,
+        R_t=1000.0, R_s=1000.0, mirror_aperture=11.4,
+        w0=0.2913, M2=1.1, input_waist_offset=75.96,
+        input_offset_z=0.5146, input_angle=0.023341,
+        input_angle_sag=0.036089,
+        reflectivity=0.999, hole_radius=1.3, n_passes=204,
+        label="Drone 20.7 m @ 141 mm -- 12x CM254-500-M01 (flight-grade)",
+    ),
+
     "astig_toroidal": dict(
         # Ring cell with strongly asymmetric mirror curvatures and M2=1.2.
         # R_t >> R_s means very different focal lengths in the two planes,
