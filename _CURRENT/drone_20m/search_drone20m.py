@@ -174,7 +174,14 @@ def constellation_quality(N: int, s: int, n: int,
     return best
 
 
-def stage_a(r_step: float = 0.25) -> pd.DataFrame:
+def stage_a(r_step: float = 0.25, walk_budget: float = SEP_MARGIN,
+            max_amp_gain: float = 0.0) -> pd.DataFrame:
+    """walk_budget: extra clearance [mm] demanded of every spot pair and
+    of the hole, sized to the expected relative spot walk of the target
+    build grade (~0.55 mm research, ~0.15 mm flight) -- tolerance as a
+    design input. max_amp_gain: if > 0, reject cells whose transverse
+    error amplification 1/min(sin th_t, sin th_s) exceeds it (injected
+    angular errors oscillate with amplitude ~ 1/sin theta)."""
     rows: List[Dict] = []
     r_grid = np.arange(R_RING_MIN, R_RING_MAX + 1e-9, r_step)
     for family in FAMILIES_USE:
@@ -253,14 +260,21 @@ def stage_a(r_step: float = 0.25) -> pd.DataFrame:
                                 # mode-matched spot size on the mirrors
                                 # (per plane w^2 = M2 lam L / pi sin th),
                                 # with a residual-breathing allowance
+                                sin_min = float(min(np.sin(th_t[i]),
+                                                    np.sin(th_s[i])))
+                                if (max_amp_gain > 0
+                                        and 1.0 / max(sin_min, 1e-9)
+                                        > max_amp_gain):
+                                    continue    # error-amplifying cell
                                 w_typ = W_BREATHE * float(np.sqrt(
                                     M2 * WAVELENGTH * L[i] / np.pi
-                                    / min(np.sin(th_t[i]),
-                                          np.sin(th_s[i]))))
-                                sep_need = 2.0 * w_typ + SEP_MARGIN
+                                    / sin_min))
+                                sep_need = 2.0 * w_typ + max(SEP_MARGIN,
+                                                             walk_budget)
                                 # the hole needs more clearance than a
                                 # spot pair: hole radius + beam + margin
-                                hole_need = HOLE_R + w_typ + 0.25
+                                hole_need = (HOLE_R + w_typ
+                                             + max(0.25, walk_budget))
                                 A_req = max(sep_need / d_min,
                                             hole_need / max(d_hole, 1e-9))
                                 A_max = (ap - w_typ - 0.3) / ext
@@ -287,6 +301,9 @@ def stage_a(r_step: float = 0.25) -> pd.DataFrame:
                                     extent_norm=float(ext),
                                     A_req_mm=float(A_req),
                                     w_typ_mm=float(w_typ),
+                                    sin_min=float(sin_min),
+                                    margin_want=float(max(0.35,
+                                                          walk_budget)),
                                     th_t=float(th_t[i]),
                                     th_s=float(th_s[i]),
                                     opl_est_m=float(opl_m[i]),
@@ -513,8 +530,9 @@ def _objective(r: Dict) -> float:
     obj = r["exit_miss_mm"]
     if not r["n_exit"]:
         obj += 1.0
-    for key, want, wt in (("hole_margin_mm", 0.30, 5.0),
-                          ("sep_margin_mm", 0.35, 8.0),
+    mw = float(r.get("margin_want", 0.35))
+    for key, want, wt in (("hole_margin_mm", mw, 5.0),
+                          ("sep_margin_mm", mw, 8.0),
                           ("ap_margin_mm", 0.30, 5.0)):
         v = r[key]
         if np.isfinite(v):
@@ -641,6 +659,7 @@ def _seed_jobs(c: Dict) -> List[Dict]:
                     mode_s=c["mode_s"], input_angle=sign * ang_t * f,
                     w0_waist=w0w, waist_frac=1.0,
                     M2=float(c.get("M2", M2)),
+                    margin_want=float(c.get("margin_want", 0.35)),
                     size_class=c.get("size_class", "D190"),
                     envelope_max=c.get("envelope_max", ENVELOPE_MAX),
                     opl_min=c.get("opl_min", OPL_MIN_M),
@@ -684,7 +703,8 @@ def stage_b(cands: List[Dict], workers: int, refine_top: int):
             "family", "sku", "roc", "N", "chord_skip", "R_ring",
             "n_target", "mode_s", "input_offset_z", "input_angle",
             "input_angle_sag", "w0_waist", "waist_frac", "M2",
-            "size_class", "envelope_max", "opl_min") if k in p})
+            "margin_want", "size_class", "envelope_max", "opl_min")
+            if k in p})
             for p in to_refine]
         for i, f in enumerate(as_completed(futs)):
             refined.append(f.result())
@@ -717,6 +737,12 @@ def main(argv=None):
                          "'140,130,120,110' (default: all)")
     ap.add_argument("--m2", type=float, default=1.0,
                     help="design-basis beam quality factor for the traces")
+    ap.add_argument("--walk-budget", type=float, default=0.3,
+                    help="clearance demanded of every margin [mm], sized "
+                         "to the expected build-error spot walk")
+    ap.add_argument("--max-amp-gain", type=float, default=0.0,
+                    help="reject cells with 1/sin(theta) error "
+                         "amplification above this (0 = off)")
     ap.add_argument("--out-dir", default=os.path.join(_HERE, "results"))
     args = ap.parse_args(argv)
     os.makedirs(args.out_dir, exist_ok=True)
@@ -727,7 +753,8 @@ def main(argv=None):
         classes = tuple(c for c in DEFAULT_CLASSES if c[0] in want)
 
     t0 = time.time()
-    dfa = stage_a(r_step=args.r_step)
+    dfa = stage_a(r_step=args.r_step, walk_budget=args.walk_budget,
+                  max_amp_gain=args.max_amp_gain)
     print(f"Stage A: {len(dfa)} analytic candidates "
           f"({time.time() - t0:.0f}s)", flush=True)
     dfa.to_csv(os.path.join(args.out_dir, "stage_a_candidates.csv"),
