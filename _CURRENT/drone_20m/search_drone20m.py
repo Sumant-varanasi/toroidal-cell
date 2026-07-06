@@ -108,9 +108,8 @@ W_BREATHE = 1.20         # residual breathing over a mode-matched launch
 
 R_RING_MAX = (ENVELOPE_MAX - 2.0 * RADIAL_ALLOWANCE) / 2.0        # 77 mm
 R_RING_MIN = 25.0
-N_RANGE = range(6, 17)   # mirror count 6..16 (floor relaxed to 6-7,
-#   user 2026-07-02); N=6 has only grazing coprime skips and dies in
-#   the prescreen, N=7 packs down to a ~97 mm envelope
+N_RANGE = range(9, 17)   # mirror count 9..16 (user, 2026-07-02);
+#   packing floor at N=9 is a ~113 mm envelope
 
 
 # ---------------------------------------------------------------------------
