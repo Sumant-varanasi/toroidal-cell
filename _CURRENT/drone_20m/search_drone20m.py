@@ -88,13 +88,15 @@ PACK_GAP = 1.0           # minimum web between adjacent mirror substrates [mm]
 
 OPL_MIN_M = 19.5         # default verified-OPL floor (per-class override)
 OPL_EST_LO_M = 4.5       # Stage A estimate window (classes filter later)
-OPL_EST_HI_M = 36.5      # n <= 240 x max chord caps ~36 m anyway
-N_EXIT_MIN = 40          # bounce-count window; at R ~ 0.999 even 240
-N_EXIT_MAX = 240         # reflections keep ~79 % transmission
-K_SET = (5, 7, 9, 11, 13, 15)  # spots per mirror -- odd only: for even k
+OPL_EST_HI_M = 80.0      # n <= 720 x max chord caps ~110 m; crowding rules
+N_EXIT_MIN = 40          # bounce-count window; at R = 0.999 even 720
+N_EXIT_MAX = 720         # reflections keep ~49 % transmission
+K_SET = tuple(range(5, 46, 2))  # spots per mirror -- odd only: for even k
 #   the tangential pi-slot coincides with a sagittal near-return and an
-#   intermediate spot can leak into the hole (star-polygon parity rule);
-#   k=15 only reaches N <= 13 through the N_EXIT_MAX bounce cap
+#   intermediate spot can leak into the hole (star-polygon parity rule).
+#   High k (17-45) turns the pattern into a many-lobed Lissajous that
+#   fills the mirror face quasi-2D; the exact worst-pair rule decides
+#   which combinations actually fit.
 AMP_RATIOS = (0.7, 1.0, 1.4)   # sag/tan amplitude ratios tried per pattern
 FAMILIES_USE = ("one_inch",)   # 1" confirmed by user; with N<=16 the
 #   half-inch aperture cannot reach the 20 m class anyway
@@ -147,7 +149,8 @@ def constellation_quality(N: int, s: int, n: int,
     u = np.sin(j * th_t)
     v = np.cos(j * th_s) if mode_s == "cos" else np.sin(j * th_s)
     mir = (j * s) % N
-    best = (1.0, 0.0, 1.0)
+    best = (1.0, 0.0, 1.0, 0.0)
+    m0_mask = mir == 0
     for rho in AMP_RATIOS:
         pts = np.column_stack([u, rho * v])
         d_min = np.inf
@@ -159,10 +162,14 @@ def constellation_quality(N: int, s: int, n: int,
             iu = np.triu_indices(len(P), 1)
             d_min = min(d_min, float(np.min(d[iu])))
         ext = float(np.max(np.linalg.norm(pts, axis=1)))
+        # hole clearance scale: nearest mirror-0 spot to the hole (j = 0)
+        P0 = pts[m0_mask]
+        d_hole = (float(np.min(np.linalg.norm(P0[1:] - P0[0], axis=1)))
+                  if len(P0) > 1 else np.inf)
         if (np.isfinite(d_min) and d_min > 1e-6
                 and (best[1] <= 1e-6
                      or ext / d_min < best[2] / max(best[1], 1e-9))):
-            best = (rho, float(d_min), ext)
+            best = (rho, float(d_min), ext, d_hole)
     return best
 
 
@@ -236,10 +243,11 @@ def stage_a(r_step: float = 0.25) -> pd.DataFrame:
                                 ms = int(np.rint(
                                     (n * th_s[i]
                                      - np.pi * sag_pi[i]) / (2 * np.pi)))
-                                rho, d_min, ext = constellation_quality(
+                                (rho, d_min, ext,
+                                 d_hole) = constellation_quality(
                                     N, s, n, mt, bool(tan_pi[i]),
                                     ms, bool(sag_pi[i]), mode_s)
-                                if d_min < 0.15:
+                                if d_min < 0.02:
                                     continue        # self-crowding pattern
                                 # mode-matched spot size on the mirrors
                                 # (per plane w^2 = M2 lam L / pi sin th),
@@ -249,7 +257,11 @@ def stage_a(r_step: float = 0.25) -> pd.DataFrame:
                                     / min(np.sin(th_t[i]),
                                           np.sin(th_s[i]))))
                                 sep_need = 2.0 * w_typ + SEP_MARGIN
-                                A_req = sep_need / d_min
+                                # the hole needs more clearance than a
+                                # spot pair: hole radius + beam + margin
+                                hole_need = HOLE_R + w_typ + 0.25
+                                A_req = max(sep_need / d_min,
+                                            hole_need / max(d_hole, 1e-9))
                                 A_max = (ap - w_typ - 0.3) / ext
                                 if A_req > A_max:
                                     continue        # cannot fit aperture
@@ -627,6 +639,7 @@ def _seed_jobs(c: Dict) -> List[Dict]:
                     R_ring=float(c["R_ring"]), n_target=int(c["n_exit"]),
                     mode_s=c["mode_s"], input_angle=sign * ang_t * f,
                     w0_waist=w0w, waist_frac=1.0,
+                    M2=float(c.get("M2", M2)),
                     size_class=c.get("size_class", "D190"),
                     envelope_max=c.get("envelope_max", ENVELOPE_MAX),
                     opl_min=c.get("opl_min", OPL_MIN_M),
@@ -669,8 +682,8 @@ def stage_b(cands: List[Dict], workers: int, refine_top: int):
         futs = [ex.submit(scan_refine, {k: p[k] for k in (
             "family", "sku", "roc", "N", "chord_skip", "R_ring",
             "n_target", "mode_s", "input_offset_z", "input_angle",
-            "input_angle_sag", "w0_waist", "waist_frac", "size_class",
-            "envelope_max", "opl_min")})
+            "input_angle_sag", "w0_waist", "waist_frac", "M2",
+            "size_class", "envelope_max", "opl_min") if k in p})
             for p in to_refine]
         for i, f in enumerate(as_completed(futs)):
             refined.append(f.result())
@@ -701,6 +714,8 @@ def main(argv=None):
     ap.add_argument("--classes", default=None,
                     help="comma list of envelope caps to run, e.g. "
                          "'140,130,120,110' (default: all)")
+    ap.add_argument("--m2", type=float, default=1.0,
+                    help="design-basis beam quality factor for the traces")
     ap.add_argument("--out-dir", default=os.path.join(_HERE, "results"))
     args = ap.parse_args(argv)
     os.makedirs(args.out_dir, exist_ok=True)
@@ -723,8 +738,8 @@ def main(argv=None):
     all_b, all_p = [], []
     for env_cap, opl_min in classes:
         label = f"D{int(env_cap)}"
-        # physical OPL ceiling of the class: n <= 240 near-diameter chords
-        opl_hi = min(36.5, 0.24 * (env_cap - 2.0 * RADIAL_ALLOWANCE))
+        # physical OPL ceiling of the class: n <= 720 near-diameter chords
+        opl_hi = min(80.0, 0.72 * (env_cap - 2.0 * RADIAL_ALLOWANCE))
         band = dfa[(dfa["envelope_mm"] <= env_cap + 1e-9)
                    & (dfa["opl_est_m"] >= opl_min)
                    & (dfa["opl_est_m"] <= opl_hi)]
@@ -746,6 +761,7 @@ def main(argv=None):
             r["size_class"] = label
             r["envelope_max"] = env_cap
             r["opl_min"] = opl_min
+            r["M2"] = args.m2
         dfb, dfp = stage_b(recs, workers=args.workers,
                            refine_top=args.refine_top)
         all_b.append(dfb)
