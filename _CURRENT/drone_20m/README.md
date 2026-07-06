@@ -64,10 +64,21 @@ class — the drone-vibration spec anyway):
 | design | mirrors | chords | **OPL** | T @0.999 | envelope | preset / spec |
 |---|---|---|---|---|---|---|
 | **max OPL** | 12 × CM254-750 (ROC 1500) | 204 | **28.99 m** | 76.6 % | Ø183 | `drone_29m` · [spec](designs/spec_D190_29m.md) |
+| long | 16 × CM254-200 (ROC 400) | 176 | **24.77 m** | 83.9 % | Ø180 | `drone_25m` (walk-budget variant) |
 | **compact star** | 12 × CM254-500 (ROC 1000) | 204 | **20.66 m** | 81.6 % | **Ø141** | `drone_14cm` · [spec](designs/spec_D150_14cm.md) |
 | balanced | 13 × CM254-150 (ROC 300) | 143 | 16.60 m | 86.8 % | Ø160 | [spec](designs/spec_D170_maxT.md) |
 | small | 10 × CM254-150 (ROC 300) | 190 | 14.85 m | 82.8 % | Ø133 | — |
 | small max-T | 12 × CM254-250 (ROC 500) | 132 | 13.64 m | 87.7 % | Ø143 | [spec](designs/spec_D150_maxOPL.md) |
+
+Robustness-by-design findings (search v8): demanding 0.55 mm clearances
+during the search hardened the surviving designs (drone_20m's worst-case
+p05 separation grew 0.94 → 1.23 mm; the 24.8 m design was **promoted**
+into this tier), while the 1/sin θ error-amplification gate was
+empirically falsified — the near-planar long-ROC family it would exclude
+is exactly what wins here. Pattern walk grows ~√chords with build error,
+so the standard-tolerance ceiling sits near 145 chords; a drone needs the
+glued/welded construction for vibration regardless, making this tier the
+operative drone menu.
 
 **Tier 3 — active alignment required** (feasible nominal designs whose
 dense patterns exceed passive build tolerances): 24.8 m/Ø180
