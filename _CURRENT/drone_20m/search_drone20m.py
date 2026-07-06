@@ -88,9 +88,9 @@ PACK_GAP = 1.0           # minimum web between adjacent mirror substrates [mm]
 
 OPL_MIN_M = 19.5         # default verified-OPL floor (per-class override)
 OPL_EST_LO_M = 4.5       # Stage A estimate window (classes filter later)
-OPL_EST_HI_M = 32.5      # n <= 208 x max chord caps ~32 m anyway
-N_EXIT_MIN = 40          # bounce-count window (throughput vs OPL trade)
-N_EXIT_MAX = 208
+OPL_EST_HI_M = 36.5      # n <= 240 x max chord caps ~36 m anyway
+N_EXIT_MIN = 40          # bounce-count window; at R ~ 0.999 even 240
+N_EXIT_MAX = 240         # reflections keep ~79 % transmission
 K_SET = (5, 7, 9, 11, 13, 15)  # spots per mirror -- odd only: for even k
 #   the tangential pi-slot coincides with a sagittal near-return and an
 #   intermediate spot can leak into the hole (star-polygon parity rule);
@@ -723,8 +723,8 @@ def main(argv=None):
     all_b, all_p = [], []
     for env_cap, opl_min in classes:
         label = f"D{int(env_cap)}"
-        # physical OPL ceiling of the class: n <= 208 near-diameter chords
-        opl_hi = min(32.5, 0.21 * (env_cap - 2.0 * RADIAL_ALLOWANCE))
+        # physical OPL ceiling of the class: n <= 240 near-diameter chords
+        opl_hi = min(36.5, 0.24 * (env_cap - 2.0 * RADIAL_ALLOWANCE))
         band = dfa[(dfa["envelope_mm"] <= env_cap + 1e-9)
                    & (dfa["opl_est_m"] >= opl_min)
                    & (dfa["opl_est_m"] <= opl_hi)]

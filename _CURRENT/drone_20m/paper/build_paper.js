@@ -1,5 +1,5 @@
-/* Build the TMPC drone-cell draft paper (docx), v2 — prof-review draft.
-   Run:  node build_paper.js   ->  TMPC_drone_paper_draft_v2.docx        */
+/* Build the TMPC drone-cell draft paper (docx), v3 — prof-review draft.
+   Run:  node build_paper.js   ->  TMPC_drone_paper_draft_v3.docx        */
 const fs = require("fs");
 const path = require("path");
 const {
@@ -9,7 +9,7 @@ const {
 } = require(require("child_process").execSync("npm root -g").toString().trim() + "/docx");
 
 const FIG = path.resolve(__dirname, "..", "designs", "figures");
-const OUT = path.join(__dirname, "TMPC_drone_paper_draft_v2.docx");
+const OUT = path.join(__dirname, "TMPC_drone_paper_draft_v3.docx");
 
 // ---------- helpers ----------------------------------------------------
 const FONT = "Times New Roman";
@@ -112,7 +112,7 @@ body.push(new Paragraph({
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 120 },
-  children: [R("Draft for internal review (simulation results) — 2 July 2026 — not for distribution", { italics: true, size: 20, color: "B00000" })],
+  children: [R("Draft v3 for internal review (simulation results) — 2 July 2026 — not for distribution", { italics: true, size: 20, color: "B00000" })],
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 60 },
@@ -130,7 +130,7 @@ body.push(new Paragraph({
 
 // Abstract
 body.push(H1("Abstract"));
-body.push(P("Toroidal multipass cells fold long absorption paths into compact, mechanically robust volumes, but published designs demonstrate at most ~10 m of optical path in the 100–200 mm diameter class and typically require custom diamond-turned optics. We present a family of ring-geometry multipass cells that reach a verified 20.4–24.8 m optical path length within a 180 mm assembly envelope — and 20.6 m within 159 mm — using 13–16 catalogue 25.4 mm concave mirrors (≈US$1000 of optics) and a sub-kilogram optical head. Three design principles enable this: (i) a chord-skip ring geometry whose near-diameter chords deliver up to 143 mm of path per reflection at 7–13° incidence; (ii) an engineered dual-plane re-entrance condition in which the machined ring radius acts as the closure-tuning parameter (≈1.2 rad of accumulated transverse phase per millimetre), with a number-theoretic constellation rule that guarantees fringe-safe spot separation on every mirror; and (iii) mode-matched injection through a single 1.3 mm coupling hole, which makes hole losses negligible so that cell transmission equals R^(n−1) exactly in mirror reflectivity R — 86.7 % for the headline 20.4 m design at R = 0.999. Designs are verified with an exact three-dimensional ray tracer including astigmatic Gaussian-beam propagation, cross-validated against an independent ray tracer to sub-micrometre agreement, and toleranced by Monte-Carlo analysis: at research-grade build tolerances the headline design completes all 144 traversals in 100 % of trials, the ±1 % catalogue tolerance on mirror focal length is absorbed by a linear 0.72 mm-per-percent trim of the ring radius, and a plain aluminium ring holds alignment over ±26 K."));
+body.push(P("Toroidal multipass cells fold long absorption paths into compact, mechanically robust volumes, but published designs demonstrate at most ~10 m of optical path in the 100–200 mm diameter class and typically require custom diamond-turned optics. We present a family of ring-geometry multipass cells that reach a verified 20.4–24.8 m optical path length within a 180 mm assembly envelope — and 20.6 m within 159 mm — using 13–16 catalogue 25.4 mm concave mirrors (≈US$1000 of optics) and a sub-kilogram optical head. Three design principles enable this: (i) a chord-skip ring geometry whose near-diameter chords deliver up to 143 mm of path per reflection at 7–13° incidence; (ii) an engineered dual-plane re-entrance condition in which the machined ring radius acts as the closure-tuning parameter (≈1.2 rad of accumulated transverse phase per millimetre), with a number-theoretic constellation rule that guarantees fringe-safe spot separation on every mirror; and (iii) mode-matched injection through a single 1.3 mm coupling hole, which makes hole losses negligible so that cell transmission equals R^(n−1) exactly in mirror reflectivity R — 86.7 % for the headline 20.4 m design at R = 0.999. Designs are verified with an exact three-dimensional ray tracer including astigmatic Gaussian-beam propagation, cross-validated against an independent ray tracer to sub-micrometre agreement, and toleranced by Monte-Carlo analysis: at research-grade build tolerances the headline design completes all 144 traversals in 100 % of trials, the ±1 % catalogue tolerance on mirror focal length is absorbed by a linear 0.72 mm-per-percent trim of the ring radius, and a plain aluminium ring holds alignment over ±26 K. An exhaustive search over the full catalogue space additionally establishes the architecture's boundaries: a 141 mm minimum feasible envelope, and a ≈25 m verified path ceiling set by spot-constellation crowding on the 25.4 mm aperture rather than by the photon budget."));
 
 // 1 Introduction
 body.push(H1("1. Introduction"));
@@ -153,7 +153,7 @@ body.push(H1("3. Numerical methods"));
 body.push(P("Designs were generated and verified with our open simulation platform: an exact 3-D ray tracer on toroidal/spherical surfaces (analytic normals, Newton-iterated intersections, per-bounce aperture tests), astigmatic Gaussian propagation via per-plane complex-q ABCD transfer with the actual per-bounce incidence angles and an M² factor, loss budget, per-plane stability, and spot diagnostics; earlier iterations of the platform added Sobol design-space sampling and machine-learning surrogates used in the exploratory phase. The search runs in two stages: Stage A enumerates the catalogue space (16 curvatures × N = 8–16 × coprime skips × a fine ring-radius grid × odd k) against packing, envelope, stability, closure-residual and constellation criteria; Stage B ray-traces survivors, sweeps the ring radius in 20 µm steps to locate the ~20 µm-wide closure valley, and polishes six launch/geometry parameters by Nelder-Mead. A design is accepted only if the final trace passes all eight checks of Table 2. The tracer was cross-validated against the independent open-source ray tracer Optiland [15]: over 64 bounces of the headline design the two agree to 0.000 µm RMS in spot position, 0.01° in incidence angle, and 0.8 µm in chord length."));
 
 // Fig 1 cell3d
-body.push(...fig("drone_20m_cell3d.png",
+body.push(...fig("drone_20m_cell3d_paper.png",
   "Exact traced beam path of the headline design: 16 catalogue mirrors on a 72.155 mm ring, 144 chords (20.38 m), coloured by bounce order; the input beam (green) enters through the 1.3 mm hole in M0 and the closed pattern exits through the same hole.", 580));
 
 // 4 Results
@@ -164,6 +164,7 @@ body.push(...tbl(
   ["design", "mirrors", "R_ring [mm]", "chords", "OPL [m]", "T @0.999 (0.985/0.97)", "env. × height [mm]"],
   [
     ["max OPL", "16 × CM254-200 (R 400)", "71.758", "176", "24.77", "83.9 % (7.1/0.5)", "180 × 22"],
+    ["mid Pareto", "14 × CM254-100 (R 200)", "67.849", "182", "22.25", "83.4 % (6.5/0.4)", "172 × 26"],
     ["headline 20 m", "16 × CM254-150 (R 300)", "72.155", "144", "20.38", "86.7 % (11.5/1.3)", "180 × 16"],
     ["mid", "12 × CM254-075 (R 150)", "67.489", "156", "20.34", "85.6 % (9.6/0.9)", "171 × 22"],
     ["compact 20 m", "13 × CM254-050 (R 100)", "61.519", "169", "20.64", "84.5 % (7.9/0.6)", "159 × 18"],
@@ -171,17 +172,21 @@ body.push(...tbl(
     ["small", "12 × CM254-250 (R 500)", "53.486", "132", "13.64", "87.7 % (13.8/1.9)", "143 × 16"],
   ],
   [1450, 2350, 1150, 850, 850, 1650, 1060]));
-body.push(P("At R = 0.999 — the reflectivity class of enhanced/dielectric coatings, and the design assumption adopted here (a protected-gold build at R ≈ 0.985 is quoted in brackets; the choice of coating is a procurement decision, not a design change) — all designs transmit 84–88 %, and the longest-path corners become unambiguously preferred since 30–40 extra reflections cost only ~3 % of signal. The verified boundary of the approach under these constraints is a 141 mm envelope (13.4 m); the best near-miss outside it — 18.0 m in 140 mm — fails only by an intermediate spot grazing the coupling hole by 0.56 mm, and re-slotting the hole within the constellation is an open lever. Below 105 mm, eight 25.4 mm mirrors no longer pack on the ring."));
+body.push(...fig("menu_pareto.png",
+  "The verified design menu as an envelope–path map (marker colour = transmission at R = 0.999). The Pareto frontier is populated entirely by catalogue-mirror designs; the dashed line marks the ~10 m demonstrated record of published toroidal cells in this size class.", 540));
+body.push(P("At R = 0.999 — the reflectivity class of enhanced/dielectric coatings, adopted as the project baseline (a protected-gold build at R ≈ 0.985 is quoted in brackets; the coating is a procurement decision, not a design change) — all designs transmit 83–88 %, and the long-path corners become unambiguously preferred since 30–40 extra reflections cost only ~3 % of signal. Two boundaries of the architecture were established by exhaustive search (0.05 mm ring-radius grid, up to 240 bounces, k ≤ 15 spots per mirror). Downward: the smallest feasible envelope is 141 mm (13.4 m); the best near-miss — 18.0 m in 140 mm — fails only by an intermediate spot grazing the coupling hole by 0.56 mm, and re-slotting the hole within the constellation is an open lever; below 105 mm, eight 25.4 mm mirrors no longer pack. Upward: the verified path ceiling is ≈25 m — the 26–32 m corner never closes because 15-spot-per-mirror constellations self-crowd under the exact worst-pair rule. The ceiling is thus set by spot geometry on the 11.4 mm clear aperture, not by the photon budget, and larger-aperture mirrors (at the cost of packing) are the identified route past it."));
 
 body.push(H2("4.2 The headline design"));
 body.push(P("The 20.38 m design uses sixteen CM254-150 mirrors (R = 300 mm) on a ring machined to R_ring = 72.155 mm (envelope 180 mm, inner height 16 mm, sampled volume 0.26 L). The beam enters at 11.25° mean incidence, completes 144 chords of mean 141.5 mm, deposits 9 spots on each mirror with a worst-pair separation of 0.99 mm against summed beam radii of ~0.64 mm, keeps 4.9 mm of aperture margin, and re-crosses the hole plane within 6 nm of the entrance point at the designed bounce; all eight intermediate visits to M0 clear the hole by at least 1.46 mm beyond the local beam radius. Mode matching sets a 0.326 mm waist 102 mm past the hole (radius at the hole 0.365 mm; hole transmission 100.0 %). Transmission is R^143 = 86.7 % at R = 0.999: a 10 mW DFB source delivers ≈8.7 mW to the detector, so the photon budget is not the limiting factor at any realistic coating."));
 
-body.push(...fig("drone_20m_constellations.png",
+body.push(...fig("drone_20m_constellations_paper.png",
   "Per-mirror spot constellations of the headline design (ray-traced): each of the 16 mirrors carries the same 9-point pattern at a different phase origin; the worst pair over all mirrors is the verified fringe-safety quantity. M0 additionally shows the entrance/exit hole.", 560));
 body.push(...fig("drone_20m_beam_evolution.png",
   "Tangential and sagittal 1/e² beam radii at each bounce under mode-matched injection: the beam rides the cell eigenmode at 0.21–0.42 mm for all 144 chords, an order of magnitude below the 11.4 mm clear aperture.", 520));
-body.push(...fig("drone_20m_experiment.png",
+body.push(...fig("drone_20m_experiment_paper.png",
   "As-built rendering of the headline design: sixteen 25.4 mm mirrors in a one-piece machined ring; laser collimator, mode-matching lens and detector all mount behind M0, the exit beam leaving 22.5° from the injection axis.", 560));
+body.push(...fig("throughput_vs_R.png",
+  "Coating choice sets the photon budget: with the coupling hole rendered lossless by mode matching, transmission is exactly R to the power (chords − 1) for every design. Vertical guides mark conservative catalogue gold, typical protected gold, and enhanced/dielectric coatings.", 520));
 
 // 4.3 drone budget
 body.push(H2("4.3 Drone integration: mass and power budget"));

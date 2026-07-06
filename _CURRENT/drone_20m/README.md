@@ -33,18 +33,25 @@ phase origin per mirror; worst pair distance is a verified check.*
 
 ## The verified menu
 
-| class | design | mirrors | R_ring | chords | **OPL** | T @ R=0.985 | T(R) | envelope | height | optics cost |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Ø180 max-OPL | [spec](designs/spec_D190_maxOPL.md) | 16 × CM254-200-M01 (ROC 400) | 71.758 | 176 | **24.77 m** | 7.1 % | R¹⁷⁵ | 180 mm | 22 mm | ~$1184 |
-| Ø180 max-T (**headline 20 m**) | [spec](designs/spec_D190_maxT.md) | 16 × CM254-150-M01 (ROC 300) | 72.155 | 144 | **20.38 m** | 11.5 % | R¹⁴³ | 180 mm | 16 mm | ~$1184 |
-| Ø171 | [spec](designs/spec_D180_maxT.md) | 12 × CM254-075-M01 (ROC 150) | 67.489 | 156 | 20.34 m | 9.6 % | R¹⁵⁵ | 171 mm | 22 mm | ~$888 |
-| Ø159 (**compactness star**) | [spec](designs/spec_D160_maxOPL.md) | 13 × CM254-050-M01 (ROC 100) | 61.519 | 169 | **20.64 m** | 7.9 % | R¹⁶⁸ | 159 mm | 18 mm | ~$962 |
-| Ø160 max-T | [spec](designs/spec_D170_maxT.md) | 13 × CM254-150-M01 (ROC 300) | 62.087 | 143 | 16.60 m | 11.7 % | R¹⁴² | 160 mm | 20 mm | ~$962 |
-| Ø143 | [spec](designs/spec_D150_maxOPL.md) | 12 × CM254-250-M01 (ROC 500) | 53.486 | 132 | 13.64 m | 13.8 % | R¹³¹ | 143 mm | 16 mm | ~$888 |
-| Ø141 | — | 12 × CM254-050-M01 (ROC 100) | 52.402 | 132 | 13.36 m | 13.8 % | R¹³¹ | 141 mm | 18 mm | ~$888 |
+Transmission quoted at R = 0.999 (project baseline; hole is lossless so
+**T(R) = R^(chords−1) exactly** — 0.985-gold values in brackets).
 
-Hole transmission is ~100 % in and out (mode-matched beam ≪ hole), so
-**T(R) = R^(chords−1) exactly** — substitute your own coating number.
+| class | design | mirrors | R_ring | chords | **OPL** | T @0.999 (0.985) | envelope | height | optics cost |
+|---|---|---|---|---|---|---|---|---|---|
+| Ø180 max-OPL | [spec](designs/spec_D190_maxOPL.md) | 16 × CM254-200-M01 (ROC 400) | 71.758 | 176 | **24.77 m** | **83.9 %** (7.1) | 180 mm | 22 mm | ~$1184 |
+| Ø172 mid (new) | [spec](designs/spec_D180_22m.md) | 14 × CM254-100-M01 (ROC 200) | 67.849 | 182 | **22.25 m** | 83.4 % (6.5) | 172 mm | 26 mm | ~$1036 |
+| Ø180 max-T (**headline 20 m**) | [spec](designs/spec_D190_maxT.md) | 16 × CM254-150-M01 (ROC 300) | 72.155 | 144 | **20.38 m** | **86.7 %** (11.5) | 180 mm | 16 mm | ~$1184 |
+| Ø171 | [spec](designs/spec_D180_maxT.md) | 12 × CM254-075-M01 (ROC 150) | 67.489 | 156 | 20.34 m | 85.6 % (9.6) | 171 mm | 22 mm | ~$888 |
+| Ø159 (**compactness star**) | [spec](designs/spec_D170_maxOPL.md) | 13 × CM254-050-M01 (ROC 100) | 61.519 | 169 | **20.64 m** | 84.5 % (7.9) | 159 mm | 18 mm | ~$962 |
+| Ø160 max-T | [spec](designs/spec_D170_maxT.md) | 13 × CM254-150-M01 (ROC 300) | 62.087 | 143 | 16.60 m | 86.8 % (11.7) | 160 mm | 20 mm | ~$962 |
+| Ø143 | [spec](designs/spec_D150_maxOPL.md) | 12 × CM254-250-M01 (ROC 500) | 53.486 | 132 | 13.64 m | 87.7 % (13.8) | 143 mm | 16 mm | ~$888 |
+| Ø141 | — | 12 × CM254-050-M01 (ROC 100) | 52.402 | 132 | 13.36 m | 87.7 % (13.8) | 141 mm | 18 mm | ~$888 |
+
+The deep search (0.05 mm ring grid, k ≤ 15, up to 240 bounces) also
+established the **verified OPL ceiling of the architecture: ≈25 m** — the
+26–32 m corner does not close because 15-spot-per-mirror constellations
+self-crowd (exact worst-pair rule), i.e. the limit is spot geometry, not
+photon budget.
 
 **Verified boundary**: Ø141 mm is the smallest feasible envelope found
 (N ≥ 8 packing floor is Ø105). Best near-miss outside it: 18.0 m in Ø140 mm

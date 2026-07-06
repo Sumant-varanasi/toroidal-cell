@@ -179,6 +179,18 @@ PRESETS: Dict[str, dict] = {
         label="Drone 24.8 m @ 180 mm -- 16x CM254-200-M01, 7.1% T",
     ),
 
+    "drone_22m": dict(
+        # Mid Pareto point: 22.25 m in 172 mm; 14 x CM254-100-M01 (ROC 200).
+        # 182 chords / 181 reflections -> 83.4 % at R = 0.999.
+        N=14, chord_skip=5, R_ring=67.8486, H=26.0,
+        R_t=200.0, R_s=200.0, mirror_aperture=11.4,
+        w0=0.2, M2=1.0, input_waist_offset=45.15,
+        input_offset_z=7.6485, input_angle=0.048492,
+        input_angle_sag=-0.005229,
+        reflectivity=0.985, hole_radius=1.3, n_passes=182,
+        label="Drone 22.3 m @ 172 mm -- 14x CM254-100-M01",
+    ),
+
     "drone_16cm": dict(
         # Compactness corner: 20.64 m in 159 mm; 13 x CM254-050-M01
         # (ROC 100, cheapest SKU). 169 chords -> 7.9 % at R = 0.985.
