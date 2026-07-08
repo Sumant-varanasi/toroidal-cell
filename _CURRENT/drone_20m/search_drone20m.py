@@ -71,10 +71,13 @@ from tmpc_platform_v5.samplers import FAMILIES                    # noqa: E402
 # ---------------------------------------------------------------------------
 # Fixed design constants (from the 2026-07-02 brief)
 # ---------------------------------------------------------------------------
-W0 = 1.3                 # collimated INPUT beam radius [mm] (user-fixed);
-#   a small mode-matching lens (or collimator refocus) may shrink the
-#   beam before the hole -- the cell-side constraint is w(hole) <= HOLE_R
-HOLE_R = 1.3             # entrance/exit hole radius [mm] (user-fixed)
+W0 = float(os.environ.get("TMPC_W0", "1.3"))
+#   collimated INPUT beam radius [mm] (user-fixed 1.3 for the project
+#   collimator); a small mode-matching lens may shrink the beam before
+#   the hole -- the cell-side constraint is w(hole) <= HOLE_R
+HOLE_R = float(os.environ.get("TMPC_HOLE_R", "1.3"))
+#   entrance/exit hole radius [mm] (user-fixed 1.3; env override exists
+#   only for the half-inch mini-collimator study, 2026-07-08)
 WAVELENGTH = float(os.environ.get("TMPC_WAVELENGTH_MM", "1.654e-3"))
 #   CH4 1654 nm default; override via env (survives multiprocessing spawn):
 #   NH3 1512.2 nm -> 1.5122e-3, H2 (1-0) S(1) 2121.8 nm -> 2.1218e-3
