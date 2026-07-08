@@ -81,11 +81,15 @@ glued/welded construction for vibration regardless, making this tier the
 operative drone menu.
 
 **Tier 3 — active alignment required** (feasible nominal designs whose
-dense patterns exceed passive build tolerances): 24.8 m/Ø180
-(`drone_25m`), 26.8 m/Ø172, 22.3 m/Ø172 (`drone_22m`), 20.6 m/Ø159
-(`drone_16cm`), up to **38.6 m/Ø169** (14 × CM254-100, 322 chords, 72.5 %)
-— the geometric ceiling of the architecture; buildable only with in-situ
-trim (ring temperature + launch piezo) or sub-0.1 mrad machining.
+dense patterns exceed passive build tolerances): **26.7 m/Ø157** (12 ×
+CM254-075, 228 chords — new, v9 deep search), 24.8 m/Ø180 (`drone_25m`),
+22.0 m/Ø155, 22.3 m/Ø172 (`drone_22m`), 20.6 m/Ø159 (`drone_16cm`), up
+to **38.6 m/Ø169** (14 × CM254-100, 322 chords, 72.5 %) — the geometric
+ceiling of the architecture; buildable only with in-situ trim (ring
+temperature + launch piezo) or sub-0.1 mrad machining. A second, deeper
+search pass (walk-budget 0.55, top-200/refine-80) found **no additions
+to the flight-robust tier** — the Tier-2 menu is the converged robust
+frontier of this architecture, not a sampling artifact.
 
 The tier structure is the quantitative answer to "smaller, longer, and
 tolerant": at R = 0.999 the photon budget allows ~700 reflections, so the
@@ -97,6 +101,55 @@ tolerances, 29 m at flight-grade, 39 m only with active alignment.
 failing only by an intermediate spot grazing the hole by 0.56 mm — placing
 the hole at a different constellation slot (tangential launch offset) is the
 open lever.
+
+## Professor-feedback round (2026-07-08) — comparisons, tri-gas, windows, manufacturing
+
+Six new studies answer Dr. Benoy's review of the draft
+([full docs in designs/](designs/)):
+
+- **[IRsweep IRcell + literature comparison](designs/irsweep_comparison.md)**
+  — the closest commercial cell (IRcell-S15) folds 15.12 m into Ø194 mm /
+  128 mL; our 20.38 m in Ø180 is +35 % path in a smaller disc at 86.7 %
+  verified throughput, with catalog mirrors instead of a diamond-turned
+  monolith. **Beams do not overlap**: worst same-mirror spot pair sits
+  2.8–4.6 beam radii apart → field coupling −34…−92 dB (the toroidal
+  IRcell ancestor superposes beams by construction and needs a Teflon
+  absorption mask). Volume is the honest downside: 200–330 mL minimum
+  chamber vs their 31–128 mL; per litre we match the published toroidal
+  family (70–127 m/L) with 2–5× their absolute path.
+- **[Tri-gas menu](designs/multigas.md)** — CH₄ 1653.7 nm / NH₃ 1512.2 nm /
+  H₂ 2121.8 nm. Geometry is wavelength-independent (spots scale √λ):
+  NH₃ re-verifies the **entire 7-design flight menu as-built**; H₂
+  (+13.3 % spots) keeps six designs including both 20 m cells, and a
+  dedicated 2121.8 nm search recovered a **23.8 m / Ø174 H₂-robust**
+  design. Detection limits at 20.4 m, 10⁻⁴ NEA: **129 ppb CH₄, 92 ppb
+  NH₃, 0.17–0.31 %v H₂** (the quadrupole line is 10⁵ weaker — percent-LEL
+  leak alarm in direct absorption, tens of ppm with WMS at 10⁻⁶).
+  ⚠ line-label fix for the paper: 1653.73 nm is 2ν₃ **R(3)**, not R(4).
+- **[Entry/exit: hole vs side](designs/entry_exit_comparison.md)** — the
+  hole is a *transverse-selective* aperture: a side slot escapes at the
+  first azimuthal return (N chords), capping the Ø180 ring at 2.3 m; the
+  hole is worth exactly k = 9–19× in path.
+- **[Window selection](designs/window_selection.md)** — **WW10530-C**
+  (Ø1/2″ UVFS wedged, AR 1050–1700 nm) for NH₃+CH₄ and **WW30530-D**
+  (Ø1/2″ **sapphire** wedged, AR 1.65–3.0 µm) for CH₄+H₂; 30 arcmin wedge
+  + 3–5° mount tilt (ghost walk-off ~30× beam divergence; measured 23×
+  fringe suppression precedent). CaF₂ rejected on numbers: sapphire is
+  ~10× harder, ~12–19× stronger in rupture, ~4–6× tougher.
+- **[Manufacturing & construction tolerance](designs/manufacturing.md)** —
+  process-capability-mapped Monte-Carlo: dense 204-chord designs survive
+  only precision-CNC Al; the sparse 144-chord `drone_20m` completes 100 %
+  even on standard CNC or a printed body with machined seats (fails only
+  the *no-realignment* exit spec by 20 µm → fine after the standard one
+  trim). A fully-printed $200 cell fails three independent ways
+  (as-printed accuracy, CTE/moisture drift, lid modes 327–535 Hz inside
+  the 60–700 Hz rotor band). CNC Al at one-off quantities costs the same
+  as a good print. Housing mass: 1.7 kg solid → ~1.1–1.3 kg pocketed
+  (Ø180, Al), lid first mode 1.24 kHz.
+- **[Parametric CAD](designs/cad/)** — STEP (Fusion 360-ready) + STL for
+  Ø141/Ø180/Ø183 housings, generated from the verified design rows
+  (`housing_cad.py`), with mirror pockets, mirror-0 beam cone, window
+  boss, gas ports; FEA/DFM handoff for the team.
 
 ## Engineering studies ([full report](designs/investigations.md))
 
