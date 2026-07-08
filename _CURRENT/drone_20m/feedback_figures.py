@@ -72,22 +72,28 @@ def new_design_3d():
 # 2. graded spot-overlap criterion figure
 # ---------------------------------------------------------------------------
 MENU_LABELS = {
-    ("CM254-750-M01", 12, 204): ("29.0 m  Ø183", "#c44536"),
-    ("CM254-200-M01", 16, 176): ("24.8 m  Ø180", "#e07a5f"),
-    ("CM254-500-M01", 12, 204): ("20.7 m  Ø141", "#2a9d8f"),
-    ("CM254-150-M01", 16, 144): ("20.4 m  Ø180", "#1f77b4"),
-    ("CM254-150-M01", 13, 143): ("16.6 m  Ø160", "#8a5fbf"),
-    ("CM254-150-M01", 10, 190): ("14.9 m  Ø133", "#b08968"),
-    ("CM254-250-M01", 12, 132): ("13.6 m  Ø143", "#6c757d"),
+    # (sku, N, n_exit, R_ring rounded to integer mm)
+    ("CM254-750-M01", 12, 204, 74): ("29.0 m  Ø183", "#c44536"),
+    ("CM254-200-M01", 16, 176, 75): ("25.7 m  Ø185 (tri-gas)", "#e63946"),
+    ("CM254-200-M01", 16, 176, 72): ("24.8 m  Ø180", "#e07a5f"),
+    ("CM254-200-M01", 16, 176, 69): ("23.8 m  Ø174 (H2)", "#264653"),
+    ("CM254-500-M01", 12, 204, 52): ("20.7 m  Ø141", "#2a9d8f"),
+    ("CM254-150-M01", 16, 144, 72): ("20.4 m  Ø180", "#1f77b4"),
+    ("CM254-150-M01", 13, 143, 62): ("16.6 m  Ø160", "#8a5fbf"),
+    ("CM254-100-M01", 16, 112, 70): ("15.3 m  Ø175 (sparse)", "#457b9d"),
+    ("CM254-150-M01", 10, 190, 48): ("14.9 m  Ø133", "#b08968"),
+    ("CM254-250-M01", 12, 132, 53): ("13.6 m  Ø143", "#6c757d"),
+    ("CM127-050-M01", 14, 98, 52): ("9.1 m  Ø129 (1/2-inch)", "#588157"),
 }
-H2_KEY = ("CM254-200-M01", 16, 176, 69.01)
 
 
 def load_menu_rows():
     rows, seen = [], set()
     for f, lam in (("robust_menu.csv", 1654.0),
                    ("robust_menu_flight.csv", 1654.0),
-                   ("robust_menu_h2_flight.csv", 2121.8)):
+                   ("robust_menu_h2_flight.csv", 2121.8),
+                   ("robust_menu_hardened_flight.csv", 1654.0),
+                   ("robust_menu_minihole_flight.csv", 1654.0)):
         p = os.path.join(_HERE, "designs", f)
         if not os.path.exists(p):
             continue
@@ -95,19 +101,13 @@ def load_menu_rows():
         d = d[d["robust"] | d["robust_trim"]]
         for _, r in d.iterrows():
             key = (r["sku"], int(r["N"]), int(r["n_exit"]),
-                   round(float(r["R_ring"]), 0))
-            if key in seen:
+                   int(round(float(r["R_ring"]), 0)))
+            if key in seen or key not in MENU_LABELS:
                 continue
             seen.add(key)
             row = r.to_dict()
             row["lambda_nm"] = lam
-            k3 = key[:3]
-            if abs(key[3] - 69.01) < 0.05 and k3 == H2_KEY[:3]:
-                row["_label"], row["_color"] = "23.8 m  Ø174 (H2)", "#264653"
-            elif k3 in MENU_LABELS:
-                row["_label"], row["_color"] = MENU_LABELS[k3]
-            else:
-                continue
+            row["_label"], row["_color"] = MENU_LABELS[key]
             rows.append(row)
     return rows
 
