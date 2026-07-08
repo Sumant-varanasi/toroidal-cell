@@ -94,6 +94,8 @@ def refine_native(cand):
                sep_margin=sep, hole_clear=clear,
                envelope_mm=float(env), opl_m=res2.opl / 1000.0,
                throughput=REFL ** max(0, n_exit - 1),
+               ang_t=float(at), ang_s=float(asag), off_z=float(oz),
+               w0=float(w0), waist_frac=float(wf),
                sku_a=SKU.get(ra, str(ra)), sku_b=SKU.get(rb, str(rb)))
     out["feasible"] = bool(miss < 0.05 and (sep or -1) > 0.0
                            and (clear or -1) > 0.0 and env <= ENVELOPE_MAX)
@@ -116,7 +118,17 @@ def explore(combo):
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--combos", default=None,
+                    help='filter, e.g. "16:7:500:750,12:5:1000:1500"')
+    ap.add_argument("--out-name", default="mixed_sku_native.csv")
     args = ap.parse_args()
+    global COMBOS
+    if args.combos:
+        want = [tuple(float(x) for x in c.split(":"))
+                for c in args.combos.split(",")]
+        COMBOS = [c for c in COMBOS
+                  if (float(c[0]), float(c[1]), c[2], c[3]) in
+                  [(w[0], w[1], w[2], w[3]) for w in want]]
     print(f"{len(COMBOS)} combos, k in {K_KEEP[0]}..{K_KEEP[-1]}, "
           f"sep target {SEP_WANT} mm in-objective")
     rows = []
@@ -133,7 +145,7 @@ def main() -> int:
                       f"sep={r.get('sep_margin', -9) if r.get('sep_margin') is not None else -9:.2f} "
                       f"{tag}", flush=True)
     df = pd.DataFrame(rows)
-    out_csv = os.path.join(_HERE, "designs", "mixed_sku_native.csv")
+    out_csv = os.path.join(_HERE, "designs", args.out_name)
     df.to_csv(out_csv, index=False)
     feas = df[df.get("feasible", False) == True] if len(df) else df  # noqa: E712
     print(f"\n{len(feas)} feasible margin-aware mixed designs -> {out_csv}")
