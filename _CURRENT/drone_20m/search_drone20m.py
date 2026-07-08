@@ -118,6 +118,12 @@ W_BREATHE = 1.20         # residual breathing over a mode-matched launch
 R_RING_MAX = (ENVELOPE_MAX - 2.0 * RADIAL_ALLOWANCE) / 2.0        # 77 mm
 R_RING_MIN = 25.0
 N_RANGE = range(9, 17)   # mirror count 9..16 (user, 2026-07-02);
+if os.environ.get("TMPC_N_RANGE"):
+    # e.g. TMPC_N_RANGE="8,10" -> range(8, 10)  [lo, hi) like range()
+    _lo, _hi = (int(x) for x in os.environ["TMPC_N_RANGE"].split(","))
+    N_RANGE = range(_lo, _hi)
+    # user floor (2026-07-02): never below 6-7 mirrors
+    assert _lo >= 7, "N floor is 7 (user constraint)"
 #   packing floor at N=9 is a ~113 mm envelope
 
 

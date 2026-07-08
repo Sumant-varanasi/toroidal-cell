@@ -82,11 +82,24 @@ ONE_INCH_GOLD_CONCAVE: List[Tuple[str, float, float]] = [
     ("CM254-750-M01",  750.0, 1500.0),
     ("CM254-1000-M01", 1000.0, 2000.0),
 ]
+TWO_INCH_GOLD_CONCAVE: List[Tuple[str, float, float]] = [
+    # CM508-series protected-gold concave (verify SKU availability per lot)
+    ("CM508-075-M01",   75.0,  150.0),
+    ("CM508-100-M01",  100.0,  200.0),
+    ("CM508-150-M01",  150.0,  300.0),
+    ("CM508-200-M01",  200.0,  400.0),
+    ("CM508-250-M01",  250.0,  500.0),
+    ("CM508-500-M01",  500.0, 1000.0),
+    ("CM508-750-M01",  750.0, 1500.0),
+    ("CM508-1000-M01", 1000.0, 2000.0),
+]
 FAMILIES = {
     "half_inch": {"catalog": HALF_INCH_GOLD_CONCAVE,
                   "diameter_mm": 12.7, "clear_aperture_radius_mm": 5.7},
     "one_inch":  {"catalog": ONE_INCH_GOLD_CONCAVE,
                   "diameter_mm": 25.4, "clear_aperture_radius_mm": 11.4},
+    "two_inch":  {"catalog": TWO_INCH_GOLD_CONCAVE,
+                  "diameter_mm": 50.8, "clear_aperture_radius_mm": 22.9},
 }
 REFLECTIVITY_1654NM = 0.97
 
