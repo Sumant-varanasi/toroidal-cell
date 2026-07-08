@@ -201,10 +201,14 @@ LIT_OFF = {
     "Chang 2020 (3-layer)": (-6, 8, "right"),
 }
 OUR_OFF = {
-    "29.0": (8, 2, "left"), "24.8": (8, 4, "left"),
+    "29.0": (8, 2, "left"), "25.7": (8, 4, "left"),
+    "24.8": (8, -8, "left"),
     "23.8": (-9, -13, "right"), "20.7": (-9, 5, "right"),
     "20.4": (8, -5, "left"), "16.6": (8, -11, "left"),
+    "15.3": (8, 6, "left"),
     "14.9": (-9, 7, "right"), "13.6": (8, -10, "left"),
+    "9.1": (-10, 7, "right"), "9.2": (8, -12, "left"),
+    "7.5": (8, -4, "left"),
 }
 
 
@@ -263,12 +267,16 @@ def volume_pvr():
 def construction_bars():
     df = pd.read_csv(os.path.join(_HERE, "designs",
                                   "construction_tolerance.csv"))
+    extra = os.path.join(_HERE, "designs", "construction_tolerance_15m.csv")
+    if os.path.exists(extra):
+        df = pd.concat([df, pd.read_csv(extra)], ignore_index=True)
     procs = ["CNC precision (flight)", "CNC standard",
              "printed + machined seats", "SLA (tough resin)",
              "MJF/SLS (PA12)", "FDM (PLA/PETG)"]
     designs = list(df["design"].unique())
-    fig, axes = plt.subplots(1, len(designs), figsize=(11.2, 4.2), dpi=200,
-                             sharey=True)
+    fig, axes = plt.subplots(1, len(designs),
+                             figsize=(2.8 * len(designs) + 3.0, 4.2),
+                             dpi=200, sharey=True)
     for ax, des in zip(axes, designs):
         sub = df[df["design"] == des].set_index("process").loc[procs]
         cols = []
