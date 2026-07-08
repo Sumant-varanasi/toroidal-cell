@@ -136,15 +136,15 @@ body.push(new Paragraph({
   children: [
     R("Sumant Varanasi", { size: 22 }), R("1,†", { size: 16, superScript: true }),
     R(", Thomas Benoy", { size: 22 }), R("2,†,*", { size: 16, superScript: true }),
-    R(", [Co-author 3]", { size: 22 }), R("1", { size: 16, superScript: true }),
-    R(", [Co-author 4]", { size: 22 }), R("1", { size: 16, superScript: true }),
-    R(", Rob Lennox", { size: 22 }), R("2", { size: 16, superScript: true }),
+    R(", Naman Shreyas Rindani", { size: 22 }), R("1", { size: 16, superScript: true }),
+    R(", Ayachi Padmanabh Mishra", { size: 22 }), R("1", { size: 16, superScript: true }),
+    R(", Rob Lennox", { size: 22 }), R("3", { size: 16, superScript: true }),
     R(", Evgeny Rebrov", { size: 22 }), R("2", { size: 16, superScript: true }),
   ],
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 40 },
-  children: [R("1 [Affiliation 1 — to confirm]   2 [Aston University, Birmingham, United Kingdom — department to confirm]", { size: 18 })],
+  children: [R("1 Indian Institute of Technology Delhi – Abu Dhabi, Abu Dhabi, United Arab Emirates   2 [University of Warwick, Coventry, United Kingdom — department to confirm]   3 Eblana Photonics, Dublin, Ireland", { size: 18 })],
 }));
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 240 },

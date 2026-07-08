@@ -1,0 +1,278 @@
+=== multipass_gas_cell_tolerance_analysis_alignment_regimes.docx | inline images: 4 ===
+
+Revised Multipass Gas Cell Tolerance, Alignment Capability and Maximum Drift Analysis
+Concave mirror construction, alignment component resolution, and operational thermal/vibration drift
+Prepared for: Thomas Benoy
+[Heading 1] Terminology used in this revised report
+Construction tolerance = manufacturing and fixing accuracy. This is the maximum as-built x/y/z and angular error of the two concave mirrors. The mirror position and tilt values are kept explicitly in the construction tables.
+Alignment tolerance = practical residual alignment capability. It starts from component resolution/repeatability and is multiplied by alignment difficulty and user capability. It does not include lab/field/drone thermal or vibration assumptions.
+Operational drift = maximum added movement under the relevant environment after construction and alignment. It includes temperature-driven CTE mismatch, O-ring/epoxy/joint creep risk, and vibration-induced angular/position movement.
+All effects are converted into equivalent input spot-pattern variation in mm and equivalent input angle in mrad using L = 300 mm mirror spacing.
+[Heading 1] Executive summary
+The practical design target is not just machining accuracy; the final gas cell must keep the spot pattern stable after temperature and vibration exposure.
+At 300 mm mirror spacing, 0.1 mrad mirror tilt produces approximately 60 micrometres of spot shift on the opposite mirror; 0.1 mm equivalent input spot variation corresponds to about 0.33 mrad equivalent input angle.
+Best laboratory route: aluminium/stainless cell with external low-drift kinematic mirror mounts and two folding mirrors for alignment freedom.
+Best field route: aluminium body with titanium/stainless/Invar mirror cartridge, dowel-pinned input collimator, and fixed output detector/focusing module.
+Best drone route: titanium or Invar-insert isostatic mirror cartridge, monolithic source/collimator, and direct 2 mm detector or monolithic micro-lens detector. Avoid external folding mirrors, Bosch rail references and O-ring-defined mirror planes.
+In this report, maximum tolerance for the destination is ordered by operational severity: drone has the largest allowable/expected total drift envelope, then field, then laboratory. This is different from manufacturing accuracy, where drone construction should be the tightest.
+Table 1. Revised total variation summary. RSS is used for design budget; arithmetic sum is the conservative same-direction worst case.
+--- TABLE ---
+Sequence | Environment | Total eq. input spot, RSS (mm) | Total eq. input angle, RSS (mrad) | Worst-case arithmetic sum spot (mm) | Detector margin (mm) | Internal spot-pattern status | Output collection status | Relative weight index
+Lab flexible development | Lab | 0.2 | 0.665 | 0.405 | 0.4 | PASS | PASS | 3.95
+Lab premium stable | Lab | 0.163 | 0.544 | 0.338 | 0.9 | PASS | PASS | 5.8
+Lab low-cost Bosch rail demo | Lab | 1.39 | 4.63 | 1.78 | 0.25 | FAIL | FAIL | 2.7
+Field good lockable | Field | 0.267 | 0.89 | 0.596 | 0.9 | FAIL | PASS | 3
+Field rugged stainless | Field | 0.245 | 0.818 | 0.51 | 0.75 | FAIL | PASS | 4
+Field best Ti cartridge | Field | 0.116 | 0.386 | 0.241 | 0.9 | PRACTICAL/MARGINAL | PASS | 2.25
+Drone acceptable Al + Ti insert | Drone | 0.168 | 0.56 | 0.386 | 0.75 | FAIL | PASS | 2.15
+Drone best titanium cartridge | Drone | 0.139 | 0.465 | 0.322 | 0.9 | FAIL | PASS | 2.6
+Drone thermal best Invar insert | Drone | 0.121 | 0.403 | 0.282 | 0.9 | FAIL | PASS | 2.35
+Drone not recommended external mirrors | Drone | 1.18 | 3.95 | 2.27 | 0.25 | FAIL | FAIL | 3.45
+Drone not recommended Bosch rail | Drone | 3.83 | 12.8 | 5.85 | 0.25 | FAIL | FAIL | 2.7
+Drone not recommended plastic reference | Drone | 2.89 | 9.64 | 4.11 | 0.25 | FAIL | FAIL | 1.85
+--- END TABLE ---
+[Heading 1] 1. Assumptions and conversion rules
+Table 2. Model assumptions.
+--- TABLE ---
+Quantity | Value used | Comment
+Mirror spacing, L | 300 mm | Scale all angle-to-spot values linearly with L
+Mirror tilt conversion | dx_spot = 2 L dtheta_mirror | Reflection doubles mirror angular error
+Input angle conversion | dx_spot = L dtheta_input | Input beam angle directly propagates to next mirror
+Axial construction effect | dx_z approx 0.1 dz | First-order sensitivity used for compact Herriott geometry
+Lab temperature excursion | 5 K | Controlled laboratory/enclosure
+Field temperature excursion | 25 K | Transport/field deployment
+Drone temperature excursion | 40 K | Outdoor payload plus electronics heating
+Direct detector beam diameter | 0.5 mm | Used for direct detector margin
+Focused beam diameter | 0.2 mm | Used for lens/OAP/micro-lens cases
+--- END TABLE ---
+Equivalent input spot from any angular error is reported at the cell input reference, so construction, alignment and operational errors can be compared on the same axis.
+For dense spot patterns, the preferred internal maximum spot variation is roughly <=0.20 mm for lab, <=0.10 mm for field, and <=0.05 mm preferred / <=0.10 mm practical for drone.
+dtheta_z roll is retained in the tables because a mirror hole at 15 mm radius moves by about 15 micrometres per 1 mrad roll, even though pitch/yaw dominate the Herriott pattern.
+[Heading 1] 2. Block diagram and theoretical framework for total tolerance
+The total tolerance calculation is performed by converting every physical error source into the same input-equivalent coordinates: equivalent input spot variation in mm and equivalent input angle theta in mrad. Construction, alignment and operation can then be combined consistently.
+Figure 1. Block diagram of the total tolerance calculation. All mechanical, alignment and operational effects are first converted to equivalent input spot and theta before being combined.
+Table 3. Theoretical framework for total tolerance calculation.
+--- TABLE ---
+Term | Meaning | What it contains | Conversion/use
+Construction term | Manufacturing and fixing accuracy | Mirror dx, dy, dz, dtheta x/y/z | Converted to equivalent input spot using lateral error plus 2L mirror tilt term
+Input alignment term | Practical ability to set input beam | Component resolution, alignment difficulty, user capability | dx_input and L dtheta_input, multiplied by ease/user factor
+Output alignment term | Practical ability to collect exiting beam | Detector/lens/mirror setting resolution and detector margin | Converted into equivalent input spot demand and compared with detector area
+Operational drift term | Temperature and vibration after build/alignment | CTE mismatch, epoxy/O-ring creep, mount vibration, frame slip | Converted to equivalent input spot/angle and added as maximum drift
+Total design value | RSS design budget | Root-sum-square of independent maximum terms | Used to rank likely performance
+Conservative value | Worst-case arithmetic sum | All terms move in same direction | Used to size mirror-hole and detector margins
+--- END TABLE ---
+Table 4. User capability multiplier. The default report calculation uses a trained photonics user. Multipliers can be changed for production or field-service assumptions.
+--- TABLE ---
+User capability level | Operator multiplier used
+Expert optical engineer | 0.8
+Trained photonics user | 1
+Field technician | 1.5
+General user / production operator | 2.5
+--- END TABLE ---
+Practical alignment tolerance is not only the screw resolution of a kinematic mount. It also depends on whether the user can observe the spot pattern, whether x/y and angle are coupled, whether the adjusters are accessible, and whether locking the mount changes the setting.
+The model used here is: practical_alignment = resolution_only * component_difficulty_multiplier * operator_capability_multiplier.
+A monolithic source/detector has less user alignment freedom but a smaller practical residual because the alignment is set by machining and assembly fixtures. Two folding mirrors provide high flexibility but more coupled degrees of freedom and poorer vibration survival.
+[Heading 1] 3. Material, O-ring and epoxy interpretation
+Table 3. Material data used in the tolerance model.
+--- TABLE ---
+Material/component | Typical CTE used (ppm/K) | Relative weight vs Al | Use in model
+Fused silica mirror | 0.55 | 1 | Mirror substrate reference; very low CTE
+Machined aluminium / 6061/6082 | 23.0 | 1 | Good practical body material if mirror reference is metal-to-metal
+Bosch-type aluminium extrusion | 23.0 | 0.7-1.0 | CTE is aluminium-like but bolted joints slip; not a final optical reference
+Stainless steel 304/316 | 16.0 | 2.9 | Stable and rugged but heavy
+Titanium Ti-6Al-4V | 8.6 | 1.6 | Best drift-to-weight compromise for drone mirror cartridges
+Invar 36 insert | 1.5 | 3 | Best thermal stability; use locally at mirror reference, not whole drone body
+PEEK/plastic | 45.0 | 0.5 | Light but high CTE/creep; not a mirror datum
+Optical epoxy, e.g. 353ND | 54.0 | small mass | Use only three small symmetric dots or staking; avoid continuous glue ring
+O-ring elastomer | very high/compliant | small mass | Use only for gas seal, not optical plane definition
+--- END TABLE ---
+[Heading 1] 4. Construction tolerance = manufacturing/fixing accuracy
+This section keeps the mirror x/y/z and angular values explicit. These are maximum as-built errors from machining, fixing method, O-ring/epoxy reference quality and construction process. The final two columns convert those construction tolerances into equivalent input spot and equivalent input angle.
+Table 4. Construction tolerance converted into equivalent input spot and angle.
+--- TABLE ---
+Construction / mirror reference | Material / local mirror ref. | Fixing method | Rel. wt | dx,dy per mirror max (mm) | dz per mirror max (mm) | dtheta x/y mirror max (mrad) | dtheta z roll max (mrad) | Eq. input spot from construction max (mm) | Eq. input angle from construction max (mrad)
+Al body + external kinematic mounts | Aluminium machined | external kinematic | 1.15 | 0.1 | 0.2 | 0.05 | 3 | 0.149 | 0.497
+SS body + external low-drift kinematic mounts | Stainless steel | external low-drift kinematic | 2.9 | 0.08 | 0.15 | 0.03 | 2 | 0.117 | 0.39
+Al body + lockable kinematic cartridges | Aluminium machined | lockable kinematic cartridge | 1.2 | 0.07 | 0.14 | 0.12 | 2 | 0.143 | 0.476
+SS body + three-point mirror clamp | Stainless steel | three-point spring clamp | 2.9 | 0.06 | 0.12 | 0.15 | 2 | 0.153 | 0.511
+Al body + Ti isostatic mirror cartridges | Titanium | isostatic bonded flexure cartridge | 1.25 | 0.045 | 0.09 | 0.08 | 1.5 | 0.093 | 0.312
+Ti body/cartridge + isostatic bonded flexure | Titanium | isostatic bonded flexure cartridge | 1.6 | 0.04 | 0.08 | 0.06 | 1.2 | 0.077 | 0.255
+Al body + Invar mirror inserts + flexure | Invar insert | isostatic flexure with Invar pads | 1.35 | 0.04 | 0.08 | 0.05 | 1 | 0.071 | 0.237
+Al body + precision bore/retaining ring | Aluminium machined | precision bore + retaining ring | 1.05 | 0.08 | 0.12 | 0.3 | 3 | 0.279 | 0.929
+Al body + O-ring as optical reference | Aluminium machined | O-ring-defined mirror plane | 1 | 0.18 | 0.25 | 0.8 | 6 | 0.725 | 2.42
+Bosch rail frame + external mounts | Bosch rail aluminium | bolted extrusion frame + kinematic mounts | 0.9 | 0.35 | 0.5 | 1.5 | 8 | 1.37 | 4.55
+PEEK/plastic body + bonded/soft references | PEEK/plastic | plastic/epoxy soft reference | 0.55 | 0.25 | 0.35 | 1 | 6 | 0.92 | 3.07
+--- END TABLE ---
+Construction conclusion: metal-to-metal dowel references plus flexure/kinematic mirror support can keep the construction contribution near 0.08-0.17 mm. Bosch rail, plastic references and O-ring-defined mirror planes produce construction variations that are too large for dense spot patterns.
+[Heading 1] 5. Alignment tolerance = resolution plus ease/user capability
+[Heading 2] 5.1 Alignment regimes: easy, medium and hard
+The alignment term is separated into three practical regimes. These values represent the maximum residual alignment error after the user has completed alignment, not the manufacturing/fixing tolerance and not the later operational drift. The values are converted to equivalent input spot movement using L = 300 mm and sqrt(dx^2 + (L dtheta)^2).
+--- TABLE ---
+Regime | Typical practical layout | Ease score | dx max (mm) | dy max (mm) | dz max (mm) | dtheta input max (mrad) | Eq. input spot at M2 (mm) | Recommended use | Interpretation
+Easy | Monolithic source/collimator in cell body; dowel-pinned source/detector; visible pilot beam or camera feedback | 5 | ±0.030 | ±0.030 | ±0.050 | ±0.080 | ±0.038 | Drone, field product, final locked cell | Alignment is largely set by construction; user only trims or verifies. Best repeatability.
+Medium | Dowel-pinned fibre collimator with shim; one folding mirror; compact adjustable collimator/cage | 3 | ±0.080 | ±0.080 | ±0.150 | ±0.250 | ±0.110 | Field and laboratory prototype | User can align accurately, but several coupled DOFs remain. Needs clear throughput/spot feedback.
+Hard | Two external folding mirrors; free-space source and detector; no internal camera/visible pilot; small 1 mm detector | 1 | ±0.200 | ±0.200 | ±0.300 | ±0.600 | ±0.269 | Laboratory development only | High steering freedom but coupled variables make precise repeatable alignment difficult. Avoid for drone/field final product.
+--- END TABLE ---
+Table 7A. Practical alignment regimes. The numbers are maximum residual errors after alignment and should be selected according to how easily a real user can align the input/output chain.
+Use the easy regime when the source, collimator and detector are monolithically referenced to the gas-cell body or dowel-pinned with clear optical feedback. Use the medium regime for shimmed or compact kinematic modules. Use the hard regime when two external folding mirrors or several independent free-space components must be aligned only by throughput. In the total-tolerance framework, the selected regime replaces the ideal resolution-only value before RSS combination with construction and operational drift.
+This section deliberately excludes lab/field/drone environmental drift. It estimates the practical maximum residual alignment after using the chosen component, including the component resolution, ease-of-alignment multiplier and assumed user capability.
+Table 6. Input alignment component resolution and practical user capability converted into equivalent input spot and angle.
+--- TABLE ---
+Input alignment component | Alignment source | dx input resolution max (mm) | dtheta input resolution max (mrad) | Resolution-only eq. input spot (mm) | Resolution-only eq. angle (mrad) | Ease/difficulty multiplier | Ease score 1-5 | Assumed user | Practical user eq. input spot (mm) | Practical user eq. angle (mrad) | Rel. wt | Comment
+Two folding mirrors, standard kinematic | component resolution + ease/user capability | 0.05 | 0.08 | 0.055 | 0.185 | 1.6 | 3 | Trained photonics user | 0.089 | 0.296 | 1.5 | Maximum steering freedom; not rugged
+Two folding mirrors, low-drift fine kinematic | component resolution + ease/user capability | 0.04 | 0.04 | 0.042 | 0.139 | 1.25 | 4 | Trained photonics user | 0.052 | 0.174 | 1.8 | Best lab alignment resolution
+One folding mirror + fixed collimator | component resolution + ease/user capability | 0.04 | 0.07 | 0.045 | 0.151 | 1.5 | 3 | Trained photonics user | 0.068 | 0.226 | 1.2 | Packaging compromise
+Adjustable fibre collimator/cage | component resolution + ease/user capability | 0.05 | 0.1 | 0.058 | 0.194 | 1.8 | 3 | Trained photonics user | 0.105 | 0.35 | 1 | Good lab/field aligner
+Dowel-pinned fibre collimator with shim | component resolution + ease/user capability | 0.03 | 0.08 | 0.038 | 0.128 | 1.3 | 4 | Trained photonics user | 0.05 | 0.166 | 0.7 | Good retained alignment
+Monolithic source/collimator in cell body | component resolution + ease/user capability | 0.02 | 0.05 | 0.025 | 0.083 | 1.1 | 5 | Trained photonics user | 0.028 | 0.092 | 0.5 | Best product/drone reference
+--- END TABLE ---
+Table 7. Output alignment/collection resolution and detector-area allowance converted into equivalent input spot and angle.
+--- TABLE ---
+Output collection component | Detector diameter (mm) | Assumed beam/focus diameter (mm) | Detector collection margin (mm) | Eq. input spot allowance from detector (mm) | Eq. input angle allowance (mrad) | Resolution-only output eq. spot (mm) | Resolution-only output eq. angle (mrad) | Ease/difficulty multiplier | Ease score 1-5 | Assumed user | Practical user output eq. spot (mm) | Practical user output eq. angle (mrad) | Rel. wt | Comment
+Direct 1 mm detector close to exit | 1 | 0.5 | 0.25 | 0.25 | 0.833 | 0.05 | 0.167 | 1.1 | 4 | Trained photonics user | 0.055 | 0.183 | 0.3 | Simplest, limited area
+Direct 2 mm detector close to exit | 2 | 0.5 | 0.75 | 0.75 | 2.5 | 0.05 | 0.167 | 1 | 5 | Trained photonics user | 0.05 | 0.167 | 0.4 | Best rugged collection
+Fold mirror + 1 mm detector | 1 | 0.5 | 0.25 | 0.25 | 0.833 | 0.071 | 0.236 | 1.6 | 3 | Trained photonics user | 0.113 | 0.377 | 0.8 | Lab/field steering
+Fold mirror + 2 mm detector | 2 | 0.5 | 0.75 | 0.75 | 2.5 | 0.071 | 0.236 | 1.4 | 4 | Trained photonics user | 0.099 | 0.33 | 0.9 | More margin
+Focusing lens/OAP + 1 mm detector | 1 | 0.2 | 0.4 | 0.4 | 1.33 | 0.06 | 0.2 | 1.8 | 3 | Trained photonics user | 0.108 | 0.361 | 1 | Good lab sensitivity
+Focusing lens/OAP + 2 mm detector | 2 | 0.2 | 0.9 | 0.9 | 3 | 0.06 | 0.2 | 1.5 | 4 | Trained photonics user | 0.09 | 0.301 | 1.1 | Good margin but extra optic
+Monolithic micro-lens + 2 mm detector | 2 | 0.2 | 0.9 | 0.9 | 3 | 0.03 | 0.1 | 1.1 | 5 | Trained photonics user | 0.033 | 0.11 | 0.5 | Best integrated product option
+--- END TABLE ---
+Output interpretation: detector active area gives an allowance, not an internal Herriott correction. A 2 mm detector gives much more collection margin than a 1 mm detector. Direct detector mounting is mechanically robust; an OAP/focusing mirror improves optical collection but adds another component that can drift.
+[Heading 1] 6. Operational drift: thermal and vibration effects on construction and alignment
+Operational drift is not a separate manufacturing tolerance. It is the maximum additional movement after the cell is built and aligned. For each environment, temperature drift and vibration drift are added conservatively for each subsystem, then combined with the static tolerances in the full sequence table.
+Table 8. Construction operational drift under lab, field and drone environments.
+--- TABLE ---
+Construction | Environment | Construction temp drift max eq. spot (mm) | Construction temp drift eq. angle (mrad) | Construction vibration drift max eq. spot (mm) | Construction vibration drift eq. angle (mrad) | Construction operational drift max, temp+vib (mm) | Construction operational drift max angle (mrad)
+Al body + external kinematic mounts | Lab | 0.023 | 0.078 | 0.018 | 0.06 | 0.041 | 0.138
+Al body + external kinematic mounts | Field | 0.121 | 0.403 | 0.12 | 0.4 | 0.241 | 0.803
+Al body + external kinematic mounts | Drone | 0.221 | 0.735 | 0.6 | 2 | 0.821 | 2.73
+SS body + external low-drift kinematic mounts | Lab | 0.012 | 0.041 | 0.012 | 0.04 | 0.024 | 0.081
+SS body + external low-drift kinematic mounts | Field | 0.066 | 0.221 | 0.075 | 0.25 | 0.141 | 0.471
+SS body + external low-drift kinematic mounts | Drone | 0.13 | 0.433 | 0.36 | 1.2 | 0.49 | 1.63
+Al body + lockable kinematic cartridges | Lab | 0.021 | 0.071 | 0.015 | 0.05 | 0.036 | 0.121
+Al body + lockable kinematic cartridges | Field | 0.103 | 0.343 | 0.06 | 0.2 | 0.163 | 0.543
+Al body + lockable kinematic cartridges | Drone | 0.188 | 0.628 | 0.18 | 0.6 | 0.368 | 1.23
+SS body + three-point mirror clamp | Lab | 0.017 | 0.058 | 0.018 | 0.06 | 0.035 | 0.118
+SS body + three-point mirror clamp | Field | 0.091 | 0.304 | 0.075 | 0.25 | 0.166 | 0.554
+SS body + three-point mirror clamp | Drone | 0.173 | 0.576 | 0.24 | 0.8 | 0.413 | 1.38
+Al body + Ti isostatic mirror cartridges | Lab | 0.004 | 0.015 | 0.006 | 0.02 | 0.01 | 0.035
+Al body + Ti isostatic mirror cartridges | Field | 0.022 | 0.074 | 0.021 | 0.07 | 0.043 | 0.144
+Al body + Ti isostatic mirror cartridges | Drone | 0.039 | 0.13 | 0.036 | 0.12 | 0.075 | 0.25
+Ti body/cartridge + isostatic bonded flexure | Lab | 0.004 | 0.015 | 0.006 | 0.02 | 0.01 | 0.035
+Ti body/cartridge + isostatic bonded flexure | Field | 0.022 | 0.074 | 0.021 | 0.07 | 0.043 | 0.144
+Ti body/cartridge + isostatic bonded flexure | Drone | 0.039 | 0.13 | 0.036 | 0.12 | 0.075 | 0.25
+Al body + Invar mirror inserts + flexure | Lab | 0.001 | 0.004 | 0.006 | 0.02 | 0.007 | 0.024
+Al body + Invar mirror inserts + flexure | Field | 0.005 | 0.018 | 0.018 | 0.06 | 0.023 | 0.078
+Al body + Invar mirror inserts + flexure | Drone | 0.01 | 0.035 | 0.03 | 0.1 | 0.04 | 0.135
+Al body + precision bore/retaining ring | Lab | 0.037 | 0.124 | 0.021 | 0.07 | 0.058 | 0.194
+Al body + precision bore/retaining ring | Field | 0.194 | 0.646 | 0.09 | 0.3 | 0.284 | 0.946
+Al body + precision bore/retaining ring | Drone | 0.331 | 1.1 | 0.27 | 0.9 | 0.601 | 2
+Al body + O-ring as optical reference | Lab | 0.096 | 0.319 | 0.036 | 0.12 | 0.132 | 0.439
+Al body + O-ring as optical reference | Field | 0.516 | 1.72 | 0.24 | 0.8 | 0.756 | 2.52
+Al body + O-ring as optical reference | Drone | 0.879 | 2.93 | 0.75 | 2.5 | 1.63 | 5.43
+Bosch rail frame + external mounts | Lab | 0.16 | 0.533 | 0.06 | 0.2 | 0.22 | 0.733
+Bosch rail frame + external mounts | Field | 0.934 | 3.11 | 0.45 | 1.5 | 1.38 | 4.61
+Bosch rail frame + external mounts | Drone | 2 | 6.66 | 1.5 | 5 | 3.5 | 11.7
+PEEK/plastic body + bonded/soft references | Lab | 0.178 | 0.593 | 0.06 | 0.2 | 0.238 | 0.793
+PEEK/plastic body + bonded/soft references | Field | 0.976 | 3.25 | 0.36 | 1.2 | 1.34 | 4.45
+PEEK/plastic body + bonded/soft references | Drone | 1.83 | 6.1 | 0.9 | 3 | 2.73 | 9.1
+--- END TABLE ---
+Table 9. Input and output alignment component operational drift under lab, field and drone environments.
+--- TABLE ---
+Component location | Component | Environment | Temp drift max eq. spot (mm) | Vib drift max eq. spot (mm) | Operational drift max, temp+vib (mm) | Eq. input angle of op drift (mrad)
+Input | Two folding mirrors, standard kinematic | Lab | 0.01 | 0.03 | 0.04 | 0.133
+Input | Two folding mirrors, low-drift fine kinematic | Lab | 0.006 | 0.02 | 0.026 | 0.087
+Input | One folding mirror + fixed collimator | Lab | 0.008 | 0.025 | 0.033 | 0.11
+Input | Adjustable fibre collimator/cage | Lab | 0.005 | 0.02 | 0.025 | 0.083
+Input | Dowel-pinned fibre collimator with shim | Lab | 0.003 | 0.01 | 0.013 | 0.043
+Input | Monolithic source/collimator in cell body | Lab | 0.002 | 0.005 | 0.007 | 0.023
+Output | Direct 1 mm detector close to exit | Lab | 0.005 | 0.01 | 0.015 | 0.05
+Output | Direct 2 mm detector close to exit | Lab | 0.005 | 0.01 | 0.015 | 0.05
+Output | Fold mirror + 1 mm detector | Lab | 0.008 | 0.02 | 0.028 | 0.093
+Output | Fold mirror + 2 mm detector | Lab | 0.008 | 0.02 | 0.028 | 0.093
+Output | Focusing lens/OAP + 1 mm detector | Lab | 0.008 | 0.02 | 0.028 | 0.093
+Output | Focusing lens/OAP + 2 mm detector | Lab | 0.008 | 0.02 | 0.028 | 0.093
+Output | Monolithic micro-lens + 2 mm detector | Lab | 0.003 | 0.005 | 0.008 | 0.027
+Input | Two folding mirrors, standard kinematic | Field | 0.05 | 0.15 | 0.2 | 0.667
+Input | Two folding mirrors, low-drift fine kinematic | Field | 0.035 | 0.1 | 0.135 | 0.45
+Input | One folding mirror + fixed collimator | Field | 0.04 | 0.1 | 0.14 | 0.467
+Input | Adjustable fibre collimator/cage | Field | 0.02 | 0.07 | 0.09 | 0.3
+Input | Dowel-pinned fibre collimator with shim | Field | 0.01 | 0.03 | 0.04 | 0.133
+Input | Monolithic source/collimator in cell body | Field | 0.006 | 0.015 | 0.021 | 0.07
+Output | Direct 1 mm detector close to exit | Field | 0.02 | 0.03 | 0.05 | 0.167
+Output | Direct 2 mm detector close to exit | Field | 0.02 | 0.03 | 0.05 | 0.167
+Output | Fold mirror + 1 mm detector | Field | 0.04 | 0.1 | 0.14 | 0.467
+Output | Fold mirror + 2 mm detector | Field | 0.04 | 0.1 | 0.14 | 0.467
+Output | Focusing lens/OAP + 1 mm detector | Field | 0.03 | 0.08 | 0.11 | 0.367
+Output | Focusing lens/OAP + 2 mm detector | Field | 0.03 | 0.08 | 0.11 | 0.367
+Output | Monolithic micro-lens + 2 mm detector | Field | 0.008 | 0.015 | 0.023 | 0.077
+Input | Two folding mirrors, standard kinematic | Drone | 0.15 | 0.6 | 0.75 | 2.5
+Input | Two folding mirrors, low-drift fine kinematic | Drone | 0.12 | 0.45 | 0.57 | 1.9
+Input | One folding mirror + fixed collimator | Drone | 0.1 | 0.3 | 0.4 | 1.33
+Input | Adjustable fibre collimator/cage | Drone | 0.06 | 0.15 | 0.21 | 0.7
+Input | Dowel-pinned fibre collimator with shim | Drone | 0.03 | 0.07 | 0.1 | 0.333
+Input | Monolithic source/collimator in cell body | Drone | 0.015 | 0.035 | 0.05 | 0.167
+Output | Direct 1 mm detector close to exit | Drone | 0.04 | 0.05 | 0.09 | 0.3
+Output | Direct 2 mm detector close to exit | Drone | 0.04 | 0.05 | 0.09 | 0.3
+Output | Fold mirror + 1 mm detector | Drone | 0.1 | 0.25 | 0.35 | 1.17
+Output | Fold mirror + 2 mm detector | Drone | 0.1 | 0.25 | 0.35 | 1.17
+Output | Focusing lens/OAP + 1 mm detector | Drone | 0.08 | 0.18 | 0.26 | 0.867
+Output | Focusing lens/OAP + 2 mm detector | Drone | 0.08 | 0.18 | 0.26 | 0.867
+Output | Monolithic micro-lens + 2 mm detector | Drone | 0.02 | 0.04 | 0.06 | 0.2
+--- END TABLE ---
+[Heading 1] 7. Total variation for complete construction + alignment + operation sequences
+The table below follows the logical sequence: construction/manufacturing accuracy -> input alignment resolution -> output alignment/collection resolution -> thermal and vibration drift of construction and alignment components -> total equivalent input spot/angle. RSS is the normal design budget; arithmetic sum is a conservative same-direction maximum.
+Figure 2. Total equivalent input spot variation for each complete construction/alignment/operation sequence. Dashed lines show useful spot-pattern scale markers.
+Figure 3. Total equivalent input angle theta for the same complete sequences. This is the requested angle chart for Section 6.
+Table 10. Complete sequence tolerance/drift budget.
+--- TABLE ---
+Sequence | Environment | Construction | Input alignment choice | Output collection choice | Construction manufacturing eq. spot (mm) | Input alignment practical eq. spot (mm) | Output alignment practical eq. spot (mm) | Total operational drift eq. spot, sum (mm) | Total eq. input spot, RSS (mm) | Total eq. input angle, RSS (mrad) | Worst-case arithmetic sum spot (mm) | Detector margin (mm) | Internal spot-pattern status | Output collection status | Relative weight index
+Lab flexible development | Lab | Al body + external kinematic mounts | Two folding mirrors, low-drift fine kinematic | Focusing lens/OAP + 1 mm detector | 0.149 | 0.052 | 0.108 | 0.095 | 0.2 | 0.665 | 0.405 | 0.4 | PASS | PASS | 3.95
+Lab premium stable | Lab | SS body + external low-drift kinematic mounts | Two folding mirrors, low-drift fine kinematic | Focusing lens/OAP + 2 mm detector | 0.117 | 0.052 | 0.09 | 0.078 | 0.163 | 0.544 | 0.338 | 0.9 | PASS | PASS | 5.8
+Lab low-cost Bosch rail demo | Lab | Bosch rail frame + external mounts | Two folding mirrors, standard kinematic | Direct 1 mm detector close to exit | 1.37 | 0.089 | 0.055 | 0.275 | 1.39 | 4.63 | 1.78 | 0.25 | FAIL | FAIL | 2.7
+Field good lockable | Field | Al body + lockable kinematic cartridges | Dowel-pinned fibre collimator with shim | Focusing lens/OAP + 2 mm detector | 0.143 | 0.05 | 0.09 | 0.313 | 0.267 | 0.89 | 0.596 | 0.9 | FAIL | PASS | 3
+Field rugged stainless | Field | SS body + three-point mirror clamp | Dowel-pinned fibre collimator with shim | Direct 2 mm detector close to exit | 0.153 | 0.05 | 0.05 | 0.256 | 0.245 | 0.818 | 0.51 | 0.75 | FAIL | PASS | 4
+Field best Ti cartridge | Field | Al body + Ti isostatic mirror cartridges | Monolithic source/collimator in cell body | Monolithic micro-lens + 2 mm detector | 0.093 | 0.028 | 0.033 | 0.087 | 0.116 | 0.386 | 0.241 | 0.9 | PRACTICAL/MARGINAL | PASS | 2.25
+Drone acceptable Al + Ti insert | Drone | Al body + Ti isostatic mirror cartridges | Monolithic source/collimator in cell body | Direct 2 mm detector close to exit | 0.093 | 0.028 | 0.05 | 0.215 | 0.168 | 0.56 | 0.386 | 0.75 | FAIL | PASS | 2.15
+Drone best titanium cartridge | Drone | Ti body/cartridge + isostatic bonded flexure | Monolithic source/collimator in cell body | Monolithic micro-lens + 2 mm detector | 0.077 | 0.028 | 0.033 | 0.185 | 0.139 | 0.465 | 0.322 | 0.9 | FAIL | PASS | 2.6
+Drone thermal best Invar insert | Drone | Al body + Invar mirror inserts + flexure | Monolithic source/collimator in cell body | Monolithic micro-lens + 2 mm detector | 0.071 | 0.028 | 0.033 | 0.15 | 0.121 | 0.403 | 0.282 | 0.9 | FAIL | PASS | 2.35
+Drone not recommended external mirrors | Drone | Al body + external kinematic mounts | Two folding mirrors, standard kinematic | Fold mirror + 1 mm detector | 0.149 | 0.089 | 0.113 | 1.92 | 1.18 | 3.95 | 2.27 | 0.25 | FAIL | FAIL | 3.45
+Drone not recommended Bosch rail | Drone | Bosch rail frame + external mounts | Two folding mirrors, standard kinematic | Direct 1 mm detector close to exit | 1.37 | 0.089 | 0.055 | 4.34 | 3.83 | 12.8 | 5.85 | 0.25 | FAIL | FAIL | 2.7
+Drone not recommended plastic reference | Drone | PEEK/plastic body + bonded/soft references | Adjustable fibre collimator/cage | Direct 1 mm detector close to exit | 0.92 | 0.105 | 0.055 | 3.03 | 2.89 | 9.64 | 4.11 | 0.25 | FAIL | FAIL | 1.85
+--- END TABLE ---
+[Heading 1] 8. Recommended combinations
+Table 11. Recommended architecture by application.
+--- TABLE ---
+Use case | Recommended configuration | Estimated total eq. input spot variation | Decision
+Laboratory | Machined aluminium or stainless cell + external low-drift kinematic mirror mounts + two folding mirrors + lens/OAP detector | ~0.16 mm RSS for good build | Best alignment freedom; realignment acceptable
+Field | Aluminium body + Ti/stainless/Invar mirror cartridge + dowel-pinned fibre collimator or monolithic source + fixed 2 mm detector/focusing module | ~0.16-0.22 mm RSS depending mount | Good if spot pattern has >=0.10-0.20 mm clearance and assembly is locked/staked
+Drone | Titanium or Invar-insert isostatic mirror cartridge + monolithic source/collimator + direct 2 mm detector or monolithic micro-lens detector | ~0.10-0.14 mm RSS practical | Best drift-to-weight route; strict 0.05 mm spot clearance requires further optimisation/shorter spacing/lighter mirrors
+--- END TABLE ---
+Laboratory: the best choice is external kinematic mounts and two folding mirrors because alignment freedom is more important than vibration survival.
+Field: the best choice is a lockable or isostatic cartridge. Use dowel pins for x/y/clocking and screws only for clamping. O-rings should seal outside the reference path.
+Drone: the best choice is monolithic alignment. Do not use external folding mirrors as part of the final alignment chain. Use a titanium mirror cartridge or local Invar reference insert with three-dot epoxy/flexure support.
+For 1 mm detector output, many configurations can fail the collection margin after drift. A 2 mm detector or focused/micro-lens detector is much safer mechanically.
+[Heading 1] 9. Maximum destination tolerance envelope
+Here tolerance means the maximum total spot-pattern/angle variation that the final cell design should be able to accommodate for the intended destination. Therefore the operational tolerance envelope is intentionally largest for drone, followed by field, then lab. This does not mean drone manufacturing accuracy is looser; it means the drone cell must be designed with more drift margin while still using tighter construction and alignment methods.
+Table 12. Maximum total tolerance envelope by destination. These values are the maximum drift/variation to budget for the spot pattern and equivalent input theta.
+--- TABLE ---
+Destination | Maximum total spot-pattern tolerance (mm) | Equivalent maximum input angle theta (mrad) | Meaning | Construction implication
+Lab | 0.2 | 0.667 | Controlled optical bench / enclosure | Can use external kinematic alignment; re-alignment is acceptable.
+Field | 0.35 | 1.17 | Transportable field instrument allowance | Use locked cartridges/dowel-pinned input and output modules.
+Drone | 0.6 | 2 | Highest vibration/thermal payload allowance | Use monolithic/flexure construction and largest internal clearance margin.
+--- END TABLE ---
+Figure 4. Maximum spot-pattern tolerance envelope by destination: drone > field > lab.
+Lab maximum tolerance envelope: 0.20 mm total equivalent input spot variation, corresponding to 0.67 mrad equivalent input theta for L = 300 mm.
+Field maximum tolerance envelope: 0.35 mm total equivalent input spot variation, corresponding to 1.17 mrad equivalent input theta.
+Drone maximum tolerance envelope: 0.60 mm total equivalent input spot variation, corresponding to 2.00 mrad equivalent input theta. This is the largest destination envelope because vibration and thermal forcing are largest.
+For dense Herriott spot patterns, the mirror-hole clearance and detector collection margin must be designed to survive the destination tolerance envelope, while the construction and alignment methods should still aim for the lowest practical drift.
+[Heading 1] 10. Manufacturing and validation checklist
+Check construction tolerance first: measure mirror seat x/y/z, mirror pitch/yaw and roll before optical alignment.
+Then check alignment tolerance: record the smallest repeatable change possible using the chosen input and output alignment components.
+Then check operational drift: thermally cycle and vibrate the complete assembled cell, not just the mirror mount, and convert observed spot shift to equivalent input angle using dtheta_input = dx_spot / L.
+Record both RSS design variation and worst-case arithmetic variation. Use the worst-case value for safety margin around mirror holes and detector active area.
+For epoxy, use three small symmetric dots on a stress-relieved carrier or flexure. Avoid a continuous glue ring and avoid using O-ring compression as the optical datum.
+[Heading 1] References and engineering notes
+1. Typical CTE values are taken from standard engineering material data ranges: aluminium ~23 ppm/K, stainless ~16 ppm/K, titanium ~8.6 ppm/K, Invar ~1-2 ppm/K, fused silica ~0.55 ppm/K.
+2. Optical epoxy is modelled with high CTE relative to fused silica/metal; EPO-TEK 353ND-style epoxies are suitable only when the bond geometry is small and symmetric.
+3. O-rings are treated as seals only. Elastomer compression should not define mirror plane angle or mirror axial position.

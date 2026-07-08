@@ -1,0 +1,223 @@
+=== comsol_ray_tracing_validation_protocol_mirror_only.docx | inline images: 8 ===
+
+COMSOL Ray-Tracing Validation Protocol for Mirror-Only Multipass Gas-Cell Spot-Pattern Designs
+Protocol based on the integrated construction, alignment, and operational drift tolerance framework
+Prepared for laboratory, field, and drone configurations; mirror-only optical validation without modelling the full gas-cell body
+[Heading 1] Abstract
+This document gives a practical validation protocol for using COMSOL Multiphysics with the Ray Optics Module to validate Herriott or multipass gas-cell beam spot patterns using only the two concave mirrors and their apertures. The protocol intentionally avoids a full gas-cell body model at the first stage. Instead, the mechanical effects of aluminium, stainless steel, titanium, Invar, Bosch-rail aluminium, 3D-printed plastic, CNC-milled engineering plastics, injection-moulded plastic, and hybrid plastic-metal designs are introduced as six-degree-of-freedom mirror perturbation vectors. This makes it possible to screen optical designs quickly and then decide which designs deserve full mechanical FEA or prototype testing.
+Index Terms - COMSOL, Ray Optics Module, Herriott cell, multipass gas cell, mirror-only validation, spot pattern, drone sensor, field sensor, construction tolerance, operational drift, plastic mirror mount, aluminium mirror mount.
+[Heading 1] 1. Purpose and Scope
+The objective is to validate whether a proposed beam spot pattern remains feasible when mirror construction errors are aligned out and when the remaining assembly is subjected to realistic thermal, vibration, pressure, and cycling drift. The first COMSOL model should contain only the mirror pair, the input/output holes or aperture masks, and the ray release. The gas-cell tube, flanges, seals, and full mirror mount body are not modelled as solid mechanics in this stage.
+This mirror-only method is useful because the ray-tracing question can be separated from the structural question. COMSOL validates whether a nominal and perturbed spot pattern clears the mirror apertures and output hole. The integrated tolerance framework supplies the perturbation vectors that represent different material and mounting choices.
+The output of the protocol is a validated design window: maximum allowed input spot position, maximum allowed input angle, maximum allowed mirror position drift, maximum allowed mirror angular drift, minimum clearance from mirror hole, and pass/fail status for lab, field, and drone environments.
+Fig. 1. Mirror-only validation workflow. Construction tolerance is used as an alignment capture-range check; final in-use tolerance comes from residual alignment plus operational drift.
+Fig. 2. Mirror-only COMSOL model. Only M1, M2, input/output aperture masks, and ray releases are required for first-stage optical validation.
+Fig. 3. Six-degree-of-freedom perturbation convention used for construction, alignment residuals, and operational drift.
+[Heading 1] 2. Definitions and Coordinate System
+--- TABLE ---
+Term | Meaning in this protocol
+Construction tolerance | Manufacturing and fixing accuracy of mirror, hole, seat, dowel, O-ring groove, adhesive dots, and mount references. It is recoverable if the alignment system has enough capture range.
+Alignment tolerance | Residual error left after practical alignment. It depends on component resolution, ease of alignment, number of adjustment knobs, access, visibility of the pattern, and user capability.
+Operational drift | Post-alignment motion caused by thermal expansion, vibration, pressure deformation, screw relaxation, adhesive creep, O-ring relaxation, and repeated thermal/vibration cycling.
+Position drift Pxy | Independent equivalent input spot-position movement in the x-y plane.
+Theta_xy | Independent equivalent input-angle drift caused by alignment residual and operational effects. It is not the same as spot-position drift.
+Combined spot-pattern variation | For mirror clearance only, position drift and angle-induced drift are combined as Pxy + L*Theta_xy. At L = 300 mm and theta in mrad, the angle-induced spot shift is 0.3*Theta_xy mm.
+--- END TABLE ---
+Table I. Definitions used throughout the mirror-only validation protocol.
+The coordinate convention is x = horizontal transverse displacement, y = vertical transverse displacement, z = axial mirror-spacing direction, dtheta_x = pitch, dtheta_y = yaw, and dtheta_z = roll. All translations are in mm and all angular terms are in mrad unless stated otherwise.
+[Heading 1] 3. Physical Constants and Material Properties Used for Perturbation Estimates
+The material constants are typical design values used to define perturbation envelopes. They should be replaced by supplier-specific data for final engineering release. The key point is that the Ray Optics model does not need to contain the full material body. The material effect is introduced as a displacement/tilt perturbation of the mirror boundaries.
+--- TABLE ---
+Material / part | CTE (ppm/K) | Young modulus (GPa) | Density (kg/m3) | Use in validation | Ref.
+Fused silica mirror | 0.50-0.60 | 72 | 2200 | Reference mirror substrate; low CTE. | [6]
+Aluminium 6061/6082 | 23-24 | 69 | 2700 | Low mass and low cost; suitable for lab/field/drone when flexure isolated. | [5]
+Bosch-type aluminium extrusion | 23-24 | ~69 | ~2700 | CTE similar to aluminium, but joint slip dominates optical drift. | [5]
+Stainless steel 304/316 | 16-17 | 190-200 | 7900-8000 | Good ruggedness and screw stability; heavy. | [5]
+Titanium Ti-6Al-4V | 8.5-9.0 | 110-115 | 4430 | Best drift-to-weight metal candidate. | [5]
+Invar 36 | 1.2-1.6 | 140-150 | 8050 | Lowest thermal mismatch but heavy. | [5]
+PEEK, CNC machined | 45-50 | 3.5-4.0 | 1300-1320 | Best engineering plastic for low creep and high temperature margin. | [7]
+POM/Delrin, CNC machined | 90-110 | 2.8-3.2 | 1400-1420 | Very machinable and low cost; high CTE compared with metals. | [8]
+PEI/Ultem, printed or machined | 55-60 | 3.0-3.5 | 1270 | Better high-temperature plastic than PA12/Delrin; printable grades available. | [9]
+PA12, 3D printed | 100-160 | 1.3-1.8 | 1000-1030 | Very low cost and mass; anisotropy and creep risk. | [10]
+EPO-TEK 353ND epoxy | 54 below Tg; 206 above Tg | ~2-4 | ~1200 | Use as three small dots, not a full ring. | [4]
+FKM/silicone O-ring | ~150-250 | low | 1200-1900 | Use only for sealing; do not use as mirror reference. | [11]
+--- END TABLE ---
+Table II. Typical material properties used to assign thermal and mechanical perturbation envelopes.
+[Heading 1] 4. Theoretical Framework
+A reflected ray is twice as sensitive to mirror tilt as to input ray angle. Therefore, a mirror angular perturbation dtheta_m produces approximately 2L*dtheta_m displacement at the opposite mirror. An input angular perturbation dtheta_in produces L*dtheta_in displacement at the opposite mirror.
+For the validation model, it is useful to keep input spot position and input angle separate. Position drift changes where the pattern is placed on the mirror. Angular drift changes how the pattern walks across subsequent reflections. They only become one scalar when checking physical clearance between spot pattern and mirror apertures.
+For L = 300 mm and theta expressed in mrad, the angle-induced shift at the next mirror is approximately 0.3*theta for input-angle equivalent drift and 0.6*theta_m for actual mirror tilt. The protocol reports equivalent input angle, so the 0.3 factor is used for clearance calculations.
+v = [dx, dy, dz, dtheta_x, dtheta_y, dtheta_z]
+Pxy = sqrt(dx_total^2 + dy_total^2)
+Theta_xy = sqrt(dtheta_x,total^2 + dtheta_y,total^2)
+Angle-induced spot movement = L * Theta_xy = 0.3 * Theta_xy mm for L = 300 mm and Theta in mrad
+Combined clearance variation = Pxy + 0.3 * Theta_xy
+Thermal translation estimate: dx_th ≈ k_pos * L_ref * |alpha_mount - alpha_mirror| * ΔT
+Thermal angular estimate: dtheta_th ≈ k_asym * |alpha_mount - alpha_mirror| * ΔT
+Monte Carlo vector: v_total = v_align_residual + v_thermal + v_vibration + v_pressure + v_cycle
+[Heading 1] 5. COMSOL Mirror-Only Model Setup
+[Heading 2] 5.1 Model type and physics
+Create a 3D Component and add the Ray Optics Module, Geometrical Optics interface. COMSOL describes the Ray Optics Module as a ray-tracing approach for optically large systems in which rays can reflect, refract, or be absorbed [1], [2].
+Use air or vacuum as the homogeneous background medium. Gas absorption is not needed for spot-pattern validation. Absorption can be added later only after the mechanical/optical pattern is validated.
+Use deterministic ray release for nominal design and grid/random ray bundle releases for sensitivity testing.
+[Heading 2] 5.2 Mirror geometry without cell body
+Create M1 and M2 as spherical or paraboloidal reflective surfaces. The simplest implementation is two spherical-cap surfaces with radius of curvature R = 2f, clear diameter D, and separation L.
+Add input and output aperture/hole masks as circular exclusion regions on the mirror surfaces. If Boolean holes are difficult in the surface geometry, implement them as postprocessing tests: any ray hit within the hole disk is counted as hole interaction/exit, and any ray hit outside clear aperture is counted as clipping.
+Do not model the gas-cell tube, walls, flanges, or external brackets at this stage. Their mechanical effect is introduced using mirror perturbations.
+[Heading 2] 5.3 Ray release
+Release a ray bundle from the input hole or from an upstream collimator plane. For spot-pattern validation, use a chief ray plus a circular ray bundle representing the beam diameter.
+Define input variables x_in, y_in, z_in, theta_x,in, theta_y,in, and optionally beam radius w. These become sweep parameters.
+For a collimated input beam, the primary variables are x_in, y_in, theta_x,in and theta_y,in. z_in mainly changes phase/path offset and is less critical for geometric spot placement unless a focusing input is used.
+[Heading 2] 5.4 Boundary conditions
+Set mirror surfaces as specular reflecting boundaries. Set non-mirror aperture stop surfaces as absorbing or disappearing boundaries.
+If mirror holes are explicit geometry, rays passing through the hole can be recorded as output rays. If mirror holes are not explicit geometry, define hit-test expressions for distance from the hole centre and use them for classification.
+Use stored ray positions at every boundary interaction to generate spot coordinates and pass count.
+[Heading 1] 6. Validation Protocol
+Step 1 - Define the candidate spot pattern: Specify D, R, L, input-hole radius, output-hole radius, hole offset, input chief-ray position/angle, beam diameter, target number of passes, and minimum clearance margin. Use sparse patterns for drone designs and denser patterns only for lab designs with accessible realignment.
+Step 2 - Run the nominal mirror-only model: Trace the chief ray and the full beam bundle. Record every intersection on M1 and M2. Confirm the intended number of spots, no clipping, and exit through the correct aperture/hole.
+Step 3 - Extract nominal metrics: Export spot coordinates, nearest-neighbour spot spacing, distance to mirror edge, distance to mirror hole, number of passes, total geometric path length, output position, output angle, and beam footprint size.
+Step 4 - Apply construction capture-range checks: Use construction vectors from the tolerance framework only to check whether the kinematic/flexure/bonding method can recover the nominal pattern. Do not add construction tolerance directly to final in-use drift if the system is alignable.
+Step 5 - Apply alignment residual vectors: Choose Easy, Medium, or Hard alignment residuals. Apply residual dx, dy, dz, dtheta_x, dtheta_y and dtheta_z to M1, M2, or the input ray and rerun the spot pattern.
+Step 6 - Apply operational perturbation vectors: For each material/mount/environment combination, apply thermal, vibration, pressure and cycling perturbations. These are implemented as parametric changes in mirror position and angle.
+Step 7 - Run worst-case sweeps: Run positive and negative perturbation extremes for each degree of freedom independently. Then run combined worst-case vectors for lab, field and drone cases.
+Step 8 - Run Monte Carlo tolerance simulation: Sample v_total from uniform or normal distributions bounded by the maximum drift table. Use at least 250 rays for a quick design screen and 1000-5000 cases for final validation.
+Step 9 - Classify pass/fail: Pass if all rays clear the mirror edge, avoid unintended hole clipping, preserve required number of passes, stay within output collection area, and maintain minimum spot spacing and hole clearance after worst-case and Monte Carlo tests.
+Step 10 - Select design for next stage: Only designs passing mirror-only validation should proceed to full mechanical FEA, detailed mount design, thermal cycling test, and physical vibration testing.
+[Heading 1] 7. Alignment Regimes to Use in COMSOL Sweeps
+--- TABLE ---
+Regime | dx (mm) | dy (mm) | dz (mm) | dtheta_x (mrad) | dtheta_y (mrad) | dtheta_z (mrad) | When to use
+Easy | 0.02 | 0.02 | 0.03 | 0.05 | 0.05 | 0.10 | Polaris/flexure mount, visible spot pattern, accessible knobs, trained user.
+Medium | 0.05 | 0.05 | 0.07 | 0.15 | 0.15 | 0.25 | Lockable cartridge or fixed collimator plate, moderate access, field-trained user.
+Hard | 0.12 | 0.12 | 0.18 | 0.40 | 0.40 | 0.60 | Miniature drone package, blind or partly hidden alignment, plastic or bonded mounts, limited adjustability.
+--- END TABLE ---
+Table III. Practical alignment residual vectors to use as input perturbations in COMSOL.
+[Heading 1] 8. Operational Perturbation Envelopes by Environment and Material/Mount Choice
+The following table is the key input for the COMSOL perturbation sweeps. It gives maximum post-alignment operational drift vectors for each environment and design choice. Plastic and hybrid options are included directly, not as a separate section. Values are based on the integrated tolerance model: material CTE mismatch, stiffness, mass, mount compliance, adhesive/O-ring creep, vibration susceptibility, pressure/cycling sensitivity, and practical alignment accessibility.
+[Heading 2] 8.1 Lab perturbation table
+--- TABLE ---
+Configuration | Ease | dx | dy | dz | dθx | dθy | dθz | Pxy | Theta_xy | Combined spot
+Al isostatic flexure mirror mount | Easy | 0.020 | 0.020 | 0.030 | 0.050 | 0.050 | 0.100 | 0.028 | 0.071 | 0.049
+Al monolithic pocket | Medium | 0.050 | 0.050 | 0.060 | 0.120 | 0.120 | 0.200 | 0.071 | 0.170 | 0.122
+Stainless lockable cartridge | Easy | 0.025 | 0.025 | 0.040 | 0.080 | 0.080 | 0.150 | 0.035 | 0.113 | 0.069
+Titanium flexure cartridge | Easy | 0.020 | 0.020 | 0.030 | 0.050 | 0.050 | 0.100 | 0.028 | 0.071 | 0.049
+Invar mirror insert | Easy | 0.018 | 0.018 | 0.025 | 0.040 | 0.040 | 0.080 | 0.025 | 0.057 | 0.042
+Bosch rail aluminium reference | Medium-Hard | 0.100 | 0.100 | 0.150 | 0.300 | 0.300 | 0.500 | 0.141 | 0.424 | 0.269
+3D-printed PA12/PLA/ABS mount | Hard | 0.200 | 0.200 | 0.300 | 0.700 | 0.700 | 1.000 | 0.283 | 0.990 | 0.580
+CNC-milled PEEK/Delrin/Ultem | Medium | 0.100 | 0.100 | 0.150 | 0.300 | 0.300 | 0.500 | 0.141 | 0.424 | 0.269
+Injection-moulded plastic + inserts | Medium | 0.080 | 0.080 | 0.120 | 0.250 | 0.250 | 0.400 | 0.113 | 0.354 | 0.219
+Hybrid plastic body + Al cartridge | Medium | 0.050 | 0.050 | 0.070 | 0.150 | 0.150 | 0.250 | 0.071 | 0.212 | 0.134
+--- END TABLE ---
+Table IV. Lab maximum post-alignment operational perturbation vectors. Units: mm for dx,dy,dz and mrad for dtheta terms. Combined spot is in mm at L=300 mm.
+Fig. 4. Lab combined spot-pattern variation for mirror-only COMSOL validation.
+[Heading 2] 8.2 Field perturbation table
+--- TABLE ---
+Configuration | Ease | dx | dy | dz | dθx | dθy | dθz | Pxy | Theta_xy | Combined spot
+Al isostatic flexure mirror mount | Easy | 0.050 | 0.050 | 0.080 | 0.150 | 0.150 | 0.200 | 0.071 | 0.212 | 0.134
+Al monolithic pocket | Medium | 0.100 | 0.100 | 0.120 | 0.300 | 0.300 | 0.400 | 0.141 | 0.424 | 0.269
+Stainless lockable cartridge | Medium | 0.060 | 0.060 | 0.090 | 0.200 | 0.200 | 0.250 | 0.085 | 0.283 | 0.170
+Titanium flexure cartridge | Easy | 0.050 | 0.050 | 0.080 | 0.150 | 0.150 | 0.200 | 0.071 | 0.212 | 0.134
+Invar mirror insert | Easy | 0.040 | 0.040 | 0.060 | 0.120 | 0.120 | 0.150 | 0.057 | 0.170 | 0.107
+Bosch rail aluminium reference | Hard | 0.300 | 0.300 | 0.500 | 1.000 | 1.000 | 1.500 | 0.424 | 1.414 | 0.849
+3D-printed PA12/PLA/ABS mount | Hard | 0.500 | 0.500 | 0.700 | 2.000 | 2.000 | 2.500 | 0.707 | 2.828 | 1.556
+CNC-milled PEEK/Delrin/Ultem | Medium-Hard | 0.250 | 0.250 | 0.350 | 0.900 | 0.900 | 1.200 | 0.354 | 1.273 | 0.735
+Injection-moulded plastic + inserts | Medium-Hard | 0.220 | 0.220 | 0.300 | 0.800 | 0.800 | 1.000 | 0.311 | 1.131 | 0.651
+Hybrid plastic body + Al cartridge | Medium | 0.100 | 0.100 | 0.140 | 0.300 | 0.300 | 0.400 | 0.141 | 0.424 | 0.269
+--- END TABLE ---
+Table V. Field maximum post-alignment operational perturbation vectors. Units: mm for dx,dy,dz and mrad for dtheta terms. Combined spot is in mm at L=300 mm.
+Fig. 5. Field combined spot-pattern variation for mirror-only COMSOL validation.
+[Heading 2] 8.3 Drone perturbation table
+--- TABLE ---
+Configuration | Ease | dx | dy | dz | dθx | dθy | dθz | Pxy | Theta_xy | Combined spot
+Al isostatic flexure mirror mount | Easy | 0.050 | 0.050 | 0.080 | 0.150 | 0.150 | 0.200 | 0.071 | 0.212 | 0.134
+Al monolithic pocket | Medium | 0.100 | 0.100 | 0.100 | 0.300 | 0.300 | 0.400 | 0.141 | 0.424 | 0.269
+Stainless lockable cartridge | Medium | 0.080 | 0.080 | 0.100 | 0.250 | 0.250 | 0.300 | 0.113 | 0.354 | 0.219
+Titanium flexure cartridge | Easy | 0.045 | 0.045 | 0.070 | 0.130 | 0.130 | 0.180 | 0.064 | 0.184 | 0.119
+Invar mirror insert | Medium | 0.040 | 0.040 | 0.060 | 0.100 | 0.100 | 0.150 | 0.057 | 0.141 | 0.099
+Bosch rail aluminium reference | Hard | 0.500 | 0.500 | 0.800 | 2.000 | 2.000 | 3.000 | 0.707 | 2.828 | 1.556
+3D-printed PA12/PLA/ABS mount | Hard | 0.700 | 0.700 | 0.900 | 3.000 | 3.000 | 3.500 | 0.990 | 4.243 | 2.263
+CNC-milled PEEK/Delrin/Ultem | Hard | 0.300 | 0.300 | 0.400 | 1.200 | 1.200 | 1.500 | 0.424 | 1.697 | 0.933
+Injection-moulded plastic + inserts | Medium-Hard | 0.250 | 0.250 | 0.350 | 1.000 | 1.000 | 1.200 | 0.354 | 1.414 | 0.778
+Hybrid plastic body + Al cartridge | Medium | 0.120 | 0.120 | 0.180 | 0.400 | 0.400 | 0.600 | 0.170 | 0.566 | 0.339
+--- END TABLE ---
+Table VI. Drone maximum post-alignment operational perturbation vectors. Units: mm for dx,dy,dz and mrad for dtheta terms. Combined spot is in mm at L=300 mm.
+Fig. 6. Drone combined spot-pattern variation for mirror-only COMSOL validation.
+[Heading 1] 9. Material and Cost Selection Logic
+For laboratory validation, aluminium or stainless external/flexure mounts are preferred because construction errors are easily aligned out and vibration is low. Plastic is acceptable for proof-of-concept ray-pattern work but should not define the final mirror reference unless the pattern has a large clearance margin.
+For field validation, aluminium flexure, stainless cartridge, titanium cartridge, or hybrid plastic body with aluminium mirror cartridge are the practical candidates. Bosch rail and all-plastic references should be treated as risk cases and validated only for sparse patterns.
+For drone validation, the recommended low-risk design is an aluminium isostatic flexure or titanium flexure. The recommended low-cost design is a hybrid plastic body with aluminium mirror cartridge. Injection-moulded plastic with metal inserts is possible for volume production, but COMSOL validation must include the larger drift vector and thermal-cycle/creep margin.
+Fig. 7. Drone cost-versus-drift trade-off. Lower-cost plastic options generally need larger spot-pattern clearance and more conservative drift validation.
+Fig. 8. Conceptual mirror mount options: aluminium flexure, aluminium pocket, 3D-printed plastic, CNC-milled engineering plastic, and injection-moulded plastic with inserts.
+[Heading 1] 10. Detailed COMSOL Implementation Checklist
+[Heading 2] Global parameters
+Define L, R, D, hole radius, hole offset, beam radius, wavelength label, x_in, y_in, theta_x, theta_y, and perturbation variables for M1 and M2.
+Use units explicitly: mm for geometry, rad or mrad for rotations. Avoid hidden unit conversion errors.
+[Heading 2] Geometry
+Create mirror surfaces as spherical caps or equivalent reflective surfaces.
+Create or postprocess mirror clear aperture and hole masks.
+Use work planes at each mirror if postprocessing hole distance is easier than explicit Boolean holes.
+[Heading 2] Physics settings
+Use Geometrical Optics / Ray Optics.
+Set mirror boundaries to specular reflection.
+Set aperture stops and outside-clear-aperture surfaces to absorb/disappear.
+Store ray position and direction at boundary interactions.
+[Heading 2] Parametric studies
+Nominal input sweep: x_in, y_in, theta_x, theta_y.
+Mirror perturbation sweep: dx_M1, dy_M1, dz_M1, dtheta_M1x, dtheta_M1y, dtheta_M1z, and same for M2.
+Material/environment sweep: select the row from the perturbation table and apply the matching vector.
+[Heading 2] Postprocessing
+Generate spot scatter plot separately for M1 and M2.
+Calculate minimum distance to mirror edge and hole edge.
+Calculate nearest-neighbour spot distance.
+Calculate pass count and total path length.
+Classify each run as pass, marginal, or fail.
+[Heading 1] 11. Validation Protocol by Destination
+[Heading 2] Laboratory design
+Use large mirror aperture and accessible kinematic alignment.
+Validate dense spot patterns and longer path lengths because realignment is possible.
+Acceptance target: combined spot-pattern variation should preferably remain below 0.2-0.3 mm after residual alignment and lab drift.
+Plastic prototypes may be used for early geometry evaluation, but final optical references should be aluminium/stainless/titanium/Invar if high reproducibility is needed.
+[Heading 2] Field design
+Use lockable cartridge or flexure references.
+Validate transport vibration and thermal swings.
+Acceptance target: combined spot-pattern variation should preferably remain below 0.3-0.5 mm, depending on hole clearance and beam diameter.
+Hybrid plastic body + aluminium mirror cartridge is a strong low-cost field option.
+[Heading 2] Drone design
+Use sparse spot patterns with larger clearance margins.
+Validate the maximum thermal and vibration vector for each material choice.
+Acceptance target: combined spot-pattern variation should preferably remain below 0.1-0.2 mm for dense/small-hole designs, or below the explicitly available clearance for a larger-aperture/sparse drone design.
+Avoid Bosch rail and pure 3D-printed plastic as final optical references. Use aluminium flexure, titanium flexure, aluminium pocket, or hybrid plastic body + aluminium mirror cartridge.
+[Heading 1] 12. Data Recording Template
+--- TABLE ---
+Run ID | Environment | Design | L | R | Input x/y | Input theta x/y | Perturbation vector | Pass count | Path length | Minimum edge clearance | Minimum hole clearance | Output x/y/theta | Result
+D-AL-FLX-001 | Drone | Al flexure | 300 mm | 400 mm | 0.0, 0.0 mm | 3.2, 0.4 mrad | Table VI row 1 | 104 | 31.2 m | >0.6 mm | >0.3 mm | within detector | Pass
+--- END TABLE ---
+Table VII. Suggested COMSOL run log template. Export one row per parametric or Monte Carlo case.
+[Heading 1] 13. Pass/Fail Criteria
+Nominal pattern must produce the required number of passes and expected output ray direction.
+No ray in the beam bundle may clip the mirror edge or unintended hole region.
+Minimum distance from any spot footprint to the hole edge must exceed the combined spot-pattern variation plus beam radius plus safety margin.
+Output spot must fit within the detector or output focusing optic capture area after perturbation. For a 1 mm detector, use a conservative radial capture margin of about 0.25 mm if the beam diameter is roughly 0.5 mm. For a 2 mm detector, the direct capture margin is much larger and is more drone-friendly.
+Monte Carlo yield should be >99% for laboratory prototypes, >99.5% for field use, and >99.9% for drone/product use if the design is to be sealed or non-user-alignable.
+Any design failing worst-case perturbation but passing Monte Carlo should be classified as marginal and redesigned with larger hole clearance or less dense spot pattern.
+[Heading 1] 14. Recommended Validation Sequence
+First validate nominal ray geometry with only mirrors and holes.
+Second validate sensitivity to input alignment: x_in, y_in, theta_x and theta_y.
+Third validate mirror perturbation sensitivity one DOF at a time.
+Fourth validate material/mount perturbation rows for lab, field and drone.
+Fifth down-select to designs that pass mirror-only validation.
+Sixth build a simplified mechanical model only for the down-selected candidates.
+Seventh prototype and test with thermal cycling, pressure cycling and vibration.
+[Heading 1] 15. Conclusion
+The mirror-only COMSOL protocol provides a fast and physically traceable way to validate spot-pattern designs before investing in full gas-cell body modelling. Construction tolerance is treated correctly as an alignment capture-range problem. The final optical robustness is evaluated using independent post-alignment position and angle drift vectors. This makes the protocol especially useful for comparing metal, plastic and hybrid gas-cell mirror concepts across laboratory, field and drone environments.
+[Heading 1] References
+[1] COMSOL, "Ray Optics Module," official product documentation, https://www.comsol.com/ray-optics-module.
+[2] COMSOL, "Ray Optics Module User's Guide," COMSOL Documentation, https://doc.comsol.com/6.3/doc/com.comsol.help.roptics/RayOpticsModuleUsersGuide.pdf.
+[3] Thorlabs, "Polaris low-drift kinematic mirror mounts," https://www.thorlabs.com/.
+[4] EPO-TEK 353ND datasheet; CTE below Tg approximately 54 ppm/K and above Tg approximately 206 ppm/K; Meridian Adhesives / EPO-TEK.
+[5] EngineeringToolBox and standard supplier datasheets for common engineering metals: aluminium, stainless steel, titanium and Invar thermal expansion ranges.
+[6] Fused silica material data from optical material supplier datasheets; typical CTE approximately 0.5 ppm/K.
+[7] Ensinger, TECAPEEK/PEEK material property datasheets.
+[8] Delrin/acetal engineering plastic datasheets.
+[9] SABIC/Ensinger ULTEM/PEI material datasheets.
+[10] PA12 3D-printing material datasheets, including HP/Xometry/Evonik data ranges.
+[11] O-ring design and elastomer property tables from standard seal supplier design guides.

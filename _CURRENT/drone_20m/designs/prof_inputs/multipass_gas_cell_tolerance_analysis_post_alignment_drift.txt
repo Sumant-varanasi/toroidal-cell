@@ -1,0 +1,136 @@
+=== multipass_gas_cell_tolerance_analysis_post_alignment_drift.docx | inline images: 3 ===
+
+Post-alignment tolerance and operational drift analysis for concave-mirror multipass gas cells
+Updated framework: construction tolerance is recoverable by alignment when sufficient range and feedback are available
+Prepared for gas-cell design comparison under laboratory, field and drone operating conditions. Values are first-order engineering estimates for a 300 mm mirror separation and should be verified by ray tracing, thermal FEA and vibration testing before final release.
+[Heading 1] Executive summary
+Yes, construction/fixing tolerance can be mitigated by alignment. It should therefore be treated primarily as an alignment-range and manufacturability check, not automatically as final in-use drift.
+The final usable spot-pattern variation after commissioning comes from residual alignment error plus operational drift: thermal expansion, vibration, pressure-induced deformation, and thermal cycling/repeatability.
+A poor construction method can still fail even if it is alignable: if it drifts under temperature, pressure or vibration, the aligned spot pattern will move during operation.
+The best drone/field design remains a dowel-pinned, monolithic or isostatic flexure architecture. External kinematic mirrors can compensate construction error in the lab but are not stable enough for drone operation.
+[Heading 1] 1. Definitions used in this update
+--- TABLE ---
+0 | 1 | 2
+Construction tolerance | Manufacturing/fixing accuracy: mirror dx, dy, dz and dtheta x/y/z before final optical alignment. | Used to check whether the alignment system has enough capture range. Not included directly in final drift if it is aligned out.
+Alignment tolerance | Residual setpoint error after the user aligns the cell. | Depends on adjuster resolution, feedback visibility, coupling between axes, and user capability.
+Operational drift | Post-alignment movement during use. | Includes thermal change, vibration, pressure loading and thermal cycling. This is the dominant real in-use tolerance after alignment.
+Maximum total variation | Worst-case excursion from the intended post-alignment setpoint. | Conservative model: residual after alignment + operational drift. RSS is also shown for comparison.
+--- END TABLE ---
+[Heading 1] 2. Updated theoretical framework: construction tolerance can be aligned out
+Figure 1. Updated calculation logic. Construction tolerance is used first as a recoverability/capture-range check.
+The previous conservative model added construction manufacturing error directly into the total. That is only valid for a fixed, non-adjustable cell. For an adjustable or jig-aligned multipass cell, the better model is:
+1. Convert construction errors into equivalent input spot and angle errors: C_eq.
+2. Check whether the alignment mechanism can correct them: C_eq <= alignment capture range.
+3. If recoverable, replace C_eq by the smaller post-alignment residual R_align.
+4. Add operational drift D_op from thermal, vibration, pressure and thermal cycling.
+5. Calculate maximum total variation after alignment: X_total,max = R_align + D_op. Equivalent angle: theta_eq = X_total,max / L.
+For L = 300 mm, the conversion used is:
+theta_eq [mrad] = X_eq [mm] / 0.3. Therefore 0.1 mm equivalent input spot variation is approximately 0.333 mrad input angle variation.
+[Heading 1] 3. Construction tolerance retained as manufacturing/fixing accuracy
+The values below are kept intact as requested. They represent maximum as-built construction/fixing accuracy before optical correction. In the updated model these values are not automatically final drift; they define how much correction range the alignment system must provide.
+--- TABLE ---
+Construction / mirror reference | Material / local mirror ref. | Fixing method | Rel. wt | dx,dy per mirror max (mm) | dz per mirror max (mm) | dtheta x/y mirror max (mrad) | dtheta z roll max (mrad) | Eq. input spot from construction max (mm) | Eq. input angle from construction max (mrad)
+Al body + external kinematic mounts | Aluminium machined | external kinematic | 1.15 | 0.1 | 0.2 | 0.05 | 3.0 | 0.149 | 0.497
+SS body + external low-drift kinematic mounts | Stainless steel | external low-drift kinematic | 2.9 | 0.08 | 0.15 | 0.03 | 2.0 | 0.117 | 0.39
+Al body + lockable kinematic cartridges | Aluminium machined | lockable kinematic cartridge | 1.2 | 0.07 | 0.14 | 0.12 | 2.0 | 0.143 | 0.476
+SS body + three-point mirror clamp | Stainless steel | three-point spring clamp | 2.9 | 0.06 | 0.12 | 0.15 | 2.0 | 0.153 | 0.511
+Al body + Ti isostatic mirror cartridges | Titanium | isostatic bonded flexure cartridge | 1.25 | 0.045 | 0.09 | 0.08 | 1.5 | 0.093 | 0.312
+Ti body/cartridge + isostatic bonded flexure | Titanium | isostatic bonded flexure cartridge | 1.6 | 0.04 | 0.08 | 0.06 | 1.2 | 0.077 | 0.255
+Al body + Invar mirror inserts + flexure | Invar insert | isostatic flexure with Invar pads | 1.35 | 0.04 | 0.08 | 0.05 | 1.0 | 0.071 | 0.237
+Al body + precision bore/retaining ring | Aluminium machined | precision bore + retaining ring | 1.05 | 0.08 | 0.12 | 0.3 | 3.0 | 0.279 | 0.929
+Al body + O-ring as optical reference | Aluminium machined | O-ring-defined mirror plane | 1.0 | 0.18 | 0.25 | 0.8 | 6.0 | 0.725 | 2.418
+Bosch rail frame + external mounts | Bosch rail aluminium | bolted extrusion frame + kinematic mounts | 0.9 | 0.35 | 0.5 | 1.5 | 8.0 | 1.367 | 4.555
+PEEK/plastic body + bonded/soft references | PEEK/plastic | plastic/epoxy soft reference | 0.55 | 0.25 | 0.35 | 1.0 | 6.0 | 0.92 | 3.066
+--- END TABLE ---
+[Heading 1] 4. Alignment regimes and capture-range logic
+Alignment has two different meanings: capture range and final residual. A hard-to-align lab setup may have a very large capture range because two folding mirrors can steer widely, but the final repeatability is worse. A monolithic drone cell has smaller capture range but much better residual alignment stability.
+--- TABLE ---
+Alignment regime | Typical layout | Capture range eq. spot (mm) | dx,dy residual after alignment (mm) | dz residual after alignment (mm) | dtheta input residual (mrad) | Eq. input spot residual at M2 (mm) | Interpretation
+Easy | Monolithic source/collimator, dowel-pinned detector, visible pilot beam/camera feedback | 0.2 | ±0.030 | ±0.050 | 0.080 | 0.038 | Best residual; requires good manufacturing
+Medium | Dowel-pinned fibre collimator, shim, one folding mirror or compact cage | 0.6 | ±0.080 | ±0.150 | 0.250 | 0.11 | Best field/lab compromise
+Hard | Two external folding mirrors, free-space source/detector, weak internal feedback | 2.0 | ±0.200 | ±0.300 | 0.600 | 0.269 | Large range but poor repeatability; lab only
+--- END TABLE ---
+[Heading 1] 5. Operational drift after alignment
+Once the cell is aligned, the main tolerance becomes drift. Drift comes from four terms: temperature, vibration, pressure loading and thermal cycling. These terms move the already-aligned mirror/input/output references and cannot be removed unless the system is re-aligned or actively controlled.
+--- TABLE ---
+Operational drift term | Physical source | Design implication
+Thermal drift | CTE mismatch, mirror-carrier expansion, epoxy stress, end-plate bending | Aluminium and plastic references drift more than Ti/Invar/flexure references.
+Vibration drift | Mount compliance, screw slip, rail motion, dynamic bending | External kinematic mirrors and Bosch rail references are weakest.
+Pressure drift | Cell wall/end-plate deformation and O-ring compression under pressure variation | Metal-to-metal optical references with O-ring only as a seal are preferred.
+Thermal cycling drift | Hysteresis after repeated hot/cold cycles, epoxy creep, clamp relaxation | This is why drone/field cells should be locked, pinned, flexure-supported and vibration tested.
+--- END TABLE ---
+[Heading 1] 6. Updated total sequence calculation after construction error is aligned out
+This is the key updated calculation. Construction tolerance is now a recoverability check. The final in-use value is based on residual alignment plus thermal, vibration, pressure and thermal cycling drift. The full calculation is split into three readable tables.
+Table 6A. Construction recoverability and residual alignment after correction
+--- TABLE ---
+Sequence | Environment | Recoverable construction eq. spot (mm) | Alignment regime | Alignment capture range eq. spot (mm) | Construction recoverability | Static residual after alignment RSS (mm)
+Lab flexible development | Lab | 0.149 | Medium | 0.6 | PASS | 0.124
+Lab premium stable | Lab | 0.117 | Medium | 0.6 | PASS | 0.106
+Lab low-cost Bosch rail demo | Lab | 1.367 | Hard | 2.0 | PASS | 0.271
+Field good lockable | Field | 0.143 | Medium | 0.6 | PASS | 0.114
+Field rugged stainless | Field | 0.153 | Medium | 0.6 | PASS | 0.107
+Field best Ti cartridge | Field | 0.093 | Easy | 0.2 | PASS | 0.056
+Drone acceptable Al + Ti insert | Drone | 0.093 | Easy | 0.2 | PASS | 0.067
+Drone best titanium cartridge | Drone | 0.077 | Easy | 0.2 | PASS | 0.053
+Drone thermal best Invar insert | Drone | 0.071 | Easy | 0.2 | PASS | 0.05
+Drone not recommended external mirrors | Drone | 0.149 | Hard | 2.0 | PASS | 0.147
+Drone not recommended Bosch rail | Drone | 1.367 | Hard | 2.0 | PASS | 0.271
+Drone not recommended plastic reference | Drone | 0.92 | Medium | 0.6 | FAIL | 0.232
+--- END TABLE ---
+Table 6B. Operational drift after final alignment
+--- TABLE ---
+Sequence | Environment | Thermal+vibration drift (mm) | Pressure drift (mm) | Thermal-cycle drift (mm) | Max operational drift after alignment (mm) | Max operational drift angle (mrad)
+Lab flexible development | Lab | 0.095 | 0.006 | 0.008 | 0.109 | 0.363
+Lab premium stable | Lab | 0.078 | 0.006 | 0.008 | 0.092 | 0.307
+Lab low-cost Bosch rail demo | Lab | 0.275 | 0.02 | 0.03 | 0.325 | 1.083
+Field good lockable | Field | 0.313 | 0.03 | 0.05 | 0.393 | 1.31
+Field rugged stainless | Field | 0.256 | 0.03 | 0.05 | 0.336 | 1.12
+Field best Ti cartridge | Field | 0.087 | 0.015 | 0.02 | 0.122 | 0.407
+Drone acceptable Al + Ti insert | Drone | 0.215 | 0.02 | 0.04 | 0.275 | 0.917
+Drone best titanium cartridge | Drone | 0.185 | 0.02 | 0.04 | 0.245 | 0.817
+Drone thermal best Invar insert | Drone | 0.15 | 0.02 | 0.025 | 0.195 | 0.65
+Drone not recommended external mirrors | Drone | 1.921 | 0.05 | 0.12 | 2.091 | 6.97
+Drone not recommended Bosch rail | Drone | 4.339 | 0.08 | 0.25 | 4.669 | 15.563
+Drone not recommended plastic reference | Drone | 3.03 | 0.15 | 0.3 | 3.48 | 11.6
+--- END TABLE ---
+Table 6C. Final maximum variation from ideal after alignment
+--- TABLE ---
+Sequence | Environment | Max total from ideal after alignment (mm) | Max total equivalent input angle (mrad) | Allowed destination envelope (mm) | Post-alignment use status | Relative weight index
+Lab flexible development | Lab | 0.233 | 0.775 | 0.2 | MARGINAL | 3.95
+Lab premium stable | Lab | 0.198 | 0.659 | 0.2 | PASS | 5.8
+Lab low-cost Bosch rail demo | Lab | 0.596 | 1.987 | 0.2 | FAIL | 2.7
+Field good lockable | Field | 0.507 | 1.692 | 0.35 | FAIL | 3.0
+Field rugged stainless | Field | 0.443 | 1.476 | 0.35 | FAIL | 4.0
+Field best Ti cartridge | Field | 0.178 | 0.592 | 0.35 | PASS | 2.25
+Drone acceptable Al + Ti insert | Drone | 0.342 | 1.14 | 0.6 | PASS | 2.15
+Drone best titanium cartridge | Drone | 0.298 | 0.992 | 0.6 | PASS | 2.6
+Drone thermal best Invar insert | Drone | 0.245 | 0.817 | 0.6 | PASS | 2.35
+Drone not recommended external mirrors | Drone | 2.238 | 7.46 | 0.6 | FAIL | 3.45
+Drone not recommended Bosch rail | Drone | 4.94 | 16.467 | 0.6 | FAIL | 2.7
+Drone not recommended plastic reference | Drone | 3.712 | 12.375 | 0.6 | FAIL | 1.85
+--- END TABLE ---
+[Heading 1] 7. Charts: post-alignment drift and equivalent input angle
+Figure 2. Operational drift after construction error has been corrected by alignment.
+Figure 3. Maximum total equivalent input angle after alignment, including operational drift.
+[Heading 1] 8. Interpretation by application
+--- TABLE ---
+Application | How construction tolerance is mitigated | What dominates after alignment | Recommended design
+Laboratory | Construction errors can normally be corrected using external kinematic mirrors and visible feedback. | The limiting factor is not initial construction; it is whether the aligned pattern stays stable enough during measurement. Realignment is acceptable. | Al/stainless cell + good kinematic mounts; avoid using Bosch rail as the optical reference for dense spot patterns.
+Field | Construction errors can be corrected if the mirror cartridge and input/output modules have dowel/shim/lockable adjustment. | Transport and temperature cycles dominate. Locking/staking after alignment is important. | Al body + Ti/stainless/Invar cartridge + O-ring only as seal + locked input/output module.
+Drone | Construction errors must mostly be designed out or corrected during factory alignment; user alignment in the field should be avoided. | Thermal/vibration/pressure/cycling drift dominates. External kinematic alignment is not acceptable as the final structural reference. | Ti/isostatic cartridge + monolithic source/collimator + direct 2 mm detector or monolithic micro-lens detector.
+--- END TABLE ---
+[Heading 1] 9. Practical design rule
+Use construction tolerance as a capture-range criterion: the as-built mirror/source/detector error must be small enough that the alignment procedure can recover the correct spot pattern.
+Use alignment tolerance as the residual error after the user has finished aligning, not as the full construction error.
+Use operational drift as the real in-use tolerance after alignment. This includes thermal drift, vibration, pressure deformation and thermal cycling/hysteresis.
+For drone and field cells, the most important question is not Can I align it once? but Will it stay aligned after vibration, pressure and thermal cycling?
+[Heading 1] 10. Validation checklist before final design freeze
+--- TABLE ---
+Test | Purpose
+Construction capture | Build one cell at worst-case machining tolerance and confirm the alignment procedure can recover the nominal spot pattern.
+Thermal drift | Cycle over the expected lab/field/drone temperature range and record spot-pattern displacement or throughput loss.
+Vibration drift | Apply representative vibration/transport or drone vibration and measure pre/post alignment shift.
+Pressure drift | Vary pressure over operating range and measure beam shift/throughput change.
+Thermal cycling repeatability | Repeat hot/cold cycles and record permanent offset after returning to room temperature.
+Locking validation | After final alignment, lock/stake screws or bond flexures, then repeat thermal/vibration tests.
+--- END TABLE ---

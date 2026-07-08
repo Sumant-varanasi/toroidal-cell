@@ -1,0 +1,239 @@
+=== multipass_gas_cell_full_integrated_comparison.docx | inline images: 6 ===
+
+Full Integrated Tolerance, Drift, Cost and Material Comparison for Concave-Mirror Multipass Gas Cells
+Laboratory, field and drone applications, including aluminium, metals, Bosch rail, plastic and hybrid mirror-mount designs
+Prepared as a first-order engineering tolerance budget. Values are maximum expected engineering estimates and should be validated by CAD, FEA, thermal cycling and vibration testing.
+[Heading 1] Executive summary
+This version fully integrates plastic designs into every major comparison section, rather than treating plastic as an add-on. Construction, alignment, operational drift, total tolerance, cost and recommendations are now evaluated for metal, aluminium, Bosch rail, plastic and hybrid options.
+Construction tolerance is manufacturing/fixing accuracy. It is a capture-range and build-feasibility check. If construction error can be corrected by alignment, it is not directly added to final in-use drift.
+Alignment tolerance is the residual six-degree error left after the user aligns the system. It depends on the component resolution, ease of alignment, visibility of the spot pattern, locking method and user capability.
+Operational drift is the post-alignment change under thermal, vibration, pressure and cycling loads. This is the dominant final tolerance for field and drone operation.
+Theta means independent input-angle drift. It is reported separately from spot-position drift. Spot-position drift is Pxy in mm. Angular drift is Theta_xy in mrad. For estimating internal spot movement at the second mirror, the angle term contributes L x Theta_xy, which is 0.3 x Theta_xy for L = 300 mm.
+The best drone technical design is machined aluminium or titanium/Invar local insert with an isostatic flexure. The best low-cost drone design is a hybrid plastic body with an aluminium mirror cartridge. All-plastic mounts are attractive for cost and weight but require a relaxed spot-pattern tolerance envelope.
+[Heading 1] 1. Scope, assumptions and coordinate system
+--- TABLE ---
+Item | Assumption | Use in analysis
+Mirror separation, L | 300 mm | Used for converting input angle into spot movement at the opposite mirror.
+Equivalent input-angle conversion | 1 mrad -> 0.300 mm at L = 300 mm | Only used for internal spot-pattern clearance; theta remains separately reported.
+Mirror diameter | 25-50 mm | Typical compact Herriott/multipass cell.
+Construction tolerance | Manufacturing/fixing accuracy | Recoverable if within alignment capture range.
+Alignment tolerance | Residual after alignment | Depends on component resolution, ease and user capability.
+Operational drift | Thermal + vibration + pressure + thermal cycling | Dominant final in-use tolerance for field and drone.
+Coordinate vector | [dx, dy, dz, dtheta_x, dtheta_y, dtheta_z] | dx,dy,dz in mm; dtheta terms in mrad.
+--- END TABLE ---
+[Heading 1] 2. Integrated theoretical framework
+The full model uses the following sequence. Plastic and metal options now follow the same calculation path.
+Figure 1. Integrated tolerance calculation block diagram.
+--- TABLE ---
+Term | Definition | Meaning
+Construction vector | C_build = [dx, dy, dz, dtheta_x, dtheta_y, dtheta_z] | Manufacturing/fixing accuracy only. Used to check if alignment can recover the build error.
+Alignment residual | R_align = [dx, dy, dz, dtheta_x, dtheta_y, dtheta_z] | Residual left after the user aligns the cell. Includes ease of alignment and user capability.
+Operational drift | D_op = [dx, dy, dz, dtheta_x, dtheta_y, dtheta_z] | Post-alignment thermal/vibration/pressure/cycling drift.
+Final in-use vector | T = R_align + D_op | Construction error is not included if recoverable by alignment.
+Position metric | Pxy = sqrt(dx_total^2 + dy_total^2) | Independent equivalent input spot-position drift.
+Angle metric | Theta_xy = sqrt(dtheta_x,total^2 + dtheta_y,total^2) | Independent equivalent input-angle drift.
+Internal spot clearance | X_combined = Pxy + 0.3 x Theta_xy | For L = 300 mm; this is used to judge Herriott spot-pattern clearance.
+--- END TABLE ---
+[Heading 1] 3. Construction tolerance: manufacturing/fixing accuracy and capture range
+Construction tolerance is retained as mirror position and mirror tilt manufacturing/fixing accuracy. These values are not automatically part of final drift if the alignment procedure can recover them. The table now includes metals, Bosch rail, plastics and hybrid options.
+--- TABLE ---
+Construction / mount option | Material route | Relative cost | Relative weight | dx mm | dy mm | dz mm | dθx mrad | dθy mrad | dθz mrad | C_Pxy mm | C_Theta_xy mrad | Comment
+External kinematic mount on machined metal | Al/stainless assembly | Medium | Medium | ±0.150 | ±0.150 | ±0.300 | ±0.25 | ±0.25 | ±3.0 | 0.212 | 0.35 | Large capture range; best for lab alignment but poor as a drone structure.
+Machined aluminium isostatic flexure | Aluminium | Medium | Low | ±0.050 | ±0.050 | ±0.100 | ±0.10 | ±0.10 | ±1.5 | 0.071 | 0.14 | Best lightweight metal option; O-ring used only for sealing.
+Machined aluminium monolithic pocket | Aluminium | Low-medium | Low | ±0.070 | ±0.070 | ±0.120 | ±0.20 | ±0.20 | ±2.5 | 0.099 | 0.28 | Simpler and cheaper than flexure; less angular compliance control.
+Stainless steel cartridge | Stainless steel | Medium-high | High | ±0.040 | ±0.040 | ±0.080 | ±0.10 | ±0.10 | ±1.5 | 0.057 | 0.14 | Rugged field option; heavy for drones.
+Titanium flexure cartridge | Titanium | High | Medium | ±0.040 | ±0.040 | ±0.080 | ±0.08 | ±0.08 | ±1.2 | 0.057 | 0.11 | Best drift-to-weight compromise for harsh mobile use.
+Invar local mirror insert | Invar insert in light body | High | High local | ±0.035 | ±0.035 | ±0.075 | ±0.06 | ±0.06 | ±1.0 | 0.049 | 0.08 | Best thermal reference but too heavy if the whole cell is Invar.
+Bosch rail aluminium reference | Aluminium extrusion | Low | Low-medium | ±0.300 | ±0.300 | ±0.500 | ±2.00 | ±2.00 | ±8.0 | 0.424 | 2.83 | Acceptable as a lab frame only; rail joints should not define optical reference.
+3D-printed plastic mount | FDM/SLA/SLS polymer | Very low | Very low | ±0.250 | ±0.250 | ±0.400 | ±1.00 | ±1.00 | ±5.0 | 0.354 | 1.41 | Good for prototypes and low-cost trials; high drift and anisotropy risk.
+CNC-milled engineering plastic mount | PEEK/Acetal/PEI | Medium | Very low | ±0.100 | ±0.100 | ±0.180 | ±0.40 | ±0.40 | ±3.0 | 0.141 | 0.57 | Better than 3D print; metal inserts recommended.
+Injection-moulded plastic with inserts | Filled polymer + metal inserts | Tooling high, unit low | Very low | ±0.080 | ±0.080 | ±0.150 | ±0.35 | ±0.35 | ±2.5 | 0.113 | 0.49 | Best low-cost volume route if optical tolerance is relaxed.
+Hybrid plastic body + aluminium mirror cartridge | Plastic body + Al reference | Low-medium | Very low-low | ±0.060 | ±0.060 | ±0.120 | ±0.15 | ±0.15 | ±2.0 | 0.085 | 0.21 | Best value route: plastic outer structure with metal optical reference.
+--- END TABLE ---
+[Heading 2] 3.1 Construction recoverability
+Construction error is recoverable when the alignment system has enough capture range in both position and angle. The flags below use the assigned alignment regime for each environment. A non-recoverable case means the design may not reach a valid spot pattern without re-machining, shimming or a larger alignment range.
+--- TABLE ---
+Environment | Option | Alignment regime | Construction Pxy mm | Construction Theta_xy mrad | Capture position mm | Capture angle mrad | Result
+Lab | External kinematic mount on machined metal | Easy | 0.212 | 0.35 | ±1.00 | ±3.0 | Recoverable
+Lab | Machined aluminium isostatic flexure | Medium | 0.071 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Lab | Machined aluminium monolithic pocket | Medium | 0.099 | 0.28 | ±0.50 | ±1.0 | Recoverable
+Lab | Stainless steel cartridge | Medium | 0.057 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Lab | Titanium flexure cartridge | Medium | 0.057 | 0.11 | ±0.50 | ±1.0 | Recoverable
+Lab | Invar local mirror insert | Medium | 0.049 | 0.08 | ±0.50 | ±1.0 | Recoverable
+Lab | Bosch rail aluminium reference | Easy | 0.424 | 2.83 | ±1.00 | ±3.0 | Recoverable
+Lab | 3D-printed plastic mount | Hard | 0.354 | 1.41 | ±0.25 | ±0.5 | Marginal / not recoverable
+Lab | CNC-milled engineering plastic mount | Medium | 0.141 | 0.57 | ±0.50 | ±1.0 | Recoverable
+Lab | Injection-moulded plastic with inserts | Medium | 0.113 | 0.49 | ±0.50 | ±1.0 | Recoverable
+Lab | Hybrid plastic body + aluminium mirror cartridge | Medium | 0.085 | 0.21 | ±0.50 | ±1.0 | Recoverable
+Field | External kinematic mount on machined metal | Medium | 0.212 | 0.35 | ±0.50 | ±1.0 | Recoverable
+Field | Machined aluminium isostatic flexure | Medium | 0.071 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Field | Machined aluminium monolithic pocket | Hard | 0.099 | 0.28 | ±0.25 | ±0.5 | Recoverable
+Field | Stainless steel cartridge | Medium | 0.057 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Field | Titanium flexure cartridge | Medium | 0.057 | 0.11 | ±0.50 | ±1.0 | Recoverable
+Field | Invar local mirror insert | Medium | 0.049 | 0.08 | ±0.50 | ±1.0 | Recoverable
+Field | Bosch rail aluminium reference | Hard | 0.424 | 2.83 | ±0.25 | ±0.5 | Marginal / not recoverable
+Field | 3D-printed plastic mount | Hard | 0.354 | 1.41 | ±0.25 | ±0.5 | Marginal / not recoverable
+Field | CNC-milled engineering plastic mount | Hard | 0.141 | 0.57 | ±0.25 | ±0.5 | Marginal / not recoverable
+Field | Injection-moulded plastic with inserts | Hard | 0.113 | 0.49 | ±0.25 | ±0.5 | Recoverable
+Field | Hybrid plastic body + aluminium mirror cartridge | Medium | 0.085 | 0.21 | ±0.50 | ±1.0 | Recoverable
+Drone | External kinematic mount on machined metal | Hard | 0.212 | 0.35 | ±0.25 | ±0.5 | Recoverable
+Drone | Machined aluminium isostatic flexure | Medium | 0.071 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Drone | Machined aluminium monolithic pocket | Hard | 0.099 | 0.28 | ±0.25 | ±0.5 | Recoverable
+Drone | Stainless steel cartridge | Medium | 0.057 | 0.14 | ±0.50 | ±1.0 | Recoverable
+Drone | Titanium flexure cartridge | Medium | 0.057 | 0.11 | ±0.50 | ±1.0 | Recoverable
+Drone | Invar local mirror insert | Medium | 0.049 | 0.08 | ±0.50 | ±1.0 | Recoverable
+Drone | Bosch rail aluminium reference | Hard | 0.424 | 2.83 | ±0.25 | ±0.5 | Marginal / not recoverable
+Drone | 3D-printed plastic mount | Hard | 0.354 | 1.41 | ±0.25 | ±0.5 | Marginal / not recoverable
+Drone | CNC-milled engineering plastic mount | Hard | 0.141 | 0.57 | ±0.25 | ±0.5 | Marginal / not recoverable
+Drone | Injection-moulded plastic with inserts | Hard | 0.113 | 0.49 | ±0.25 | ±0.5 | Recoverable
+Drone | Hybrid plastic body + aluminium mirror cartridge | Medium | 0.085 | 0.21 | ±0.50 | ±1.0 | Recoverable
+--- END TABLE ---
+[Heading 1] 4. Alignment tolerance: component resolution, ease and user capability
+Alignment tolerance is the residual left after alignment. It is not the same as construction tolerance. A mount may be manufactured with large error but still align well if capture range and adjustment resolution are adequate. Conversely, a low-cost plastic pocket may be accurately made but hard to align because it has little or no post-assembly adjustment.
+--- TABLE ---
+Regime | Meaning | dx mm | dy mm | dz mm | dθx mrad | dθy mrad | dθz mrad | Residual Pxy mm | Residual Theta_xy mrad | Equivalent combined spot mm
+Easy | High-visibility alignment, accessible kinematic screws/flexures, iterative spot-pattern observation, expert or trained user. | ±0.03 | ±0.03 | ±0.05 | ±0.05 | ±0.05 | ±0.5 | 0.042 | 0.071 | 0.064
+Medium | Limited access, lockable cartridge or jig alignment, trained technician, output coupling not fully visible. | ±0.08 | ±0.08 | ±0.12 | ±0.15 | ±0.15 | ±1.0 | 0.113 | 0.212 | 0.177
+Hard | Monolithic or fixed mount, poor visibility, small aperture/spot clearance, production operator or non-adjustable plastic reference. | ±0.18 | ±0.18 | ±0.25 | ±0.40 | ±0.40 | ±2.0 | 0.255 | 0.566 | 0.424
+--- END TABLE ---
+Practical interpretation: Easy alignment corresponds to a laboratory-style optical setup where the input/output beam and spot pattern can be viewed and iteratively tuned. Medium alignment corresponds to a lockable cartridge or jig-aligned field/drone assembly. Hard alignment corresponds to restricted access, fixed plastic references, monolithic detector placement or an operator with limited feedback.
+[Heading 1] 5. Operational drift: thermal, vibration, pressure and cycling
+Operational drift is the post-alignment change in the six-degree vector. This section now includes plastic in laboratory, field and drone environments. The values below are maximum expected drift estimates and include thermal expansion, vibration, pressure loading, material creep and thermal cycling where relevant.
+[Heading 2] 5.1 Lab operational drift
+--- TABLE ---
+Option | Material route | dx mm | dy mm | dz mm | dθx mrad | dθy mrad | dθz mrad | Pxy mm | Theta_xy mrad | Combined spot mm | Dominant drivers
+External kinematic mount on machined metal | Al/stainless assembly | ±0.010 | ±0.010 | ±0.020 | ±0.03 | ±0.03 | ±0.10 | 0.014 | 0.042 | 0.027 | small bench thermal drift, screw relaxation
+Machined aluminium isostatic flexure | Aluminium | ±0.010 | ±0.010 | ±0.015 | ±0.02 | ±0.02 | ±0.05 | 0.014 | 0.028 | 0.023 | small thermal expansion, low vibration
+Machined aluminium monolithic pocket | Aluminium | ±0.015 | ±0.015 | ±0.020 | ±0.05 | ±0.05 | ±0.10 | 0.021 | 0.071 | 0.042 | retainer stress, thermal breathing
+Stainless steel cartridge | Stainless steel | ±0.008 | ±0.008 | ±0.012 | ±0.02 | ±0.02 | ±0.05 | 0.011 | 0.028 | 0.020 | low bench drift, heavy/stiff structure
+Titanium flexure cartridge | Titanium | ±0.006 | ±0.006 | ±0.010 | ±0.01 | ±0.01 | ±0.04 | 0.008 | 0.021 | 0.015 | low thermal mismatch, stiff flexure
+Invar local mirror insert | Invar insert in light body | ±0.004 | ±0.004 | ±0.008 | ±0.01 | ±0.01 | ±0.03 | 0.006 | 0.014 | 0.010 | minimum thermal expansion
+Bosch rail aluminium reference | Aluminium extrusion | ±0.050 | ±0.050 | ±0.100 | ±0.20 | ±0.20 | ±0.50 | 0.071 | 0.283 | 0.156 | joint slip and rail compliance
+3D-printed plastic mount | FDM/SLA/SLS polymer | ±0.100 | ±0.100 | ±0.150 | ±0.50 | ±0.50 | ±1.00 | 0.141 | 0.707 | 0.354 | creep, anisotropy, local heating
+CNC-milled engineering plastic mount | PEEK/Acetal/PEI | ±0.050 | ±0.050 | ±0.080 | ±0.20 | ±0.20 | ±0.50 | 0.071 | 0.283 | 0.156 | polymer CTE/creep but controlled geometry
+Injection-moulded plastic with inserts | Filled polymer + metal inserts | ±0.040 | ±0.040 | ±0.070 | ±0.18 | ±0.18 | ±0.45 | 0.057 | 0.255 | 0.133 | insert creep, mould shrinkage memory
+Hybrid plastic body + aluminium mirror cartridge | Plastic body + Al reference | ±0.020 | ±0.020 | ±0.030 | ±0.06 | ±0.06 | ±0.15 | 0.028 | 0.085 | 0.054 | plastic housing movement partly isolated by Al cartridge
+--- END TABLE ---
+[Heading 2] 5.2 Field operational drift
+--- TABLE ---
+Option | Material route | dx mm | dy mm | dz mm | dθx mrad | dθy mrad | dθz mrad | Pxy mm | Theta_xy mrad | Combined spot mm | Dominant drivers
+External kinematic mount on machined metal | Al/stainless assembly | ±0.080 | ±0.080 | ±0.120 | ±0.35 | ±0.35 | ±0.70 | 0.113 | 0.495 | 0.262 | transport vibration, screw settling, temperature swings
+Machined aluminium isostatic flexure | Aluminium | ±0.035 | ±0.035 | ±0.060 | ±0.08 | ±0.08 | ±0.20 | 0.049 | 0.113 | 0.083 | temperature, transport vibration
+Machined aluminium monolithic pocket | Aluminium | ±0.060 | ±0.060 | ±0.080 | ±0.20 | ±0.20 | ±0.40 | 0.085 | 0.283 | 0.170 | retainer/ring friction and thermal breathing
+Stainless steel cartridge | Stainless steel | ±0.030 | ±0.030 | ±0.040 | ±0.07 | ±0.07 | ±0.15 | 0.042 | 0.099 | 0.072 | good stiffness but heavy
+Titanium flexure cartridge | Titanium | ±0.025 | ±0.025 | ±0.035 | ±0.05 | ±0.05 | ±0.12 | 0.035 | 0.071 | 0.057 | best field drift-to-weight
+Invar local mirror insert | Invar insert in light body | ±0.015 | ±0.015 | ±0.025 | ±0.03 | ±0.03 | ±0.08 | 0.021 | 0.042 | 0.034 | best thermal local reference
+Bosch rail aluminium reference | Aluminium extrusion | ±0.250 | ±0.250 | ±0.400 | ±1.00 | ±1.00 | ±2.50 | 0.354 | 1.414 | 0.778 | joint slip, vibration, pressure-induced frame motion
+3D-printed plastic mount | FDM/SLA/SLS polymer | ±0.350 | ±0.350 | ±0.500 | ±1.50 | ±1.50 | ±3.00 | 0.495 | 2.121 | 1.131 | creep + temperature + humidity + vibration
+CNC-milled engineering plastic mount | PEEK/Acetal/PEI | ±0.180 | ±0.180 | ±0.250 | ±0.70 | ±0.70 | ±1.50 | 0.255 | 0.990 | 0.552 | polymer CTE and insert creep
+Injection-moulded plastic with inserts | Filled polymer + metal inserts | ±0.150 | ±0.150 | ±0.200 | ±0.60 | ±0.60 | ±1.20 | 0.212 | 0.849 | 0.467 | moulded ribs help stiffness, inserts still drift
+Hybrid plastic body + aluminium mirror cartridge | Plastic body + Al reference | ±0.070 | ±0.070 | ±0.100 | ±0.20 | ±0.20 | ±0.50 | 0.099 | 0.283 | 0.184 | plastic motion partially decoupled from mirror
+--- END TABLE ---
+[Heading 2] 5.3 Drone operational drift
+--- TABLE ---
+Option | Material route | dx mm | dy mm | dz mm | dθx mrad | dθy mrad | dθz mrad | Pxy mm | Theta_xy mrad | Combined spot mm | Dominant drivers
+External kinematic mount on machined metal | Al/stainless assembly | ±0.300 | ±0.300 | ±0.500 | ±1.50 | ±1.50 | ±3.00 | 0.424 | 2.121 | 1.061 | free screws and springs under vibration
+Machined aluminium isostatic flexure | Aluminium | ±0.050 | ±0.050 | ±0.080 | ±0.15 | ±0.15 | ±0.20 | 0.071 | 0.212 | 0.134 | drone vibration, thermal shock, pressure cycling
+Machined aluminium monolithic pocket | Aluminium | ±0.100 | ±0.100 | ±0.100 | ±0.30 | ±0.30 | ±0.40 | 0.141 | 0.424 | 0.269 | retainer shift under vibration
+Stainless steel cartridge | Stainless steel | ±0.060 | ±0.060 | ±0.080 | ±0.18 | ±0.18 | ±0.25 | 0.085 | 0.255 | 0.161 | stable but mass penalty excites vibration
+Titanium flexure cartridge | Titanium | ±0.040 | ±0.040 | ±0.060 | ±0.12 | ±0.12 | ±0.18 | 0.057 | 0.170 | 0.107 | best mobile metal compromise
+Invar local mirror insert | Invar insert in light body | ±0.030 | ±0.030 | ±0.050 | ±0.08 | ±0.08 | ±0.12 | 0.042 | 0.113 | 0.076 | thermal best, use local insert only
+Bosch rail aluminium reference | Aluminium extrusion | ±0.600 | ±0.600 | ±0.900 | ±3.00 | ±3.00 | ±6.00 | 0.849 | 4.243 | 2.121 | rail slip and resonance; not a final drone reference
+3D-printed plastic mount | FDM/SLA/SLS polymer | ±0.500 | ±0.500 | ±0.600 | ±2.00 | ±2.00 | ±2.50 | 0.707 | 2.828 | 1.556 | creep, anisotropy, vibration, thermal and pressure cycling
+CNC-milled engineering plastic mount | PEEK/Acetal/PEI | ±0.250 | ±0.250 | ±0.300 | ±0.80 | ±0.80 | ±1.00 | 0.354 | 1.131 | 0.693 | better geometry but polymer CTE/compliance still high
+Injection-moulded plastic with inserts | Filled polymer + metal inserts | ±0.200 | ±0.200 | ±0.250 | ±0.70 | ±0.70 | ±0.90 | 0.283 | 0.990 | 0.580 | ribs and inserts improve stiffness, creep remains
+Hybrid plastic body + aluminium mirror cartridge | Plastic body + Al reference | ±0.100 | ±0.100 | ±0.120 | ±0.30 | ±0.30 | ±0.40 | 0.141 | 0.424 | 0.269 | best low-cost drone architecture
+--- END TABLE ---
+[Heading 1] 6. Final post-alignment total comparison
+The total values below combine the assigned alignment residual with the environment-specific operational drift. Construction error is excluded from the final total when recoverable by alignment. This is the corrected practical tolerance that the spot pattern experiences after build and alignment.
+[Heading 2] 6.1 Lab total post-alignment tolerance
+--- TABLE ---
+Ranked option | Align regime | Build recoverable? | dx total mm | dy total mm | dz total mm | dθx total mrad | dθy total mrad | dθz total mrad | Pxy mm | Theta_xy mrad | Combined spot mm
+External kinematic mount on machined metal | Easy | Yes | 0.040 | 0.040 | 0.070 | 0.08 | 0.08 | 0.60 | 0.057 | 0.113 | 0.091
+Invar local mirror insert | Medium | Yes | 0.084 | 0.084 | 0.128 | 0.16 | 0.16 | 1.03 | 0.119 | 0.226 | 0.187
+Titanium flexure cartridge | Medium | Yes | 0.086 | 0.086 | 0.130 | 0.16 | 0.16 | 1.04 | 0.122 | 0.233 | 0.192
+Stainless steel cartridge | Medium | Yes | 0.088 | 0.088 | 0.132 | 0.17 | 0.17 | 1.05 | 0.124 | 0.240 | 0.197
+Machined aluminium isostatic flexure | Medium | Yes | 0.090 | 0.090 | 0.135 | 0.17 | 0.17 | 1.05 | 0.127 | 0.240 | 0.199
+Machined aluminium monolithic pocket | Medium | Yes | 0.095 | 0.095 | 0.140 | 0.20 | 0.20 | 1.10 | 0.134 | 0.283 | 0.219
+Bosch rail aluminium reference | Easy | Yes | 0.080 | 0.080 | 0.150 | 0.25 | 0.25 | 1.00 | 0.113 | 0.354 | 0.219
+Hybrid plastic body + aluminium mirror cartridge | Medium | Yes | 0.100 | 0.100 | 0.150 | 0.21 | 0.21 | 1.15 | 0.141 | 0.297 | 0.231
+Injection-moulded plastic with inserts | Medium | Yes | 0.120 | 0.120 | 0.190 | 0.33 | 0.33 | 1.45 | 0.170 | 0.467 | 0.310
+CNC-milled engineering plastic mount | Medium | Yes | 0.130 | 0.130 | 0.200 | 0.35 | 0.35 | 1.50 | 0.184 | 0.495 | 0.332
+3D-printed plastic mount | Hard | No/marginal | 0.280 | 0.280 | 0.400 | 0.90 | 0.90 | 3.00 | 0.396 | 1.273 | 0.778
+--- END TABLE ---
+[Heading 2] 6.2 Field total post-alignment tolerance
+--- TABLE ---
+Ranked option | Align regime | Build recoverable? | dx total mm | dy total mm | dz total mm | dθx total mrad | dθy total mrad | dθz total mrad | Pxy mm | Theta_xy mrad | Combined spot mm
+Invar local mirror insert | Medium | Yes | 0.095 | 0.095 | 0.145 | 0.18 | 0.18 | 1.08 | 0.134 | 0.255 | 0.211
+Titanium flexure cartridge | Medium | Yes | 0.105 | 0.105 | 0.155 | 0.20 | 0.20 | 1.12 | 0.148 | 0.283 | 0.233
+Stainless steel cartridge | Medium | Yes | 0.110 | 0.110 | 0.160 | 0.22 | 0.22 | 1.15 | 0.156 | 0.311 | 0.249
+Machined aluminium isostatic flexure | Medium | Yes | 0.115 | 0.115 | 0.180 | 0.23 | 0.23 | 1.20 | 0.163 | 0.325 | 0.260
+Hybrid plastic body + aluminium mirror cartridge | Medium | Yes | 0.150 | 0.150 | 0.220 | 0.35 | 0.35 | 1.50 | 0.212 | 0.495 | 0.361
+External kinematic mount on machined metal | Medium | Yes | 0.160 | 0.160 | 0.240 | 0.50 | 0.50 | 1.70 | 0.226 | 0.707 | 0.438
+Machined aluminium monolithic pocket | Hard | Yes | 0.240 | 0.240 | 0.330 | 0.60 | 0.60 | 2.40 | 0.339 | 0.849 | 0.594
+Injection-moulded plastic with inserts | Hard | Yes | 0.330 | 0.330 | 0.450 | 1.00 | 1.00 | 3.20 | 0.467 | 1.414 | 0.891
+CNC-milled engineering plastic mount | Hard | No/marginal | 0.360 | 0.360 | 0.500 | 1.10 | 1.10 | 3.50 | 0.509 | 1.556 | 0.976
+Bosch rail aluminium reference | Hard | No/marginal | 0.430 | 0.430 | 0.650 | 1.40 | 1.40 | 4.50 | 0.608 | 1.980 | 1.202
+3D-printed plastic mount | Hard | No/marginal | 0.530 | 0.530 | 0.750 | 1.90 | 1.90 | 5.00 | 0.750 | 2.687 | 1.556
+--- END TABLE ---
+[Heading 2] 6.3 Drone total post-alignment tolerance
+--- TABLE ---
+Ranked option | Align regime | Build recoverable? | dx total mm | dy total mm | dz total mm | dθx total mrad | dθy total mrad | dθz total mrad | Pxy mm | Theta_xy mrad | Combined spot mm
+Invar local mirror insert | Medium | Yes | 0.110 | 0.110 | 0.170 | 0.23 | 0.23 | 1.12 | 0.156 | 0.325 | 0.253
+Titanium flexure cartridge | Medium | Yes | 0.120 | 0.120 | 0.180 | 0.27 | 0.27 | 1.18 | 0.170 | 0.382 | 0.284
+Machined aluminium isostatic flexure | Medium | Yes | 0.130 | 0.130 | 0.200 | 0.30 | 0.30 | 1.20 | 0.184 | 0.424 | 0.311
+Stainless steel cartridge | Medium | Yes | 0.140 | 0.140 | 0.200 | 0.33 | 0.33 | 1.25 | 0.198 | 0.467 | 0.338
+Hybrid plastic body + aluminium mirror cartridge | Medium | Yes | 0.180 | 0.180 | 0.240 | 0.45 | 0.45 | 1.40 | 0.255 | 0.636 | 0.445
+Machined aluminium monolithic pocket | Hard | Yes | 0.280 | 0.280 | 0.350 | 0.70 | 0.70 | 2.40 | 0.396 | 0.990 | 0.693
+Injection-moulded plastic with inserts | Hard | Yes | 0.380 | 0.380 | 0.500 | 1.10 | 1.10 | 2.90 | 0.537 | 1.556 | 1.004
+CNC-milled engineering plastic mount | Hard | No/marginal | 0.430 | 0.430 | 0.550 | 1.20 | 1.20 | 3.00 | 0.608 | 1.697 | 1.117
+External kinematic mount on machined metal | Hard | Yes | 0.480 | 0.480 | 0.750 | 1.90 | 1.90 | 5.00 | 0.679 | 2.687 | 1.485
+3D-printed plastic mount | Hard | No/marginal | 0.680 | 0.680 | 0.850 | 2.40 | 2.40 | 4.50 | 0.962 | 3.394 | 1.980
+Bosch rail aluminium reference | Hard | No/marginal | 0.780 | 0.780 | 1.150 | 3.40 | 3.40 | 8.00 | 1.103 | 4.808 | 2.546
+--- END TABLE ---
+[Heading 1] 7. Charts: all options compared in the same framework
+Figure 2. Independent equivalent input spot-position drift Pxy after alignment.
+Figure 3. Independent equivalent input-angle drift Theta_xy after alignment.
+Figure 4. Combined internal spot-pattern variation, Pxy + 0.3 x Theta_xy.
+Figure 5. Plastic and hybrid options compared against aluminium flexure benchmark.
+[Heading 1] 8. Mount concept visuals
+The visual below shows representative mount concepts. Plastic designs are attractive for low-cost and lightweight designs, but the operational drift tables show why local metal references or hybrid architectures are strongly preferred when the spot pattern is dense or the drone vibration is severe.
+Figure 6. Conceptual mirror-mount options: aluminium flexure, aluminium pocket, 3D-printed plastic, CNC-milled engineering plastic and injection-moulded plastic with metal inserts.
+[Heading 1] 9. Cost and manufacturing trade-off
+--- TABLE ---
+Option | Prototype cost | Production cost | Weight | Operational drift | Tooling risk | Best use
+External kinematic mount on machined metal | Medium-high | Low unless locked | Medium | High | Low | Lab prototypes and optical development
+Machined aluminium isostatic flexure | Medium | Medium | Low | Low-medium | Low | Best drone/field engineering baseline
+Machined aluminium monolithic pocket | Low-medium | High | Low | Medium | Low | Budget field/drone if tolerance is relaxed
+Stainless steel cartridge | Medium-high | Medium | High | Low | Low | Rugged field systems
+Titanium flexure cartridge | High | Low-medium | Medium | Very low | Low | Premium drone/field systems
+Invar local mirror insert | High | Low-medium | High local | Lowest | Low | Metrology/thermal-critical insert
+Bosch rail aluminium reference | Low | High | Low-medium | High | Medium | Lab frame only, not final optical reference
+3D-printed plastic mount | Very low | Very high | Very low | Very high | High | Prototype only or low precision
+CNC-milled engineering plastic mount | Medium | Medium | Very low | Medium-high | Medium | Low-cost trials and relaxed field use
+Injection-moulded plastic with inserts | Tooling high, unit low | Very low at volume | Very low | Medium-high | Medium | High-volume low-cost if tolerance relaxed
+Hybrid plastic body + aluminium mirror cartridge | Low-medium | Low-medium | Very low-low | Low-medium | Low-medium | Best low-cost production architecture
+--- END TABLE ---
+[Heading 1] 10. Recommendations by destination
+--- TABLE ---
+Destination | Recommended construction | Alignment/operation guidance
+Laboratory | Best: external kinematic mount or aluminium/stainless adjustable cell. Plastic can be used for quick prototypes if the mirror reference is not trusted for final data. | Use easy alignment with visible spot pattern and external folding mirrors. Construction tolerance is usually recoverable. Avoid using Bosch rail or plastic as the final optical reference when reporting precision results.
+Field | Best: aluminium body with titanium/stainless/aluminium lockable mirror cartridge. Hybrid plastic body + aluminium cartridge is acceptable for low-cost products. | Use medium alignment with lockable adjustments or jig alignment. Avoid all-plastic optical references unless spot-pattern clearance is large and thermal/vibration cycling has been tested.
+Drone | Best: aluminium or titanium isostatic flexure, or hybrid plastic body with aluminium mirror cartridge for cost-sensitive products. | Use monolithic/dowel-referenced source and detector. Avoid free kinematic mounts, Bosch rail references and generic 3D-printed plastic mirror references for final drone operation.
+--- END TABLE ---
+[Heading 1] 11. Final ranking
+--- TABLE ---
+Rank category | Design | Reason
+Best technical drone/field | Titanium or aluminium isostatic flexure with local Invar/titanium reference if required | Lowest drift while still manufacturable.
+Best practical all-round | Machined aluminium isostatic flexure cartridge | Good cost, weight and drift balance.
+Best low-cost product | Hybrid plastic body + aluminium mirror cartridge | Most cost benefit without sacrificing all optical reference stability.
+Best high-volume low-cost plastic | Injection-moulded plastic with metal inserts and local metal mirror seat | Requires tooling and drift validation.
+Best plastic prototype | CNC-milled engineering plastic with metal inserts | Better than 3D printing for useful optical tests.
+Prototype only | 3D-printed plastic mount | Lowest cost but high drift and creep risk.
+Avoid as final optical reference | Bosch rail and O-ring-defined mirror plane | Good for support frames, bad for optical tolerances.
+--- END TABLE ---
+[Heading 1] 12. Engineering notes for next design iteration
+If a plastic route is selected, use metal threaded inserts, dowel/boss references, a local aluminium or stainless mirror seat, and avoid using the O-ring as the mirror-plane reference.
+For a dense Herriott spot pattern, design the mirror support such that combined spot variation is comfortably below the available clearance between beam spots and mirror hole. For drone, the aluminium flexure or hybrid plastic + aluminium cartridge should be tested first.
+For the final design, run FEA for modal frequency and thermal deformation, then validate with thermal cycling, pressure cycling and vibration testing. The first resonance of the mirror cartridge should ideally be above the main drone vibration band.
+The document uses conservative maximum addition. If measured data are available, replace the maximum-add model with a statistical RSS model and measured drift coefficients.
