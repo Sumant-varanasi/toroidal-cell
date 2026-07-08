@@ -75,69 +75,73 @@ SKU = {100.0: "CM254-050-M01", 150.0: "CM254-075-M01",
 # ---------------------------------------------------------------------------
 # Stage 1: analytic unit-cell phases
 # ---------------------------------------------------------------------------
-def theta2(L: float, fa: float, fb: float) -> float | None:
-    """Phase advance over two bounces of the alternating cell."""
-    # M = M(fb) @ P(L) @ M(fa) @ P(L)
-    a11, a12 = 1.0, L
-    a21, a22 = -1.0 / fa, 1.0 - L / fa
-    b11 = a11
-    b12 = a11 * L + a12
-    b21 = a21
-    b22 = a21 * L + a22
-    c11 = b11
-    c12 = b12
-    c21 = -b11 / fb + b21
-    c22 = -b12 / fb + b22
-    tr = c11 + c22
-    if abs(tr) >= 2.0:
-        return None
-    return float(np.arccos(tr / 2.0))
+def theta2_arr(L: np.ndarray, fa: float, fb: float) -> np.ndarray:
+    """Phase advance over two bounces of the alternating cell (vectorized).
+
+    M = M(fb) @ P(L) @ M(fa) @ P(L); returns arccos(tr/2) with NaN where
+    the cell is unstable.
+    """
+    a21 = -1.0 / fa
+    a22 = 1.0 - L / fa
+    # B = P(L) @ M(fa) @ P(L):  [[1+L*a21, L+L*a22], [a21, a22]]
+    b11 = 1.0 + L * a21
+    b12 = L + L * a22
+    b22 = a22
+    # C = M(fb) @ B:  tr = c11 + c22 = b11 + (-b12/fb + b22)
+    tr = b11 + (-b12 / fb + b22)
+    th = np.full_like(np.asarray(L, dtype=float), np.nan)
+    m = np.abs(tr) < 2.0
+    th[m] = np.arccos(tr[m] / 2.0)
+    return th
 
 
-def circ_dist_pi(phi: float) -> float:
-    """Distance of phi from the nearest multiple of pi."""
-    return float(abs(((phi + np.pi / 2) % np.pi) - np.pi / 2))
+def circ_dist_pi_arr(phi: np.ndarray) -> np.ndarray:
+    return np.abs(((phi + np.pi / 2) % np.pi) - np.pi / 2)
 
 
 def analytic_candidates(combo, r_lo, r_hi):
+    """Vectorized 2 um analytic scan; per-k acceptance runs -> best root
+    per run; k-diverse candidate list.
+
+    The scan must resolve the accumulated phase: d(n/2*theta2)/dR is
+    ~n/2 * 1e-3 rad/um, so at k=33 (n~400-530) a 10 um step aliases; at
+    2 um the phase moves <~0.5 rad per step for every k in K_SET.
+    """
     N, s, ra, rb = combo
     aoi = np.pi / 2 - np.pi * s / N
-    cands = []
-    rs = np.arange(r_lo, r_hi + 1e-9, R_STEP)
+    rs = np.arange(r_lo, r_hi + 1e-9, 0.002)
     L = 2.0 * rs * np.sin(np.pi * s / N)
-    prev = {}
-    for i, r in enumerate(rs):
-        ft_a = ra * np.cos(aoi) / 2.0
-        fs_a = ra / (2.0 * np.cos(aoi))
-        ft_b = rb * np.cos(aoi) / 2.0
-        fs_b = rb / (2.0 * np.cos(aoi))
-        th_t = theta2(L[i], ft_a, ft_b)
-        th_s = theta2(L[i], fs_a, fs_b)
-        if th_t is None or th_s is None:
+    th_t = theta2_arr(L, ra * np.cos(aoi) / 2.0, rb * np.cos(aoi) / 2.0)
+    th_s = theta2_arr(L, ra / (2.0 * np.cos(aoi)),
+                      rb / (2.0 * np.cos(aoi)))
+    ok = ~(np.isnan(th_t) | np.isnan(th_s))
+    cands = []
+    for k in K_SET:
+        n = k * N
+        res_t = circ_dist_pi_arr(n / 2.0 * th_t)
+        res_s = circ_dist_pi_arr(n / 2.0 * th_s)
+        acc = ok & (res_t < PHASE_TOL_T) & (res_s < PHASE_TOL_S)
+        if not acc.any():
             continue
-        for k in K_SET:
-            n = k * N
-            res_t = circ_dist_pi(n / 2.0 * th_t)
-            res_s = circ_dist_pi(n / 2.0 * th_s)
-            score = res_t + res_s
-            key = k
-            # local-minimum detection along the R scan
-            if key in prev and prev[key][0] < score and prev[key][2]:
-                r0, (rt0, rs0) = prev[key][1], prev[key][3]
-                if rt0 < PHASE_TOL_T and rs0 < PHASE_TOL_S:
-                    cands.append(dict(N=N, s=s, roc_a=ra, roc_b=rb,
-                                      r_ring=float(r0), k=k, n_exit=n,
-                                      res_t=float(rt0), res_s=float(rs0),
-                                      opl_est=float(n * 2 * r0
-                                                    * np.sin(np.pi * s / N)
-                                                    / 1000.0)))
-                prev[key] = (score, r, False, (res_t, res_s))
-            else:
-                falling = key not in prev or score < prev[key][0]
-                prev[key] = (score, r, falling, (res_t, res_s))
-    # rank: longest estimated OPL first, keep a handful
+        # connected acceptance runs -> argmin of combined residual
+        idx = np.flatnonzero(acc)
+        splits = np.flatnonzero(np.diff(idx) > 1)
+        runs = np.split(idx, splits + 1)
+        scored = []
+        for run in runs:
+            comb = res_t[run] + res_s[run]
+            i = run[int(np.argmin(comb))]
+            scored.append((float(res_t[i] + res_s[i]), i))
+        scored.sort()
+        for scr, i in scored[:2]:            # best two runs per k
+            cands.append(dict(N=N, s=s, roc_a=ra, roc_b=rb,
+                              r_ring=float(rs[i]), k=k, n_exit=n,
+                              res_t=float(res_t[i]),
+                              res_s=float(res_s[i]),
+                              opl_est=float(n * L[i] / 1000.0)))
+    # k-diverse: at most 2 per k already; rank by OPL, cap total
     cands.sort(key=lambda c: -c["opl_est"])
-    return cands[:8]
+    return cands[:10]
 
 
 # ---------------------------------------------------------------------------
