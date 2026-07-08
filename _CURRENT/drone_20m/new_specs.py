@@ -11,9 +11,12 @@ import os
 import sys
 
 _ap = argparse.ArgumentParser()
-_ap.add_argument("--which", choices=["h2", "27m", "26m", "15m", "9m_mini"],
+_ap.add_argument("--which", choices=["h2", "27m", "26m", "15m", "9m_mini",
+                                     "19m_2in"],
                  required=True)
 A = _ap.parse_args()
+if A.which == "19m_2in":
+    os.environ["TMPC_RADIAL_ALLOWANCE"] = "23.0"
 if A.which == "h2":
     os.environ["TMPC_WAVELENGTH_MM"] = "2.1218e-3"
 elif A.which == "9m_mini":
@@ -41,6 +44,8 @@ PICKS = {
             112, "spec_D180_15m_sparse", 69.6),
     "9m_mini": ("designs/robust_menu_minihole_flight.csv", "CM127-050-M01",
                 14, 98, "spec_D130_9m_halfinch", 51.6),
+    "19m_2in": ("designs/robust_menu_twoinch_flight.csv", "CM508-150-M01",
+                8, 152, "spec_D190_19m_2inch", 67.8),
 }
 
 

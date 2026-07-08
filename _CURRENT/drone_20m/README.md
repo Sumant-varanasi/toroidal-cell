@@ -201,6 +201,15 @@ Further searches and audits on top of the feedback round
   Tier-3 = two-loop control on parts every build already carries (ring
   heater 1.2–1.7 µm/K + launch piezo + quad behind the hole; ~$400–700
   delta buys 25.7 → 38.6 m).
+- **Two-inch family** ([study](designs/two_inch_family.md)): under the
+  Ø190 cap CM508 mirrors pack at N = 7–8 only; verified flight-robust:
+  **19.04 m/Ø182 at 86.0 % with just 8 mirrors** and 11.6 m/Ø187 at
+  90.1 % with 7. The 19 m design is the first whose full path completes
+  in **100 % of Monte-Carlo trials at every manufacturing grade
+  including desktop FDM** (one-trim caveat) — the published printed-cell
+  record is 4.2 m. High-k 2″ patterns (needed to beat 29 m) sit beyond
+  the paraxial prescreen inside this envelope — larger apertures win
+  only in relaxed envelopes.
 - **Mixed-SKU rings** ([full study](designs/mixed_sku_study.md)): two
   alternating catalog ROCs give the architecture a second closure knob
   — the alternating unit cell closes (N, s, k) patterns no single ROC
