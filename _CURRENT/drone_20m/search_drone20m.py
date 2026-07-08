@@ -835,8 +835,10 @@ def main(argv=None):
             "opl_m", "throughput", "envelope_mm", "H_req_mm",
             "exit_miss_mm", "hole_margin_mm", "sep_margin_mm",
             "ap_margin_mm", "min_sep_mm", "w_max_mm", "aoi_deg"]
-    with pd.option_context("display.width", 250):
-        print(feas[cols].head(30).to_string(index=False))
+    cols = [c for c in cols if c in feas.columns]
+    if len(feas) and cols:
+        with pd.option_context("display.width", 250):
+            print(feas[cols].head(30).to_string(index=False))
     print(f"\nTotal {time.time() - t0:.0f}s")
     return 0
 
