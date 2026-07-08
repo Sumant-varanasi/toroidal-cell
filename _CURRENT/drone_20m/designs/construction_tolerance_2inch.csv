@@ -1,0 +1,13 @@
+design,process,cost_usd,tilt_mrad,rring_mm,complete_frac,min_sep_p05_mm,hole_clear_p05_mm,walk_p95_mm,sep_ok,hole_ok,exit_ok,survives
+two-inch 19.0 m (8 mirrors),CNC precision (flight),600-1200,0.1,0.02,1.0,0.7115692682817569,3.0709694043811946,0.6866772052775321,True,True,True,True
+two-inch 19.0 m (8 mirrors),CNC standard,250-600,0.5,0.1,1.0,0.35384924890479735,2.3775688202345777,1.458721686455872,False,True,False,False
+two-inch 19.0 m (8 mirrors),SLA (tough resin),60-150,1.5,0.15,1.0,0.2196279316195511,0.9345142586127453,2.4866074559890237,False,True,False,False
+two-inch 19.0 m (8 mirrors),MJF/SLS (PA12),80-200,2.5,0.25,1.0,0.1234537425570347,0.5298330510697196,4.2351070791948775,False,True,False,False
+two-inch 19.0 m (8 mirrors),FDM (PLA/PETG),20-60,4.0,0.3,1.0,0.12255458238865291,-0.5293699715867123,6.081556823302725,False,False,False,False
+two-inch 19.0 m (8 mirrors),printed + machined seats,150-350,0.3,0.1,1.0,0.4127475813699296,2.635238175265809,1.3670019833924743,False,True,False,False
+two-inch 11.6 m (7 mirrors),CNC precision (flight),600-1200,0.1,0.02,1.0,1.059220841874291,5.420444730353322,0.45884093603245824,True,True,True,True
+two-inch 11.6 m (7 mirrors),CNC standard,250-600,0.5,0.1,1.0,0.4223189860940995,3.248061358307444,2.1068058435680235,False,True,False,False
+two-inch 11.6 m (7 mirrors),SLA (tough resin),60-150,1.5,0.15,0.88,0.20715481581101128,1.0112090321276908,5.502284626646212,False,True,False,False
+two-inch 11.6 m (7 mirrors),MJF/SLS (PA12),80-200,2.5,0.25,0.62,0.1773590558301083,0.8386444669796218,8.493863908469729,False,True,False,False
+two-inch 11.6 m (7 mirrors),FDM (PLA/PETG),20-60,4.0,0.3,0.41,0.12730020546074888,0.7003227940552328,10.553382654547095,False,True,False,False
+two-inch 11.6 m (7 mirrors),printed + machined seats,150-350,0.3,0.1,1.0,0.48288017768513325,4.312188005792987,1.4171331435943781,False,True,False,False
