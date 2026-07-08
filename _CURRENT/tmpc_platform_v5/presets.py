@@ -229,6 +229,21 @@ PRESETS: Dict[str, dict] = {
         label="Drone 20.7 m @ 141 mm -- 12x CM254-500-M01 (flight-grade)",
     ),
 
+    "drone_26m": dict(
+        # Tri-gas flagship (2026-07-08 walk-hardened search): 25.72 m in
+        # 185 mm; 16 x CM254-200-M01 (ROC 400) on a 74.507 mm ring.
+        # Monte-Carlo robust as-built at flight grade at ALL THREE gas
+        # lines (1512.2 / 1653.7 / 2121.8 nm) -- the tri-gas OPL ceiling,
+        # doubly confirmed by an H2-native hardened search.
+        N=16, chord_skip=7, R_ring=74.5075, H=25.0,
+        R_t=400.0, R_s=400.0, mirror_aperture=11.4,
+        w0=0.2946, M2=1.0, input_waist_offset=72.28,
+        input_offset_z=0.3384, input_angle=-0.037319,
+        input_angle_sag=0.036395,
+        reflectivity=0.999, hole_radius=1.3, n_passes=176,
+        label="Drone 25.7 m @ 185 mm -- 16x CM254-200-M01 (tri-gas flagship)",
+    ),
+
     "drone_24m_h2": dict(
         # Tri-gas H2 star (2026-07-08 wavelength-portable search at
         # 2121.8 nm): 23.83 m in 174 mm; 16 x CM254-200-M01 (ROC 400)
