@@ -1,0 +1,8 @@
+kind,name,dx_mm,dy_mm,dz_mm,dtheta_mrad
+alignment_residual,easy,0.02,0.02,0.03,0.05
+alignment_residual,medium,0.05,0.05,0.07,0.15
+alignment_residual,hard,0.12,0.12,0.18,0.4
+drone_mirror_drift,al_flexure,0.05,0.05,0.08,0.15
+drone_launch_box,al_flexure,0.07,0.07,0.07,0.2
+drone_mirror_drift,hybrid,0.12,0.12,0.18,0.4
+drone_launch_box,hybrid,0.17,0.17,0.17,0.55

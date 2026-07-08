@@ -44,6 +44,7 @@ import cadquery as cq                                             # noqa: E402
 FAMILY_DIMS = {
     "one_inch": dict(mirror_dia=25.4, mirror_t=6.35),
     "half_inch": dict(mirror_dia=12.7, mirror_t=6.35),
+    "two_inch": dict(mirror_dia=50.8, mirror_t=12.7),
 }
 POCKET_CLEAR = 0.10        # press-fit-ish pocket clearance on radius [mm]
 PLATE_T = 4.0
@@ -55,6 +56,7 @@ DESIGNS = {
     "20m": ("robust_menu.csv", "CM254-150-M01", 16, 144),
     "29m": ("robust_menu_flight.csv", "CM254-750-M01", 12, 204),
     "9m_mini": ("robust_menu_minihole_flight.csv", "CM127-050-M01", 14, 98),
+    "19m_2in": ("robust_menu_twoinch_flight.csv", "CM508-150-M01", 8, 152),
 }
 
 
@@ -147,31 +149,134 @@ def build(row: dict):
     return body, lid, base
 
 
+def build_hybrid(row: dict):
+    """Hybrid architecture per the prof's low-cost directive: printable
+    plastic outer shell (with integral base) + machined aluminium
+    mirror-cartridge ring carrying every optical datum, + plastic lid.
+
+    The cartridge is an annulus holding the N mirror pockets and the
+    mirror-0 entry/exit cone; it drops into the shell on three dowels so
+    the plastic never defines mirror position or tilt (O-ring stays a
+    seal only, per the framework)."""
+    N = int(row["N"])
+    fam = FAMILY_DIMS[str(row.get("family", "one_inch"))]
+    mirror_dia, mirror_t = fam["mirror_dia"], fam["mirror_t"]
+    wall_h = mirror_dia + 5.2
+    r_ring = float(row["R_ring"])
+    r_od = float(row["envelope_mm"]) / 2.0
+    aoi = np.deg2rad(float(row["aoi_deg"]))
+    r_cav = r_ring - 2.0
+    seat_r = r_ring + mirror_t
+    r_cart = min(seat_r + 4.0, r_od - 4.5)   # cartridge outer radius
+    gap = 0.30                                # shell/cartridge clearance
+
+    # ---- aluminium cartridge ring -----------------------------------------
+    cart = (cq.Workplane("XY").circle(r_cart).extrude(wall_h)
+            .faces(">Z").workplane().hole(2 * r_cav, wall_h))
+    for q in range(N):
+        ang = 2 * np.pi * q / N
+        cx, cy = np.cos(ang), np.sin(ang)
+        pocket = (cq.Workplane(cq.Plane(
+            origin=(seat_r * cx, seat_r * cy, wall_h / 2.0),
+            xDir=(-cy, cx, 0), normal=(cx, cy, 0)))
+            .circle(mirror_dia / 2.0 + POCKET_CLEAR)
+            .extrude(-(seat_r - r_cav + 0.5)))
+        cart = cart.cut(pocket)
+    cone_half = aoi + np.deg2rad(8.0)
+    cone_len = r_od - r_ring + 6.0
+    r_tip, r_base = 2.0, 2.0 + cone_len * np.tan(cone_half)
+    cone = cq.Solid.makeCone(r_tip, r_base, cone_len,
+                             cq.Vector(r_ring - 1.0, 0, wall_h / 2.0),
+                             cq.Vector(1, 0, 0))
+    cart = cart.cut(cq.Workplane(obj=cone))
+    r_dowel = (r_cav + seat_r) / 2.0
+    for a_deg in (30.0, 150.0, 270.0):
+        a = np.deg2rad(a_deg)
+        cart = (cart.faces("<Z")
+                .workplane(centerOption="CenterOfBoundBox")
+                .pushPoints([(r_dowel * np.cos(a), -r_dowel * np.sin(a))])
+                .hole(3.0, 6.0))
+
+    # ---- plastic shell: outer wall + integral base -------------------------
+    shell = (cq.Workplane("XY").circle(r_od).extrude(wall_h)
+             .faces(">Z").workplane().hole(2 * (r_cart + gap), wall_h))
+    floor = (cq.Workplane("XY", origin=(0, 0, -PLATE_T))
+             .circle(r_od).extrude(PLATE_T))
+    for a_deg in (30.0, 150.0, 270.0):    # dowel bosses in the floor
+        a = np.deg2rad(a_deg)
+        floor = (floor.faces(">Z")
+                 .workplane(centerOption="CenterOfBoundBox")
+                 .pushPoints([(r_dowel * np.cos(a), r_dowel * np.sin(a))])
+                 .hole(3.0, PLATE_T / 2.0))
+    shell = shell.union(floor)
+    shell = shell.cut(cq.Workplane(obj=cone))   # cone continues outward
+    boss_w = min(30.0, r_od * 0.45)
+    boss = (cq.Workplane(cq.Plane(origin=(r_od - 1.5, 0, wall_h / 2.0),
+                                  xDir=(0, 1, 0), normal=(1, 0, 0)))
+            .rect(boss_w, wall_h * 0.85).extrude(6.0))
+    shell = shell.union(boss).cut(cq.Workplane(obj=cone))
+
+    # ---- plastic lid with axial gas ports ----------------------------------
+    lid = (cq.Workplane("XY", origin=(0, 0, wall_h))
+           .circle(r_od).extrude(PLATE_T))
+    for sx in (+1.0, -1.0):
+        lid = (lid.faces(">Z").workplane(centerOption="CenterOfBoundBox")
+               .pushPoints([(sx * r_cav / 2.0, 0.0)]).hole(5.0))
+
+    # ---- bolt circle through lid + shell wall ------------------------------
+    r_bolt = (r_cart + gap + r_od) / 2.0
+    bolt_angs = [2 * np.pi * (q + 0.5) / N for q in range(N)]
+    for a in bolt_angs:
+        pt = [(r_bolt * np.cos(a), r_bolt * np.sin(a))]
+        lid = (lid.faces(">Z").workplane(centerOption="CenterOfBoundBox")
+               .pushPoints(pt).hole(BOLT_D))
+        shell = (shell.faces(">Z")
+                 .workplane(centerOption="CenterOfBoundBox")
+                 .pushPoints(pt).hole(BOLT_D))
+    return shell, cart, lid
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--design", default="14cm", choices=sorted(DESIGNS))
+    ap.add_argument("--hybrid", action="store_true",
+                    help="plastic shell + aluminium mirror cartridge")
     ap.add_argument("--out-dir", default=os.path.join(_HERE, "designs",
                                                       "cad"))
     args = ap.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
 
     row = load_row(args.design)
-    body, lid, base = build(row)
-
-    tag = f"tmpc_{args.design}"
-    asm = cq.Assembly()
-    asm.add(body, name="ring_body", color=cq.Color(0.75, 0.76, 0.78))
-    asm.add(lid, name="lid", color=cq.Color(0.6, 0.62, 0.65))
-    asm.add(base, name="base", color=cq.Color(0.6, 0.62, 0.65))
-    step = os.path.join(args.out_dir, f"{tag}.step")
-    asm.save(step)
-    for part, nm in ((body, "ring_body"), (lid, "lid"), (base, "base")):
+    if args.hybrid:
+        shell, cart, lid = build_hybrid(row)
+        tag = f"tmpc_{args.design}_hybrid"
+        asm = cq.Assembly()
+        asm.add(shell, name="shell_plastic", color=cq.Color(0.2, 0.25, 0.3))
+        asm.add(cart, name="cartridge_al", color=cq.Color(0.75, 0.76, 0.78))
+        asm.add(lid, name="lid_plastic", color=cq.Color(0.25, 0.3, 0.35))
+        step = os.path.join(args.out_dir, f"{tag}.step")
+        asm.save(step)
+        parts = ((shell, "shell_plastic"), (cart, "cartridge_al"),
+                 (lid, "lid_plastic"))
+    else:
+        body, lid, base = build(row)
+        tag = f"tmpc_{args.design}"
+        asm = cq.Assembly()
+        asm.add(body, name="ring_body", color=cq.Color(0.75, 0.76, 0.78))
+        asm.add(lid, name="lid", color=cq.Color(0.6, 0.62, 0.65))
+        asm.add(base, name="base", color=cq.Color(0.6, 0.62, 0.65))
+        step = os.path.join(args.out_dir, f"{tag}.step")
+        asm.save(step)
+        parts = ((body, "ring_body"), (lid, "lid"), (base, "base"))
+    for part, nm in parts:
         cq.exporters.export(part, os.path.join(args.out_dir,
                                                f"{tag}_{nm}.stl"))
+        v = part.val().Volume() if hasattr(part, "val") else part.Volume()
+        print(f"  {nm}: volume {v / 1000.0:.1f} cm^3")
     print(f"design {args.design}: N={int(row['N'])} "
           f"R_ring={row['R_ring']:.3f} mm envelope="
           f"{row['envelope_mm']:.1f} mm AOI={row['aoi_deg']:.2f} deg")
-    print(f"wrote {step} + 3 STLs")
+    print(f"wrote {step} + {len(parts)} STLs")
     return 0
 
 

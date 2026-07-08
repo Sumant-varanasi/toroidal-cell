@@ -1,0 +1,25 @@
+design,architecture,shell_material,structure_g,total_g,lid_f1_hz,lid_t_mm
+14cm,all-aluminium,Al 6061 (CNC),817,1137,2026,4.0
+14cm,hybrid plastic + Al cartridge,PA12 (MJF/SLS),435,755,803,6.0
+14cm,hybrid plastic + Al cartridge,PA12-CF (MJF),446,766,1139,6.0
+14cm,hybrid plastic + Al cartridge,PLA (FDM),484,804,1011,6.0
+14cm,hybrid plastic + Al cartridge,Tough resin (SLA),472,792,927,6.0
+14cm,hybrid plastic + Al cartridge,PEEK (CNC/printed),500,820,997,6.0
+29m,all-aluminium,Al 6061 (CNC),1270,1590,1199,4.0
+29m,hybrid plastic + Al cartridge,PA12 (MJF/SLS),688,1008,475,6.0
+29m,hybrid plastic + Al cartridge,PA12-CF (MJF),705,1025,674,6.0
+29m,hybrid plastic + Al cartridge,PLA (FDM),764,1084,598,6.0
+29m,hybrid plastic + Al cartridge,Tough resin (SLA),744,1064,548,6.0
+29m,hybrid plastic + Al cartridge,PEEK (CNC/printed),788,1108,590,6.0
+9m_mini,all-aluminium,Al 6061 (CNC),497,661,2409,4.0
+9m_mini,hybrid plastic + Al cartridge,PA12 (MJF/SLS),263,427,955,6.0
+9m_mini,hybrid plastic + Al cartridge,PA12-CF (MJF),270,434,1354,6.0
+9m_mini,hybrid plastic + Al cartridge,PLA (FDM),293,457,1202,6.0
+9m_mini,hybrid plastic + Al cartridge,Tough resin (SLA),285,449,1102,6.0
+9m_mini,hybrid plastic + Al cartridge,PEEK (CNC/printed),302,466,1186,6.0
+19m_2in,all-aluminium,Al 6061 (CNC),1751,2287,1219,4.0
+19m_2in,hybrid plastic + Al cartridge,PA12 (MJF/SLS),1056,1592,483,6.0
+19m_2in,hybrid plastic + Al cartridge,PA12-CF (MJF),1076,1612,685,6.0
+19m_2in,hybrid plastic + Al cartridge,PLA (FDM),1145,1681,608,6.0
+19m_2in,hybrid plastic + Al cartridge,Tough resin (SLA),1122,1658,558,6.0
+19m_2in,hybrid plastic + Al cartridge,PEEK (CNC/printed),1172,1708,600,6.0
