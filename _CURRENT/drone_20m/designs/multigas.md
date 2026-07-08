@@ -107,6 +107,32 @@ fit with Rautian/Galatry profiles, not Voigt, and beware etalons whose
 FSR matches the narrow line — chord-scale OPDs (tens of cm), which the
 spot-separation rule suppresses, matter more than window etalons.
 
+## 3b. Why spot separation is *the* H₂ enabler (etalon-FSR audit)
+
+A parasitic etalon formed by scatter bouncing between two mirrors one
+chord apart has OPD = 2L, i.e. FSR = 1/(2L):
+
+| design | chord L | chord-etalon FSR | vs H₂ FWHM 0.026–0.04 cm⁻¹ | worst-pair power coupling |
+|---|---|---|---|---|
+| 25.7 m tri-gas | 146 mm | 0.034 cm⁻¹ | **matches the line** | 1.5×10⁻¹³ |
+| 20.4 m (drone_20m) | 142 mm | 0.035 cm⁻¹ | matches | 5.8×10⁻⁶ |
+| 20.7 m (drone_14cm) | 101 mm | 0.049 cm⁻¹ | ~line-scale | 1.7×10⁻⁵ |
+| 15.3 m sparse | 137 mm | 0.037 cm⁻¹ | matches | 2.8×10⁻¹⁵ |
+| 9.1 m mini (½″) | 93 mm | 0.054 cm⁻¹ | ~line-scale | 1.8×10⁻⁸ |
+
+Every chord-skip cell's chord-scale parasites have FSRs **on the H₂
+linewidth** (they'd distort the line shape rather than the baseline), so
+they cannot be fitted out and must be suppressed at the source — which is
+exactly what the enforced spot-separation margin does (10⁻⁶–10⁻¹⁵ power
+coupling before multiplying by mirror scatter). Window etalons
+(FSR ≈ 1 cm⁻¹) and full-pattern parasites (FSR < 0.001 cm⁻¹) land far
+from the line and behave as fittable slow baseline. For CH₄/NH₃
+(FWHM 0.12–0.2 cm⁻¹ at 1 atm) the chord FSRs sit *under* the line as
+fast fringes that averaging and fitting handle — another reason H₂ is
+the qualifying channel. The hardened designs (25.7 m, 15.3 m) were
+selected with the largest margins in the menu, which is why they carry
+the H₂ robustness.
+
 ## 4. Per-gas hardware chain
 
 | item | CH₄ 1653.7 nm | NH₃ 1512.2 nm | H₂ 2121.8 nm |

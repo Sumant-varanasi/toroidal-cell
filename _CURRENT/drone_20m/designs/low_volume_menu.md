@@ -58,6 +58,20 @@ small aperture, not the hole.
 family only (the 1″ menu keeps the 1.3 mm standard; both use the same
 fiber-DFB source, different collimation package).
 
+## Gas exchange (the point of low volume on a drone)
+
+| design | V_min | τ @0.5 SLM | @1 SLM | @2 SLM | open-flow transit* |
+|---|---|---|---|---|---|
+| 9.1 m mini Ø129 | 75 mL | 9.0 s | 4.5 s | 2.3 s | ~26 ms |
+| 7.5 m Ø122 | 40 mL | 4.8 s | 2.4 s | 1.2 s | ~25 ms |
+| 19.3 m Ø93 showcase | 37 mL | 4.4 s | 2.2 s | 1.1 s | ~19 ms |
+| (1″ drone_14cm, for scale) | 200 mL | 24 s | 12 s | 6 s | ~28 ms |
+
+*open ring (lids slotted/mesh, IRcell-S-style flow-through) at 5 m/s
+drone airspeed — the cell clears in one body-length of flight, i.e.
+plume mapping at the flight-controller rate; the pumped numbers are for
+the sealed configuration.
+
 ## Physics notes
 
 * Spot sizes do **not** shrink with the mirror: w is set by chord length
