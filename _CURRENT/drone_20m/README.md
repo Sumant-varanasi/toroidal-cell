@@ -169,6 +169,45 @@ IRcell-S reference, the path-vs-volume literature map, the new
 Optiland-validated 23.8 m H₂ cell, the generated housing CAD, and the
 manufacturing-process Monte-Carlo.*
 
+## Variation-hunt round — new champions and complete-coverage audits
+
+Further searches and audits on top of the feedback round
+(one-page map for the reply: [PROF_RESPONSE_SUMMARY.md](designs/PROF_RESPONSE_SUMMARY.md)):
+
+- **Tri-gas ceiling raised to 25.72 m / Ø185** (walk-hardened search;
+  robust as-built at CH₄+NH₃+H₂, doubly confirmed by an H₂-native
+  search converging on the same design; 400-trial MC flawless;
+  [spec](designs/spec_D190_26m.md), ROC trim 0.75 mm/%, ±18 K Al).
+- **15.30 m / Ø175 at 89.5 % with 7 spots/mirror** — the sparse
+  budget-build corner: 100 % path completion on every process down to
+  SLA; tri-gas robust ([spec](designs/spec_D180_15m_sparse.md)).
+- **Low-volume half-inch family** ([low_volume_menu.md](designs/low_volume_menu.md)):
+  flight-robust 7.54 m/Ø122/**40 mL** (PVR 190 m/L); with a 0.8 mm
+  mini-collimator (decision pending): **9.11 m/Ø129/75 mL at 90.8 %**
+  ([spec](designs/spec_D130_9m_halfinch.md) + `cad/tmpc_9m_mini`);
+  showcase 19.3 m/Ø93/**37 mL** (PVR 518 m/L, active tier). Gas
+  exchange 1–9 s pumped / ~25 ms open-flow.
+- **Feature frontier** ([feature_frontier.md](designs/feature_frontier.md)):
+  champions per criterion across all 14 MC-robust designs.
+- **Operational physics audit** ([operational_audit.md](designs/operational_audit.md)):
+  polarization Jones analysis (launch sagittal — 96.3–99.9 % eigenaxis
+  purity; 45° launch exits up to 39° elliptical; skip-3 family
+  diattenuates ×6.4), vibration-to-signal budget (ring tilt 0.01–0.1
+  µrad/g, margin >10³ — coupling lives in the launch/detector chain),
+  H₂ etalon-FSR audit (chord parasites sit ON the H₂ linewidth → spot
+  separation is the H₂ enabler), plus bounded gravity/aero-optic/
+  figure-error/dust/condensation/étendue effects.
+- **Active-tier actuation spec** ([active_tier_requirements.md](designs/active_tier_requirements.md)):
+  Tier-3 = two-loop control on parts every build already carries (ring
+  heater 1.2–1.7 µm/K + launch piezo + quad behind the hole; ~$400–700
+  delta buys 25.7 → 38.6 m).
+- **Mixed-SKU rings** (two alternating catalog ROCs; user-requested
+  exploration): analytic unit-cell prescreen + exact refinement shows
+  they close re-entrant patterns to nominal **60–69 m in the same
+  envelopes**, including combinations where *neither* uniform ROC
+  closes — separation-aware optimization in progress
+  ([mixed_sku_results.csv](designs/mixed_sku_results.csv)).
+
 ## Engineering studies ([full report](designs/investigations.md))
 
 - **ROC-error compensation** (Thorlabs f is ±1 %): perfectly linear ring
