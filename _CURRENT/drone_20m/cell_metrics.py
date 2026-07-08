@@ -59,7 +59,10 @@ def load_menu() -> list[dict]:
     rows = []
     for f, lam_nm in (("robust_menu.csv", 1654.0),
                       ("robust_menu_flight.csv", 1654.0),
-                      ("robust_menu_h2_flight.csv", 2121.8)):
+                      ("robust_menu_h2_flight.csv", 2121.8),
+                      ("robust_menu_hardened_flight.csv", 1654.0),
+                      ("robust_menu_halfinch_flight.csv", 1654.0),
+                      ("robust_menu_minihole_flight.csv", 1654.0)):
         p = os.path.join(_HERE, "designs", f)
         if os.path.exists(p):
             d = pd.read_csv(p)
@@ -112,8 +115,10 @@ def metrics_one(row: dict) -> dict:
            "R_ring_mm": float(cfg.R_ring), "lambda_nm": lam_nm}
 
     # ---- 1. volume ------------------------------------------------------
+    mir_dia = 12.7 if str(row.get("family", "one_inch")) == "half_inch" \
+        else MIRROR_DIA
     R_cav_cm = cfg.R_ring / 10.0
-    h_full_cm = (MIRROR_DIA + 2 * SEAL_CLEAR) / 10.0
+    h_full_cm = (mir_dia + 2 * SEAL_CLEAR) / 10.0
     z = hits[:, 2]
     h_beam_mm = (float(z.max() - z.min())
                  + 2 * (BEAM_CLEAR_W * float(w_hit.max()) + BEAM_CLEAR_MM))
@@ -186,7 +191,7 @@ def metrics_one(row: dict) -> dict:
                washout_fringes_across_beam=float(2 * w_typ / lam_fringe))
 
     # ---- 4. hole vs side-slot entry --------------------------------------
-    gap_mm = 2.0 * cfg.R_ring * np.sin(np.pi / cfg.N) - MIRROR_DIA
+    gap_mm = 2.0 * cfg.R_ring * np.sin(np.pi / cfg.N) - mir_dia
     chord_m = 2.0 * cfg.R_ring * np.sin(
         np.pi * cfg.chord_skip / cfg.N) / 1000.0
     out.update(side_gap_mm=float(gap_mm),

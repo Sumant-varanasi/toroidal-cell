@@ -5,11 +5,11 @@
 | feature | design | OPL | envelope | T@0.999 | V_min | PVR | worst pair d/w̄ | tier |
 |---|---|---|---|---|---|---|---|---|
 | **longest path (robust)** | CM254-750-M01 ×12 (skip 5, n=204) | 28.99 m | Ø183 | 76.6 % | 331 mL | 88 m/L | 2.79 | flight |
-| **smallest envelope (robust)** | CM254-150-M01 ×10 (skip 3, n=190) | 14.85 m | Ø133 | 82.8 % | 117 mL | 127 m/L | 3.38 | flight |
-| **highest throughput (robust)** | CM254-250-M01 ×12 (skip 5, n=132) | 13.64 m | Ø143 | 87.7 % | 126 mL | 108 m/L | 5.15 | flight |
-| **lowest gas volume (robust)** | CM254-150-M01 ×10 (skip 3, n=190) | 14.85 m | Ø133 | 82.8 % | 117 mL | 127 m/L | 3.38 | flight |
-| **best path-per-volume (robust)** | CM254-150-M01 ×10 (skip 3, n=190) | 14.85 m | Ø133 | 82.8 % | 117 mL | 127 m/L | 3.38 | flight |
-| **largest fringe margin (robust)** | CM254-250-M01 ×12 (skip 5, n=132) | 13.64 m | Ø143 | 87.7 % | 126 mL | 108 m/L | 5.15 | flight |
+| **smallest envelope (robust)** | CM127-050-M01 ×16 (skip 7, n=80) | 7.54 m | Ø122 | 54.9 % | 40 mL | 190 m/L | 3.50 | flight |
+| **highest throughput (robust)** | CM127-050-M01 ×14 (skip 5, n=98) | 9.11 m | Ø129 | 90.8 % | 56 mL | 162 m/L | 4.33 | flight |
+| **lowest gas volume (robust)** | CM127-050-M01 ×16 (skip 7, n=80) | 7.54 m | Ø122 | 54.9 % | 40 mL | 190 m/L | 3.50 | flight |
+| **best path-per-volume (robust)** | CM127-050-M01 ×16 (skip 7, n=80) | 7.54 m | Ø122 | 54.9 % | 40 mL | 190 m/L | 3.50 | flight |
+| **largest fringe margin (robust)** | CM254-100-M01 ×16 (skip 7, n=112) | 15.30 m | Ø175 | 89.5 % | 142 mL | 108 m/L | 5.79 | flight |
 | **longest path (any, active tier)** | CM254-100-M01 ×14 (skip 5, n=322) | 38.62 m | Ø169 | 71.1 % | 210 mL | 184 m/L | 4.27 | active/nominal |
 | **best PVR (any)** | CM127-050-M01 ×14 (skip 5, n=322) | 19.31 m | Ø93 | 64.7 % | 37 mL | 518 m/L | 3.70 | active/nominal |
 
@@ -18,10 +18,16 @@
 | design | OPL | envelope | T@0.999 | V_min | PVR | d/w̄ | tier |
 |---|---|---|---|---|---|---|---|
 | CM254-750-M01 ×12 n=204 | 28.99 m | Ø183 | 76.6 % | 331 mL | 88 m/L | 2.79 | flight |
+| CM254-200-M01 ×16 n=176 | 25.72 m | Ø185 | 83.9 % | 318 mL | 81 m/L | 5.44 | flight |
 | CM254-200-M01 ×16 n=176 | 24.77 m | Ø180 | 83.9 % | 332 mL | 75 m/L | 3.83 | flight |
 | CM254-200-M01 ×16 n=176 | 23.83 m | Ø174 | 83.9 % | 238 mL | 100 m/L | 4.32 | flight@H2 |
 | CM254-500-M01 ×12 n=204 | 20.66 m | Ø141 | 81.6 % | 200 mL | 103 m/L | 3.31 | flight |
 | CM254-150-M01 ×16 n=144 | 20.38 m | Ø180 | 86.7 % | 225 mL | 90 m/L | 3.25 | standard-lab |
+| CM254-150-M01 ×16 n=144 | 20.38 m | Ø180 | 86.7 % | 273 mL | 75 m/L | 4.85 | standard-lab |
 | CM254-150-M01 ×13 n=143 | 16.60 m | Ø160 | 86.8 % | 215 mL | 77 m/L | 3.11 | flight |
+| CM254-100-M01 ×16 n=112 | 15.30 m | Ø175 | 89.5 % | 142 mL | 108 m/L | 5.79 | flight |
 | CM254-150-M01 ×10 n=190 | 14.85 m | Ø133 | 82.8 % | 117 mL | 127 m/L | 3.38 | flight |
 | CM254-250-M01 ×12 n=132 | 13.64 m | Ø143 | 87.7 % | 126 mL | 108 m/L | 5.15 | flight |
+| CM254-150-M01 ×10 n=110 | 9.19 m | Ø139 | 11.9 % | 95 mL | 97 m/L | 5.01 | flight |
+| CM127-050-M01 ×14 n=98 | 9.11 m | Ø129 | 90.8 % | 56 mL | 162 m/L | 4.33 | flight |
+| CM127-050-M01 ×16 n=80 | 7.54 m | Ø122 | 54.9 % | 40 mL | 190 m/L | 3.50 | flight |

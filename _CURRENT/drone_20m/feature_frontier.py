@@ -61,7 +61,9 @@ def tier_map() -> dict:
                     ("robust_menu_halfinch_flight.csv", "flight"),
                     ("robust_menu_halfinch.csv", "standard-lab"),
                     ("robust_menu_hardened.csv", "standard-lab"),
-                    ("robust_menu_hardened_flight.csv", "flight")):
+                    ("robust_menu_hardened_flight.csv", "flight"),
+                    ("robust_menu_minihole_flight.csv", "flight"),
+                    ("robust_menu_minihole.csv", "standard-lab")):
         p = os.path.join(_HERE, "designs", f)
         if not os.path.exists(p):
             continue
