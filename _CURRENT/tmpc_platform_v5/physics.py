@@ -760,6 +760,16 @@ def simulate_tmpc(cfg: TMPCConfig,
     if eff_cfg.astigmatic:
         Rt = np.full(n_b, eff_cfg.R_t)
         Rs = np.full(n_b, eff_cfg.R_s)
+        if (perturbations is not None and len(perturbations) == eff_cfg.N
+                and len(mirror_seq) >= 1):
+            # per-bounce actual mirror ROC (mixed-SKU rings, per-mirror
+            # ROC error): the beam sees the curvature of the mirror it
+            # actually hits, not the nominal ring value
+            mseq = mirror_seq[:n_b]
+            if len(mseq) < n_b:
+                mseq = np.pad(mseq, (0, n_b - len(mseq)), mode="edge")
+            Rt = Rt + np.array([perturbations[int(m)].dR_t for m in mseq])
+            Rs = Rs + np.array([perturbations[int(m)].dR_s for m in mseq])
         aoi_for_beam = aoi_rad[:n_b] if len(aoi_rad) >= n_b else np.full(n_b, aoi_rad[-1] if len(aoi_rad) else 0.0)
     else:
         # paraxial: collapse astigmatism by forcing AOI=0

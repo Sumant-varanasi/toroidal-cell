@@ -84,8 +84,10 @@ REFL = 0.999             # project mirrors achieve 99.9 % (user-confirmed
 #   scales as REFL**n_refl, so any coating number can be substituted
 TRUNC = 1.0 - np.exp(-2.0)               # Gaussian power through r = w hole
 
-ENVELOPE_MAX = 190.0     # hard assembly-diameter cap [mm]
-RADIAL_ALLOWANCE = 18.0  # mirror substrate (~6.4) + housing wall + margin [mm]
+ENVELOPE_MAX = float(os.environ.get("TMPC_ENVELOPE_MAX", "190.0"))
+#   hard assembly-diameter cap [mm]
+RADIAL_ALLOWANCE = float(os.environ.get("TMPC_RADIAL_ALLOWANCE", "18.0"))
+#   mirror substrate (~6.4 for 1", ~5 for 1/2") + housing wall + margin [mm]
 PACK_GAP = 1.0           # minimum web between adjacent mirror substrates [mm]
 
 OPL_MIN_M = 19.5         # default verified-OPL floor (per-class override)
@@ -100,8 +102,10 @@ K_SET = tuple(range(5, 46, 2))  # spots per mirror -- odd only: for even k
 #   fills the mirror face quasi-2D; the exact worst-pair rule decides
 #   which combinations actually fit.
 AMP_RATIOS = (0.7, 1.0, 1.4)   # sag/tan amplitude ratios tried per pattern
-FAMILIES_USE = ("one_inch",)   # 1" confirmed by user; with N<=16 the
-#   half-inch aperture cannot reach the 20 m class anyway
+FAMILIES_USE = tuple(os.environ.get("TMPC_FAMILY", "one_inch").split(","))
+#   1" confirmed by user for the 20 m class; "half_inch" (CM127) unlocks
+#   the low-volume Ø90-130 region (professor 2026-07-08: toroidal cells
+#   are supposed to be low-volume)
 EXIT_TOL = 0.5           # spot-centre distance counting as "through the hole"
 PHASE_TOL_T = 0.45       # tan closure tol [rad] -- R_ring scan zeroes this
 PHASE_TOL_S = 0.30       # sag residual tol [rad] after the R_ring sweep
@@ -725,6 +729,11 @@ def stage_b(cands: List[Dict], workers: int, refine_top: int):
 DEFAULT_CLASSES = ((190.0, 19.5), (180.0, 18.0), (170.0, 16.0),
                    (160.0, 14.0), (150.0, 12.0), (140.0, 10.0),
                    (130.0, 8.5), (120.0, 7.0), (110.0, 4.5))
+if os.environ.get("TMPC_CLASSES"):
+    # e.g. TMPC_CLASSES="130:7,120:6,110:5,100:4,90:3"  (env_cap:opl_min)
+    DEFAULT_CLASSES = tuple(
+        (float(t.split(":")[0]), float(t.split(":")[1]))
+        for t in os.environ["TMPC_CLASSES"].split(","))
 
 
 def main(argv=None):
