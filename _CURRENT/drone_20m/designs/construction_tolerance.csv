@@ -1,0 +1,19 @@
+design,process,cost_usd,tilt_mrad,rring_mm,complete_frac,min_sep_p05_mm,hole_clear_p05_mm,walk_p95_mm,sep_ok,hole_ok,exit_ok,survives
+drone_20m (20.4 m),CNC precision (flight),600-1200,0.1,0.02,1.0,1.0425404477353386,1.45289087635834,0.39791913910701365,True,True,True,True
+drone_20m (20.4 m),CNC standard,250-600,0.5,0.1,1.0,0.849091379920405,0.7463597295955947,0.9203185427325901,True,True,False,False
+drone_20m (20.4 m),SLA (tough resin),60-150,1.5,0.15,0.99,0.20098295431907104,0.48055750821786924,1.9292914711648206,False,True,False,False
+drone_20m (20.4 m),MJF/SLS (PA12),80-200,2.5,0.25,0.74,0.0,0.04038172135487297,3.0919124305546912,False,True,False,False
+drone_20m (20.4 m),FDM (PLA/PETG),20-60,4.0,0.3,0.31,0.0,-0.6529347683712887,4.434996602029377,False,False,False,False
+drone_20m (20.4 m),printed + machined seats,150-350,0.3,0.1,1.0,0.9163159814458242,0.7214897753629675,0.8358393285532315,True,True,False,False
+drone_14cm (20.7 m),CNC precision (flight),600-1200,0.1,0.02,1.0,1.223461228059877,2.121344537373581,0.42951439751264897,True,True,True,True
+drone_14cm (20.7 m),CNC standard,250-600,0.5,0.1,0.54,0.0,1.0162498547715404,1.9281991993614893,False,True,False,False
+drone_14cm (20.7 m),SLA (tough resin),60-150,1.5,0.15,0.12,0.0,-0.517866890167743,5.118275378804272,False,False,False,False
+drone_14cm (20.7 m),MJF/SLS (PA12),80-200,2.5,0.25,0.03,0.0,-0.9577960892497009,6.910742088905383,False,False,False,False
+drone_14cm (20.7 m),FDM (PLA/PETG),20-60,4.0,0.3,0.02,0.0,-0.5550662832519524,7.705034499961959,False,False,False,False
+drone_14cm (20.7 m),printed + machined seats,150-350,0.3,0.1,0.75,0.0,1.2282499551639838,1.383983633784597,False,True,False,False
+drone_29m (29.0 m),CNC precision (flight),600-1200,0.1,0.02,0.99,1.0308326830151622,0.8132805500460903,0.46751764711578736,True,True,True,True
+drone_29m (29.0 m),CNC standard,250-600,0.5,0.1,0.44,0.0,-0.35657470282685866,2.132680505862809,False,False,False,False
+drone_29m (29.0 m),SLA (tough resin),60-150,1.5,0.15,0.11,0.0,-0.9571928382574323,5.507825325708996,False,False,False,False
+drone_29m (29.0 m),MJF/SLS (PA12),80-200,2.5,0.25,0.01,0.0,-0.3767603434748716,7.287113229715151,False,False,False,False
+drone_29m (29.0 m),FDM (PLA/PETG),20-60,4.0,0.3,0.01,0.0,-0.7639316520295629,8.164152963338003,False,False,False,False
+drone_29m (29.0 m),printed + machined seats,150-350,0.3,0.1,0.68,0.0,-0.16453854995428538,1.4013233714638642,False,False,False,False

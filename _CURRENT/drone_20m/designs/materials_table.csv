@@ -1,0 +1,25 @@
+design,material,mass_g,lid_f1_hz,thermal_window_K,moisture_dRring_um
+drone_20m (20.4 m),Al 6061 (CNC),1710,1237,26.0,0.0
+drone_20m (20.4 m),Ti-6Al-4V,2549,1241,71.3,0.0
+drone_20m (20.4 m),Invar 36 (ring),4305,1025,511.3,0.0
+drone_20m (20.4 m),Mg AZ31B,1263,1231,23.6,0.0
+drone_20m (20.4 m),PA12 (MJF/SLS),890,327,6.1,108.0
+drone_20m (20.4 m),PA12-CF (MJF),914,464,10.2,58.0
+drone_20m (20.4 m),PLA (FDM),1002,411,9.0,0.0
+drone_20m (20.4 m),Tough resin (SLA),972,377,8.2,0.0
+drone_14cm (20.7 m),Al 6061 (CNC),1231,2026,8.0,0.0
+drone_14cm (20.7 m),Ti-6Al-4V,1814,2033,22.0,0.0
+drone_14cm (20.7 m),Invar 36 (ring),3035,1679,157.3,0.0
+drone_14cm (20.7 m),Mg AZ31B,920,2017,7.3,0.0
+drone_14cm (20.7 m),PA12 (MJF/SLS),661,535,1.9,79.0
+drone_14cm (20.7 m),PA12-CF (MJF),677,759,3.1,42.0
+drone_14cm (20.7 m),PLA (FDM),738,674,2.8,0.0
+drone_14cm (20.7 m),Tough resin (SLA),718,618,2.5,0.0
+drone_29m (29.0 m),Al 6061 (CNC),1661,1199,20.0,0.0
+drone_29m (29.0 m),Ti-6Al-4V,2519,1203,54.9,0.0
+drone_29m (29.0 m),Invar 36 (ring),4317,993,393.3,0.0
+drone_29m (29.0 m),Mg AZ31B,1204,1193,18.2,0.0
+drone_29m (29.0 m),PA12 (MJF/SLS),821,317,4.7,110.0
+drone_29m (29.0 m),PA12-CF (MJF),846,449,7.9,59.0
+drone_29m (29.0 m),PLA (FDM),936,399,6.9,0.0
+drone_29m (29.0 m),Tough resin (SLA),906,366,6.3,0.0
