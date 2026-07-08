@@ -35,10 +35,12 @@ and ring at each analytic root:
 * **Several of the longest closures are mix-only.** Uniform
   counterfactual (same N, s, k, ±1.5–2 mm R window): the four longest
   (68.9, 68.4, 64.7, 64.6 m) close for *neither* ROC alone.
-* **Spot crowding is the binding constraint.** All those k = 29–33
-  patterns pack 29–33 spots per 1″ mirror; pass 1 landed at separation
-  margins of −0.5…−2.1 mm, and the separation-aware pass 2 recovered
-  them to −0.3…−0.7 — except one.
+* **Spot crowding is the binding constraint.** All those k = 19–33
+  patterns pack 19–33 spots per 1″ mirror; pass 1 landed at separation
+  margins of −0.5…−2.1 mm, and the separation-aware pass 2 (extended to
+  the full top-40, 43.7–68.4 m) recovered them to −0.3…−0.7 — except
+  exactly one. On 1″ apertures the feasible mixed design is a singular
+  point in the closure map, not a family.
 
 ## The verified design: 51.7 m in Ø180 with catalog mirrors
 
