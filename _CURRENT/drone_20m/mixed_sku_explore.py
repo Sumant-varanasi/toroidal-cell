@@ -139,9 +139,14 @@ def analytic_candidates(combo, r_lo, r_hi):
                               res_t=float(res_t[i]),
                               res_s=float(res_s[i]),
                               opl_est=float(n * L[i] / 1000.0)))
-    # k-diverse: at most 2 per k already; rank by OPL, cap total
-    cands.sort(key=lambda c: -c["opl_est"])
-    return cands[:10]
+    # k-diverse cap: best run per k first (all k represented), then the
+    # second runs, by OPL within each tier -- prevents the top-of-list
+    # being all fragile high-k seeds
+    firsts, seconds, seen = [], [], set()
+    for c in sorted(cands, key=lambda c: -c["opl_est"]):
+        (seconds if c["k"] in seen else firsts).append(c)
+        seen.add(c["k"])
+    return (firsts + seconds)[:8]
 
 
 # ---------------------------------------------------------------------------
@@ -188,7 +193,7 @@ def hole_visits(cfg, perts):
 def refine(cand):
     N, s = cand["N"], cand["s"]
     ra, rb = cand["roc_a"], cand["roc_b"]
-    n_exit = cand["n_exit"] - 1          # bounce index of the k*N-th visit
+    n_exit = cand["n_exit"]              # mirror-0 revisits land at j = m*N
     n_pass = cand["n_exit"] + N + 4
 
     def objective(x):
@@ -203,13 +208,19 @@ def refine(cand):
         j, miss, wj = vv[0]
         pen = 0.0
         for jj, m2, w2 in visits:
-            if jj < j and m2 < HOLE_R + w2 + HOLE_MARGIN:
+            if 0 < jj < j and m2 < HOLE_R + w2 + HOLE_MARGIN:
                 pen += 10.0 * (HOLE_R + w2 + HOLE_MARGIN - m2)
         return miss + pen
 
-    x0 = np.array([cand["r_ring"], 0.030, 0.030, 0.0, 0.35, 0.55])
-    best = minimize(objective, x0, method="Nelder-Mead",
-                    options=dict(maxiter=140, xatol=2e-5, fatol=1e-4))
+    best = None
+    for at0, as0 in ((0.020, 0.020), (0.040, 0.025)):
+        x0 = np.array([cand["r_ring"], at0, as0, 0.0, 0.35, 0.55])
+        res = minimize(objective, x0, method="Nelder-Mead",
+                       options=dict(maxiter=200, xatol=2e-5, fatol=1e-4))
+        if best is None or res.fun < best.fun:
+            best = res
+        if best.fun < 0.02:
+            break
     r, at, asag, oz, w0, wf = best.x
     out = dict(cand, r_ring=float(r), ang_t=float(at), ang_s=float(asag),
                off_z=float(oz), w0=float(w0), waist_frac=float(wf),
@@ -236,7 +247,7 @@ def refine(cand):
     clear = np.inf
     for u, v, order in foot.get(0, np.empty((0, 3))):
         j = int(order)
-        if j >= n_exit - 1:
+        if j == 0 or j >= n_exit - 1:      # 0 = the entrance itself
             continue
         d = float(np.hypot(u - hole[0], v - hole[1]))
         wj = float(w_eff[min(j, len(w_eff) - 1)])
