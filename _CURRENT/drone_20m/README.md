@@ -201,12 +201,16 @@ Further searches and audits on top of the feedback round
   Tier-3 = two-loop control on parts every build already carries (ring
   heater 1.2–1.7 µm/K + launch piezo + quad behind the hole; ~$400–700
   delta buys 25.7 → 38.6 m).
-- **Mixed-SKU rings** (two alternating catalog ROCs; user-requested
-  exploration): analytic unit-cell prescreen + exact refinement shows
-  they close re-entrant patterns to nominal **60–69 m in the same
-  envelopes**, including combinations where *neither* uniform ROC
-  closes — separation-aware optimization in progress
-  ([mixed_sku_results.csv](designs/mixed_sku_results.csv)).
+- **Mixed-SKU rings** ([full study](designs/mixed_sku_study.md)): two
+  alternating catalog ROCs give the architecture a second closure knob
+  — the alternating unit cell closes (N, s, k) patterns no single ROC
+  can. Verified: **51.66 m in Ø180** (12 × alternating
+  CM254-250/CM254-375, 372 chords, 69 % at R = 0.999, exit miss 2.3 µm,
+  hole clearance +2.5 mm) — the architecture's nominal ceiling moves
+  38.6 → 51.7 m (+34 %), mix-only by counterfactual, active-alignment
+  tier (worst-pair margin +0.03 mm). The 55–69 m closures found stay
+  spot-crowded on 1″ apertures; 2″ mirrors or a margin-aware mixed
+  search are the quantified route to making them robust.
 
 ## Engineering studies ([full report](designs/investigations.md))
 
