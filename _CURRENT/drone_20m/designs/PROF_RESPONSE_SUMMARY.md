@@ -30,3 +30,23 @@ progress).
 mini family (the 1″ menu keeps the 1.3 mm standard); (2) confirm author
 list ordering for the revision: S. Varanasi, T. Benoy (co-first), [two
 team members], R. Lennox, E. Rebrov.
+
+---
+
+# Round 2 — the five tolerance-framework documents (2026-07-08) → deliverables
+
+*(Source docs archived in [prof_inputs/](prof_inputs/). Everything below
+is executed, exact-trace/Monte-Carlo verified, and in paper v2.3.)*
+
+| Your directive | Answer in one line | Where |
+|---|---|---|
+| "Construction tolerance can be mitigated by alignment — be careful how you present this" | Reframed as the three-tier chain: C_build = capture-range check (recoverable), R_align = residual, D_op = post-alignment drift (the real in-use tolerance). Paper §2.8 states the chain, §6.1/6.4 report as-built survival explicitly as the strictest zero-adjustment reading with the robust vs robust-after-trim tiers separated. | paper §2.8, §6.3–6.4 |
+| "Final algorithm: input spot/angle drift must still exit the hole with decent clearance — check this for each of your designs" | Executed per design by per-DOF bisection: capture envelopes 0.37–1.14 mm position, 3.0–18.8 mrad angle — ≥2.2×/5.5× beyond the summed easy+Al-flexure and medium+hybrid drone demand for every menu design. Angle capture is 1–2 orders above demand (re-entrance tolerates tilt; position drift moves the pattern ~1:1 toward the rim). | [capture_envelope.md](capture_envelope.md), paper §6.3 + Fig. 13 |
+| MC yield > 99.9 % for drone/product | 5000-trial composed-vector MC (uniform inside R_align + D_op, per mirror + launch chain): tri-gas 25.7 m, sparse 15.3 m and two-inch 19.0 m pass 5000/5000 (Wilson LB 99.92 %) on the Al-flexure architecture; H2/mini/compact at field grade 99.3–99.7 %; boundary designs 92–96 % (as expected of ceilings). | [mc5000_drone_yield.csv](mc5000_drone_yield.csv), paper §6.3 Table 9 |
+| "Choose one material combination for drone; no Ti/Invar; aluminium reasonable" | **Aluminium 6061 monolithic ring** (drone baseline) — meets the product criterion without exotic metals; the one soft axis (common-mode ring-radius drift) is the thermal mode, governed by trim law + thermal window, not by CTE upgrades. | [materials_decision.md](materials_decision.md) |
+| "Generic low-cost design capable of 3D printing with plastic/PEEK" | **Hybrid printed shell + machined Al mirror cartridge** (plastic never defines an optical datum): 33–46 % structure-mass saving, 6 mm CF-PA12 lids ≥674 Hz, carried best by the sparse two-inch 19.0 m design at 95.0 % hybrid drone yield (research grade; product grade in plastic needs CF drift or a relaxed-clearance generation). CAD shipped for hybrid 19m-2inch + 14 cm. | [materials_decision.md](materials_decision.md), [hybrid_materials.csv](hybrid_materials.csv), [cad/](cad/) |
+| "Implement the COMSOL ray-tracing validation protocol — no experiment needed; this will easily be a paper" | Full package shipped: per-design mirror/launch geometry CSVs in platform coordinates, perturbation envelopes, the protocol's step-7 worst-case run log executed natively (333 runs — reference answer sheet for COMSOL to reproduce), and a chief-ray comparison harness with the same <10 µm criterion the Optiland cross-check met at 0.000 µm. Worst-case finding: the only recurring coherent failure is d_ax = uniform ring-radius shift = the thermal breathing mode (governed, not random). | [comsol_validation_package.md](comsol_validation_package.md), [comsol/](comsol/), `compare_comsol.py` |
+
+**Resolved this round:** co-authors Naman Shreyas Rindani + Ayachi
+Padmanabh Mishra (IITD-AD) are in the author block; Lennox → Eblana
+Photonics; affiliation 2 → Warwick (department to confirm).
