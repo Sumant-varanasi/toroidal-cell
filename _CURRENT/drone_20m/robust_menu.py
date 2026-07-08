@@ -30,6 +30,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(_HERE))
 sys.path.insert(0, _HERE)
 
+from search_drone20m import HOLE_R                                # noqa: E402
 from spec_asbuilt import cfg_from_row                             # noqa: E402
 from tmpc_platform_v5 import ToleranceSpec                        # noqa: E402
 from tmpc_platform_v5.tolerance import monte_carlo                # noqa: E402
@@ -72,7 +73,7 @@ def mc_one(row: dict) -> dict:
                              and out["overlap_frac"] <= 0.02)
         out["hole_ok"] = bool(out["hole_clear_p05_mm"] >= 0.0)
         out["exit_ok"] = bool(out["walk_p95_mm"] + row["w_hole_mm"]
-                              < 1.3)
+                              < HOLE_R)
     except Exception as exc:                                  # noqa: BLE001
         out.update(mc_complete_frac=0.0, walk_p95_mm=np.inf,
                    drift_p95_mrad=np.inf, min_sep_p05_mm=0.0,
