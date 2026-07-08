@@ -7,6 +7,16 @@ vibration... This is called construction tolerance. Will the gas cell
 survive construction tolerance? ... say if we can 3D print something under
 200$.")*
 
+<p align="center">
+  <img src="figures/cad_tmpc_14cm.png" width="49%" alt="tmpc_14cm housing CAD render (exploded)">
+  <img src="figures/cad_tmpc_20m.png" width="49%" alt="tmpc_20m housing CAD render (exploded)">
+</p>
+
+*Exploded housing renders generated from the verified design rows
+(`housing_cad.py`): mirror pockets on the exact ring radius, mirror-0
+beam cone at the design AOI, window boss, gas ports. STEP/STL in
+[cad/](cad/).*
+
 ## 0. The deliverables
 
 * **Parametric CAD** generated *from the verified optics rows* (ring
@@ -42,6 +52,10 @@ tilt σ = seat flatness / 25.4 mm seat; ring radius σ from radial accuracy:
 100-trial exact-trace MC per design per grade (full criteria: path
 completes, spots stay separated, intermediate spots clear the hole, exit
 leaves the 1.3 mm hole with **no realignment**):
+
+<p align="center">
+  <img src="figures/construction_tolerance.png" width="95%" alt="construction-tolerance Monte-Carlo per manufacturing process">
+</p>
 
 | build | drone_20m (20.4 m, 144 chords) | drone_14cm (20.7 m, 204 chords) | drone_29m (29.0 m, 204 chords) |
 |---|---|---|---|

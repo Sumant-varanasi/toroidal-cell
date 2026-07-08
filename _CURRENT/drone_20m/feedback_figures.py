@@ -95,7 +95,7 @@ def load_menu_rows():
         d = d[d["robust"] | d["robust_trim"]]
         for _, r in d.iterrows():
             key = (r["sku"], int(r["N"]), int(r["n_exit"]),
-                   round(float(r["R_ring"]), 2))
+                   round(float(r["R_ring"]), 0))
             if key in seen:
                 continue
             seen.add(key)
@@ -156,8 +156,8 @@ def overlap_coupling():
     ax.text(1.0, 3e-11, "spots touch\n($d<2w$)", ha="center", fontsize=8,
             color="#c44536")
     ax.axhline(1e-2, color="#c44536", lw=0.9, ls=":")
-    ax.text(7.9, 1.35e-2, "continuous-fold toroids: mask territory",
-            ha="right", fontsize=7.5, color="#c44536")
+    ax.text(0.15, 1.6e-2, "continuous-fold toroids: mask territory",
+            ha="left", fontsize=7.5, color="#c44536")
     ax.axvline(3.45, color="#4a4e69", lw=0.9, ls=":")
     ax.text(3.5, 2e-11, "IRcell-S segment edge (2C·w, C=6.9)",
             rotation=90, va="bottom", fontsize=7, color="#4a4e69")
@@ -191,31 +191,53 @@ LIT = [
 ]
 
 
+LIT_OFF = {
+    "IRcell-4M (2016)": (6, -11, "left"),
+    "IRcell-S4 (2020)": (-6, 8, "right"),
+    "IRcell-S15 (2020)": (8, -10, "left"),
+    "Graf 2018 prototype": (8, -3, "left"),
+    "Tuzson 2013 toroidal": (6, 7, "left"),
+    "Chang 2020 (2-layer)": (6, -11, "left"),
+    "Chang 2020 (3-layer)": (-6, 8, "right"),
+}
+OUR_OFF = {
+    "29.0": (8, 2, "left"), "24.8": (8, 4, "left"),
+    "23.8": (-9, -13, "right"), "20.7": (-9, 5, "right"),
+    "20.4": (8, -5, "left"), "16.6": (8, -11, "left"),
+    "14.9": (-9, 7, "right"), "13.6": (8, -10, "left"),
+}
+
+
 def volume_pvr():
     cm = pd.read_csv(os.path.join(_HERE, "designs", "cell_metrics.csv"))
-    cm = cm.drop_duplicates(subset=["sku", "N", "n_exit", "opl_m"])
+    cm["_rr"] = cm["R_ring_mm"].round(0)
+    cm = cm.drop_duplicates(subset=["sku", "N", "n_exit", "_rr"])
     fig, ax = plt.subplots(figsize=(7.4, 5.0), dpi=200)
-    # constant-PVR guides
-    v = np.array([15, 700])
+    # constant-PVR guides, labelled where they cross the top of the axes
+    v = np.array([15, 900])
     for pvr in (25, 50, 100, 200):
         ax.plot(v, pvr * v / 1000.0, color="#dddddd", lw=0.9, zorder=1)
-        ax.text(620, pvr * 620 / 1000.0 * 1.02, f"{pvr} m/L",
-                fontsize=7, color="#aaaaaa", ha="right")
+        x_top = 31_000.0 / pvr
+        if 28 <= x_top <= 650:
+            ax.text(x_top, 30.4, f"{pvr} m/L", fontsize=7,
+                    color="#aaaaaa", ha="center")
     for name, vol, opl in LIT:
+        dx, dy, ha = LIT_OFF.get(name, (6, -3, "left"))
         ax.scatter(vol, opl, s=55, color="#8d99ae", edgecolor="#444444",
                    linewidth=0.6, zorder=3)
         ax.annotate(name, (vol, opl), textcoords="offset points",
-                    xytext=(6, -3), fontsize=7.3, color="#555555")
+                    xytext=(dx, dy), fontsize=7.3, color="#555555", ha=ha)
     for _, r in cm.iterrows():
         lab = f"{r['opl_m']:.1f} m Ø{r['envelope_mm']:.0f}"
         h2 = abs(r.get("lambda_nm", 1654.0) - 2121.8) < 1
+        dx, dy, ha = OUR_OFF.get(f"{r['opl_m']:.1f}"[:4], (7, 3, "left"))
         ax.scatter(r["v_min_ml"], r["opl_m"], s=130, marker="*",
                    color="#2a9d8f" if h2 else "#1f77b4",
                    edgecolor="#0b3948", linewidth=0.6, zorder=4)
         ax.annotate(lab + (" (H2)" if h2 else ""),
                     (r["v_min_ml"], r["opl_m"]),
-                    textcoords="offset points", xytext=(7, 3),
-                    fontsize=7.3, color="#0b3948")
+                    textcoords="offset points", xytext=(dx, dy),
+                    fontsize=7.3, color="#0b3948", ha=ha)
     ax.scatter([], [], s=55, color="#8d99ae", edgecolor="#444444",
                label="published circular/toroidal cells")
     ax.scatter([], [], s=130, marker="*", color="#1f77b4",

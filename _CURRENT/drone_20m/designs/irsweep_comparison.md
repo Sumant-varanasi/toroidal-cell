@@ -94,6 +94,15 @@ over **every spot pair on every mirror**:
 | 14.9 m / Ø133 | 0.93 mm | 3.38 | 3.3×10⁻³ (−50 dB) | 1.1×10⁻⁵ | 0 |
 | 13.6 m / Ø143 | 1.54 mm | 4.59 | 2.6×10⁻⁵ (−92 dB) | 6.8×10⁻¹⁰ | 0 |
 
+<p align="center">
+  <img src="figures/overlap_coupling.png" width="85%" alt="graded spot-overlap criterion — every same-mirror pair, every design">
+</p>
+
+*Every same-mirror spot pair of every menu design (dots), worst pair per
+design (stars), against the Gaussian coupling curve. All designs sit at
+or right of the IRcell-S segment-edge margin; continuous-fold toroids
+live in the shaded/mask region by construction.*
+
 So: **no, the beams do not overlap** — the worst pair in the headline
 design sits 3.6 beam radii apart, a −52 dB field-coupling margin *before*
 multiplying by the gold-mirror scatter fraction (10⁻³–10⁻⁴ for catalog
@@ -157,6 +166,10 @@ circular cell, without absorption masks" — a measured number must wait
 for the build.
 
 ## 5. Volume of the disc (the honest comparison)
+
+<p align="center">
+  <img src="figures/volume_pvr_comparison.png" width="85%" alt="path vs sample volume against the toroidal/circular literature">
+</p>
 
 Two volumes matter, and we should quote both:
 

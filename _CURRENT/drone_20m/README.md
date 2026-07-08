@@ -151,6 +151,24 @@ Six new studies answer Dr. Benoy's review of the draft
   (`housing_cad.py`), with mirror pockets, mirror-0 beam cone, window
   boss, gas ports; FEA/DFM handoff for the team.
 
+<p align="center">
+  <img src="designs/figures/overlap_coupling.png" width="49%" alt="graded spot-overlap criterion">
+  <img src="designs/figures/volume_pvr_comparison.png" width="49%" alt="path vs volume literature comparison">
+</p>
+<p align="center">
+  <img src="designs/figures/drone_24m_h2_cell3d.png" width="49%" alt="drone_24m_h2 traced path (H2, 2121.8 nm)">
+  <img src="designs/figures/cad_tmpc_20m.png" width="49%" alt="tmpc_20m housing CAD render">
+</p>
+<p align="center">
+  <img src="designs/figures/construction_tolerance.png" width="70%" alt="construction tolerance MC">
+</p>
+
+*Feedback-round figure set (all in [designs/figures/](designs/figures/),
+`_paper` = white print variants): the graded overlap criterion with the
+IRcell-S reference, the path-vs-volume literature map, the new
+Optiland-validated 23.8 m H₂ cell, the generated housing CAD, and the
+manufacturing-process Monte-Carlo.*
+
 ## Engineering studies ([full report](designs/investigations.md))
 
 - **ROC-error compensation** (Thorlabs f is ±1 %): perfectly linear ring

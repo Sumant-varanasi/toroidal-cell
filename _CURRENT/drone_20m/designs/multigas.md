@@ -23,6 +23,10 @@ Monte-Carlo — which is what `multigas_verify.py` does
 
 ## 2. The tri-gas menu (100-trial Monte-Carlo, as-built, no realignment)
 
+<p align="center">
+  <img src="figures/trigas_matrix.png" width="62%" alt="tri-gas robustness matrix">
+</p>
+
 **Flight-grade build (0.1 mrad class — the drone build):**
 
 | design | envelope | OPL | T @0.999 | CH₄ 1654 | NH₃ 1512 | H₂ 2122 |
@@ -35,6 +39,16 @@ Monte-Carlo — which is what `multigas_verify.py` does
 | 16.6 m balanced | Ø160 | 16.60 m | 86.8 % | ✅ | ✅ | **✅** |
 | 14.9 m small | Ø133 | 14.85 m | 82.8 % | ✅ | ✅ | **✅** |
 | 13.6 m max-T | Ø143 | 13.64 m | 87.7 % | ✅ | ✅ | **✅** |
+
+<p align="center">
+  <img src="figures/drone_24m_h2_cell3d_paper.png" width="75%" alt="drone_24m_h2: 176-bounce light path at 2121.8 nm">
+</p>
+
+*The traced 176-chord path of the new H₂ design (`drone_24m_h2`),
+Optiland-cross-validated at 2121.8 nm to 0.000 µm RMS; 400-trial
+flight-grade Monte-Carlo: 176/176 bounces in every trial, zero clipping,
+spot-walk p95 = 0.45 mm. Interactive:
+[drone_24m_h2_experiment.html](figures/drone_24m_h2_experiment.html).*
 
 *The new 23.83 m design (CM254-200-M01, N=16, skip 7, n=176, R_ring
 69.014 mm) came from re-running the full search harness at 2121.8 nm; it
