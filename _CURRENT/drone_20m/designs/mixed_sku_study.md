@@ -62,6 +62,38 @@ Within that tier it is the new architecture record: **51.7 m vs 38.6 m
 uniform (+34 %) in the same Ø180 envelope, still all-catalog parts**
 (one SKU drilled, two SKUs purchased).
 
+## The endgame: three more experiments and the complete verdict
+
+1. **Margin-aware native search (separation in the objective from the
+   start)** found two nominal designs with real separation margins —
+   30.5 m/Ø186 (sep +0.33 mm) and 20.8 m/Ø130 — i.e. separation CAN be
+   bought at moderate k.
+2. **Dedicated mixed Monte-Carlo** (baseline alternating ROC composed
+   with random flight-grade errors) then failed them at 17–34 % path
+   completion, and the diagnosis is exact: the optimizer bought
+   separation by inflating pattern amplitude to the aperture edge —
+   +0.25 mm of uniform ROC error or 0.1 mrad of tilt clips the beam by
+   bounce ~24. On 1″ apertures, mixed rings can hold separation OR
+   aperture headroom, not both.
+3. **Two-inch mixed rings** (N = 8 alternating CM508 pairs, both
+   margins demanded) removed the aperture constraint — headroom up to
+   14.7 mm — and separation STILL stayed negative (−0.3…−1.8 mm across
+   23 refined candidates). This isolates the true root cause: the
+   mixed analytic prescreen checks *closure only*, whereas the uniform
+   search also screens *constellation quality* (near-degenerate phase
+   pairs whose worst-pair distance is a vanishing fraction of the
+   amplitude, immune to amplitude scaling). Mixed candidates were never
+   degeneracy-filtered, so the refiner fights structurally-degenerate
+   Lissajous patterns.
+
+**Verdict for the paper:** mixed two-SKU rings verifiably close
+patterns no single curvature can (51.7 m demonstrated, counterfactual
+checked), but making them *build-robust* requires porting the
+constellation-degeneracy screen to the alternating-cell phase structure
+— a well-defined piece of number theory (the two-subsequence Lissajous
+of the unit-cell eigenbasis) and the single identified blocker. Until
+then the mixed family is an active-alignment capability.
+
 ## Why the others stay crowded (and what would free them)
 
 At k = 29–33 the pattern density on a 1″ aperture is at the packing
