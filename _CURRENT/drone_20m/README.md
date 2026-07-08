@@ -56,7 +56,7 @@ realignment** ([robust_menu.csv](designs/robust_menu.csv) /
 
 | design | mirrors | chords | **OPL** | T @0.999 | envelope | preset |
 |---|---|---|---|---|---|---|
-| headline | 16 × CM254-150 (ROC 300) | 144 | **20.38 m** | **86.7 %** | Ø180 | `drone_20m` |
+| standard-build corner | 16 × CM254-150 (ROC 300) | 144 | 20.38 m | 86.7 % | Ø180 | `drone_20m` |
 
 **Tier 2 — precision (flight-grade) build** (glued/welded, 0.1 mrad tilt
 class — the drone-vibration spec anyway):
