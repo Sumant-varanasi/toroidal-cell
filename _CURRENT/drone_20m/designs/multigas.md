@@ -32,13 +32,23 @@ Monte-Carlo — which is what `multigas_verify.py` does
 | design | envelope | OPL | T @0.999 | CH₄ 1654 | NH₃ 1512 | H₂ 2122 |
 |---|---|---|---|---|---|---|
 | drone_29m | Ø183 | 28.99 m | 76.6 % | ✅ | ✅ | ✖ (sep+exit margin) |
+| **25.7 m hardened** (walk-budget 0.8 search) | Ø185 | **25.72 m** | 83.9 % | ✅ | ✅ | **✅ — new tri-gas OPL ceiling** |
 | drone_25m | Ø180 | 24.77 m | 83.9 % | ✅ | ✅ | ✖ (sep margin) |
-| **H₂-optimised 24m** (new, this round) | **Ø174** | **23.83 m** | 83.9 % | ✅* | ✅* | **✅** |
+| **H₂-optimised 24m** | **Ø174** | **23.83 m** | 83.9 % | ✅* | ✅* | **✅** |
 | drone_20m | Ø180 | 20.38 m | 86.7 % | ✅ (also research-grade) | ✅ | **✅** |
 | drone_14cm | **Ø141** | 20.66 m | 81.6 % | ✅ | ✅ | **✅** |
 | 16.6 m balanced | Ø160 | 16.60 m | 86.8 % | ✅ | ✅ | **✅** |
+| **15.3 m sparse** (7 spots/mirror) | Ø175 | 15.30 m | **89.5 %** | ✅ | ✅ | **✅** |
 | 14.9 m small | Ø133 | 14.85 m | 82.8 % | ✅ | ✅ | **✅** |
 | 13.6 m max-T | Ø143 | 13.64 m | 87.7 % | ✅ | ✅ | **✅** |
+
+*(The hardened 25.7 m and sparse 15.3 m rows were re-verified at both
+gas lines with the same √λ-scaled Monte-Carlo:
+[multigas_hardened_2121.8nm.csv](multigas_hardened_2121.8nm.csv),
+[multigas_hardened_1512.2nm.csv](multigas_hardened_1512.2nm.csv) —
+the walk-budget-0.8 margins absorb the +13.3 % H₂ spot growth, which is
+exactly the "tolerance as a search input" mechanism working across
+wavelength.)*
 
 <p align="center">
   <img src="figures/drone_24m_h2_cell3d_paper.png" width="75%" alt="drone_24m_h2: 176-bounce light path at 2121.8 nm">

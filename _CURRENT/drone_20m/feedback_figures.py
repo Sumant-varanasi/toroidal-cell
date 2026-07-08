@@ -323,11 +323,13 @@ def construction_bars():
 def trigas_matrix():
     rows = [
         ("29.0 m  Ø183  (drone_29m)", True, True, False),
+        ("25.7 m  Ø185  (hardened)", True, True, True),
         ("24.8 m  Ø180  (drone_25m)", True, True, False),
         ("23.8 m  Ø174  (drone_24m_h2)", True, True, True),
         ("20.7 m  Ø141  (drone_14cm)", True, True, True),
         ("20.4 m  Ø180  (drone_20m)", True, True, True),
         ("16.6 m  Ø160", True, True, True),
+        ("15.3 m  Ø175  (sparse, 89.5 %)", True, True, True),
         ("14.9 m  Ø133", True, True, True),
         ("13.6 m  Ø143", True, True, True),
     ]

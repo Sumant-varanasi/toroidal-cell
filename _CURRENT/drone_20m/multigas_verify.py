@@ -32,6 +32,9 @@ _ap.add_argument("--wavelength-nm", type=float, required=True)
 _ap.add_argument("--workers", type=int, default=2)
 _ap.add_argument("--n-trials", type=int, default=100)
 _ap.add_argument("--out", default=None)
+_ap.add_argument("--menus", nargs="*", default=None,
+                 help="robust-menu CSVs to verify (default: the original "
+                      "two); paths relative to designs/")
 ARGS = _ap.parse_args()
 LAMBDA_MM = ARGS.wavelength_nm * 1e-6
 LAMBDA_REF_MM = 1.654e-3
@@ -59,15 +62,18 @@ EVAL_KEYS = ("family", "sku", "roc", "N", "chord_skip", "R_ring", "n_target",
 
 def load_menu() -> list[dict]:
     rows = []
-    for f in ("robust_menu.csv", "robust_menu_flight.csv"):
+    menus = ARGS.menus or ["robust_menu.csv", "robust_menu_flight.csv"]
+    for f in menus:
         p = os.path.join(_HERE, "designs", f)
         if os.path.exists(p):
             d = pd.read_csv(p)
             d = d[d["robust"] | d["robust_trim"]]
             d["menu_grade"] = "research" if "flight" not in f else "flight"
             rows.append(d)
-    df = pd.concat(rows).drop_duplicates(
-        subset=["sku", "N", "chord_skip", "n_exit"], keep="first")
+    df = pd.concat(rows)
+    df["_rr"] = df["R_ring"].round(1)
+    df = df.drop_duplicates(
+        subset=["sku", "N", "chord_skip", "n_exit", "_rr"], keep="first")
     return df.to_dict("records")
 
 

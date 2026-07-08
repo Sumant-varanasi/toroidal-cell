@@ -41,11 +41,12 @@ sys.path.insert(0, _HERE)
 
 import cadquery as cq                                             # noqa: E402
 
-MIRROR_DIA = 25.4
-MIRROR_T = 6.35            # CM254 substrate thickness at edge [mm]
+FAMILY_DIMS = {
+    "one_inch": dict(mirror_dia=25.4, mirror_t=6.35),
+    "half_inch": dict(mirror_dia=12.7, mirror_t=6.35),
+}
 POCKET_CLEAR = 0.10        # press-fit-ish pocket clearance on radius [mm]
 PLATE_T = 4.0
-WALL_H = MIRROR_DIA + 5.2  # cavity height: mirror + seal clearance
 BOLT_D = 3.4               # M3 clearance
 BOSS_D = 12.0
 
@@ -53,6 +54,7 @@ DESIGNS = {
     "14cm": ("robust_menu_flight.csv", "CM254-500-M01", 12, 204),
     "20m": ("robust_menu.csv", "CM254-150-M01", 16, 144),
     "29m": ("robust_menu_flight.csv", "CM254-750-M01", 12, 204),
+    "9m_mini": ("robust_menu_minihole_flight.csv", "CM127-050-M01", 14, 98),
 }
 
 
@@ -67,27 +69,29 @@ def load_row(key: str) -> dict:
 
 def build(row: dict):
     N = int(row["N"])
+    fam = FAMILY_DIMS[str(row.get("family", "one_inch"))]
+    mirror_dia, mirror_t = fam["mirror_dia"], fam["mirror_t"]
+    wall_h = mirror_dia + 5.2                 # cavity: mirror + seal clear
     r_ring = float(row["R_ring"])
     r_od = float(row["envelope_mm"]) / 2.0
     aoi = np.deg2rad(float(row["aoi_deg"]))
     r_cav = r_ring - 2.0                      # cavity bore radius
-    seat_r = r_ring + MIRROR_T                # pocket bottom radial distance
+    seat_r = r_ring + mirror_t                # pocket bottom radial distance
 
     # ---- ring body --------------------------------------------------------
     body = (cq.Workplane("XY")
-            .circle(r_od).extrude(WALL_H)
+            .circle(r_od).extrude(wall_h)
             .faces(">Z").workplane()
-            .hole(2 * r_cav, WALL_H))
+            .hole(2 * r_cav, wall_h))
 
     # mirror pockets: flat-bottom radial bores
-    pocket_len = r_od - seat_r + 20.0         # over-length, trimmed by wall
     for q in range(N):
         ang = 2 * np.pi * q / N
         cx, cy = np.cos(ang), np.sin(ang)
         pocket = (cq.Workplane(cq.Plane(
-            origin=(seat_r * cx, seat_r * cy, WALL_H / 2.0),
+            origin=(seat_r * cx, seat_r * cy, wall_h / 2.0),
             xDir=(-cy, cx, 0), normal=(cx, cy, 0)))
-            .circle(MIRROR_DIA / 2.0 + POCKET_CLEAR)
+            .circle(mirror_dia / 2.0 + POCKET_CLEAR)
             .extrude(-(seat_r - r_cav + 0.5)))
         body = body.cut(pocket)
 
@@ -96,13 +100,14 @@ def build(row: dict):
     cone_len = r_od - r_ring + 6.0
     r_tip, r_base = 2.0, 2.0 + cone_len * np.tan(cone_half)
     cone = cq.Solid.makeCone(r_tip, r_base, cone_len,
-                             cq.Vector(r_ring - 1.0, 0, WALL_H / 2.0),
+                             cq.Vector(r_ring - 1.0, 0, wall_h / 2.0),
                              cq.Vector(1, 0, 0))
     body = body.cut(cq.Workplane(obj=cone))
     # window/collimator boss pad: flat milled on the outer wall
-    boss = (cq.Workplane(cq.Plane(origin=(r_od - 1.5, 0, WALL_H / 2.0),
+    boss_w = min(30.0, r_od * 0.45)
+    boss = (cq.Workplane(cq.Plane(origin=(r_od - 1.5, 0, wall_h / 2.0),
                                   xDir=(0, 1, 0), normal=(1, 0, 0)))
-            .rect(30, 26).extrude(6.0))
+            .rect(boss_w, wall_h * 0.85).extrude(6.0))
     body = body.union(boss)
 
     # ---- gas ports ---------------------------------------------------------
@@ -110,13 +115,13 @@ def build(row: dict):
         a = np.deg2rad(ang_deg)
         cx, cy = np.cos(a), np.sin(a)
         port = (cq.Workplane(cq.Plane(
-            origin=((r_od + 1) * cx, (r_od + 1) * cy, WALL_H / 2.0),
+            origin=((r_od + 1) * cx, (r_od + 1) * cy, wall_h / 2.0),
             xDir=(-cy, cx, 0), normal=(-cx, -cy, 0)))
             .circle(2.5).extrude(r_od - r_cav + 2.0))
         body = body.cut(port)
 
     # ---- bolt circle -------------------------------------------------------
-    r_bolt = (r_od + r_ring + MIRROR_T) / 2.0 + 2.0
+    r_bolt = (r_od + r_ring + mirror_t) / 2.0 + 2.0
     r_bolt = min(r_bolt, r_od - 4.0)
     bolt_angs = [2 * np.pi * (q + 0.5) / N for q in range(N)]
 
@@ -128,7 +133,7 @@ def build(row: dict):
         return wp
 
     body = with_bolts(body)
-    lid = with_bolts(cq.Workplane("XY", origin=(0, 0, WALL_H))
+    lid = with_bolts(cq.Workplane("XY", origin=(0, 0, wall_h))
                      .circle(r_od).extrude(PLATE_T))
     base = cq.Workplane("XY", origin=(0, 0, -PLATE_T)) \
         .circle(r_od).extrude(PLATE_T)

@@ -11,10 +11,16 @@ import os
 import sys
 
 _ap = argparse.ArgumentParser()
-_ap.add_argument("--which", choices=["h2", "27m"], required=True)
+_ap.add_argument("--which", choices=["h2", "27m", "26m", "15m", "9m_mini"],
+                 required=True)
 A = _ap.parse_args()
 if A.which == "h2":
     os.environ["TMPC_WAVELENGTH_MM"] = "2.1218e-3"
+elif A.which == "9m_mini":
+    os.environ["TMPC_W0"] = "0.8"
+    os.environ["TMPC_HOLE_R"] = "0.8"
+    os.environ["TMPC_RADIAL_ALLOWANCE"] = "13.0"
+    os.environ["TMPC_ENVELOPE_MAX"] = "130.0"
 
 import pandas as pd                                               # noqa: E402
 
@@ -29,6 +35,12 @@ PICKS = {
            "spec_D180_24m_H2", 69.0),
     "27m": ("designs/robust_menu_v9deep_flight.csv", "CM254-075-M01", 12,
             228, "spec_D160_27m", 60.7),
+    "26m": ("designs/robust_menu_hardened_flight.csv", "CM254-200-M01", 16,
+            176, "spec_D190_26m", 74.5),
+    "15m": ("designs/robust_menu_hardened_flight.csv", "CM254-100-M01", 16,
+            112, "spec_D180_15m_sparse", 69.6),
+    "9m_mini": ("designs/robust_menu_minihole_flight.csv", "CM127-050-M01",
+                14, 98, "spec_D130_9m_halfinch", 51.6),
 }
 
 
