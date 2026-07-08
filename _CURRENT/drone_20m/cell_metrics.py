@@ -57,14 +57,19 @@ BEAM_CLEAR_MM = 1.0        # plus a machining margin [mm]
 
 def load_menu() -> list[dict]:
     rows = []
-    for f in ("robust_menu.csv", "robust_menu_flight.csv"):
+    for f, lam_nm in (("robust_menu.csv", 1654.0),
+                      ("robust_menu_flight.csv", 1654.0),
+                      ("robust_menu_h2_flight.csv", 2121.8)):
         p = os.path.join(_HERE, "designs", f)
         if os.path.exists(p):
             d = pd.read_csv(p)
-            d = d[d["robust"] | d["robust_trim"]]
+            d = d[d["robust"] | d["robust_trim"]].copy()
+            d["lambda_nm"] = lam_nm
             rows.append(d)
-    df = pd.concat(rows).drop_duplicates(
-        subset=["sku", "N", "chord_skip", "n_exit"], keep="first")
+    df = pd.concat(rows)
+    df["_rr"] = df["R_ring"].round(2)   # H2-native re-closures are distinct
+    df = df.drop_duplicates(
+        subset=["sku", "N", "chord_skip", "n_exit", "_rr"], keep="first")
     return df.sort_values("opl_m", ascending=False).to_dict("records")
 
 
@@ -89,6 +94,8 @@ def seg_intersect_2d(p1, p2, p3, p4):
 def metrics_one(row: dict) -> dict:
     cfg = cfg_from_row(row)
     cfg.n_passes = int(row["n_exit"])
+    lam_nm = float(row.get("lambda_nm", 1654.0))
+    cfg.wavelength = lam_nm * 1e-6      # row w0_waist is native to this lambda
     res = simulate_tmpc(cfg)
     n = res.bounces
     hits = res.spot_pattern[:n]
@@ -102,7 +109,7 @@ def metrics_one(row: dict) -> dict:
            "k_spots": int(round(row["n_exit"] / row["N"])),
            "opl_m": float(row["opl_m"]),
            "envelope_mm": float(row["envelope_mm"]),
-           "R_ring_mm": float(cfg.R_ring)}
+           "R_ring_mm": float(cfg.R_ring), "lambda_nm": lam_nm}
 
     # ---- 1. volume ------------------------------------------------------
     R_cav_cm = cfg.R_ring / 10.0

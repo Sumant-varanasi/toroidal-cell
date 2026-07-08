@@ -229,6 +229,37 @@ PRESETS: Dict[str, dict] = {
         label="Drone 20.7 m @ 141 mm -- 12x CM254-500-M01 (flight-grade)",
     ),
 
+    "drone_24m_h2": dict(
+        # Tri-gas H2 star (2026-07-08 wavelength-portable search at
+        # 2121.8 nm): 23.83 m in 174 mm; 16 x CM254-200-M01 (ROC 400)
+        # on a 2.75 mm smaller ring than drone_25m. Robust at
+        # flight-grade build AT the H2 wavelength (hardest case);
+        # margins only grow at 1654/1512 nm. w0 is the 2121.8 nm
+        # eigenmode match; scale by sqrt(lambda) for other lines.
+        N=16, chord_skip=7, R_ring=69.0136, H=23.0,
+        R_t=400.0, R_s=400.0, mirror_aperture=11.4,
+        wavelength=2.1218e-3, w0=0.4215, M2=1.0,
+        input_waist_offset=75.01,
+        input_offset_z=-0.0345, input_angle=0.047901,
+        input_angle_sag=0.033090,
+        reflectivity=0.999, hole_radius=1.3, n_passes=176,
+        label="Drone H2 23.8 m @ 174 mm -- 16x CM254-200-M01 (flight @ 2121.8 nm)",
+    ),
+
+    "drone_27m": dict(
+        # Active-alignment tier addition (v9 deep search): 26.72 m in
+        # 157 mm; 12 x CM254-075-M01 (ROC 150). 228 chords, 79.7 % T at
+        # R = 0.999. Dense k=19 pattern -- needs in-situ trim (ring
+        # temperature + launch) like the 38.6 m design.
+        N=12, chord_skip=5, R_ring=60.6585, H=27.0,
+        R_t=150.0, R_s=150.0, mirror_aperture=11.4,
+        w0=0.2000, M2=1.0, input_waist_offset=63.64,
+        input_offset_z=-0.0183, input_angle=0.051795,
+        input_angle_sag=0.070935,
+        reflectivity=0.999, hole_radius=1.3, n_passes=228,
+        label="Drone 26.7 m @ 157 mm -- 12x CM254-075-M01 (active tier)",
+    ),
+
     "astig_toroidal": dict(
         # Ring cell with strongly asymmetric mirror curvatures and M2=1.2.
         # R_t >> R_s means very different focal lengths in the two planes,
