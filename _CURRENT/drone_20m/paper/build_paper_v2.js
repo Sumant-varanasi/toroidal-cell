@@ -134,19 +134,12 @@ body.push(new Paragraph({
 body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 60 },
   children: [
-    R("Sumant Varanasi", { size: 22 }), R("1,†", { size: 16, superScript: true }),
-    R(", Thomas Benoy", { size: 22 }), R("2,†,*", { size: 16, superScript: true }),
-    R(", Rob Lennox", { size: 22 }), R("3", { size: 16, superScript: true }),
-    R(", Evgeny Rebrov", { size: 22 }), R("2", { size: 16, superScript: true }),
+    R("Sumant Varanasi, Thomas Benoy, Rob Lennox, Evgeny Rebrov", { size: 22 }),
   ],
 }));
 body.push(new Paragraph({
-  alignment: AlignmentType.CENTER, spacing: { after: 40 },
-  children: [R("1 Indian Institute of Technology Delhi – Abu Dhabi, Abu Dhabi, United Arab Emirates   2 University of Warwick, Coventry, United Kingdom   3 Eblana Photonics, Dublin, Ireland", { size: 18 })],
-}));
-body.push(new Paragraph({
   alignment: AlignmentType.CENTER, spacing: { after: 240 },
-  children: [R("† These authors contributed equally.   * Corresponding author.", { size: 18 })],
+  children: [R("Indian Institute of Technology Delhi – Abu Dhabi, Abu Dhabi, United Arab Emirates   University of Warwick, Coventry, United Kingdom   Eblana Photonics, Dublin, Ireland", { size: 18 })],
 }));
 
 // Abstract
