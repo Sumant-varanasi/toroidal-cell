@@ -1,5 +1,17 @@
 # COMSOL mirror-only validation package (toroidal ring port)
 
+> **STATUS: EXECUTED (2026-07-14/15).** Ran on the university COMSOL 6.4
+> + Ray Optics seat over the IITD-AD VPN license server. All 9 menu
+> designs cross-validate against the exact tracer to **RMS 1.3–8.7 µm /
+> worst 2.9–19.7 µm** over 98–228 bounces, with COMSOL independently
+> re-exiting the coupling hole to 8–18 µm. Data:
+> [comsol/comsol_agreement.csv](comsol/comsol_agreement.csv); the model
+> generator/scorer are `comsol_gen.py` / `comsol_extract.py`; figures
+> `figures/comsol_agreement.png` and `figures/comsol_raytrace_montage.png`.
+> Now in the paper as §6.7 (Table 11, Figs 17–18). The section below
+> documents the (now-executed) protocol for reproducibility.
+
+
 *(Implements Benoy's "COMSOL Ray-Tracing Validation Protocol for
 Mirror-Only Multipass Gas-Cell Spot-Pattern Designs" (2026-07-08,
 [prof_inputs](prof_inputs/comsol_ray_tracing_validation_protocol_mirror_only.txt))
