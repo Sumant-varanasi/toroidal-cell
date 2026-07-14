@@ -1,0 +1,10 @@
+design,n_vertices,n_compared,align_offset,rms_um,worst_um,median_um,exit_note
+D190_19m_2inch,152,152,1,8.66056404601501,19.70583385254892,5.683617041697103,exit-vertex miss from entrance point: 0.0175 mm (hole r = 1.3 mm)
+D190_26m_trigas,176,176,1,3.807335981527528,9.090118663152886,2.9306015467987527,exit-vertex miss from entrance point: 0.0094 mm (hole r = 1.3 mm)
+D160_27m,228,228,1,4.239900093855305,10.164739181800815,2.666621908267479,exit-vertex miss from entrance point: 0.0103 mm (hole r = 1.3 mm)
+D180_24m_H2,176,176,1,3.599358223984316,8.960611624193579,2.251053982046559,exit-vertex miss from entrance point: 0.0091 mm (hole r = 1.3 mm)
+D180_15m_sparse,112,112,1,3.2615469017361107,7.823547974899417,2.1872833765531405,exit-vertex miss from entrance point: 0.0078 mm (hole r = 1.3 mm)
+D130_9m_halfinch,98,98,1,1.261304343538799,3.0139578299877967,0.7956673086689844,exit-vertex miss from entrance point: 0.0005 mm (hole r = 0.8 mm)
+D190_29m_max,204,204,1,1.2863759079707322,3.1072984688397325,1.0017412486677522,exit-vertex miss from entrance point: 0.0794 mm (hole r = 1.3 mm)
+D150_14cm_flight,204,204,1,2.7969437747229486,6.881207810064035,1.7936886040599207,exit-vertex miss from entrance point: 0.0066 mm (hole r = 1.3 mm)
+D180_22m,182,182,1,1.3349039587068454,2.937756818526033,1.0085017390685014,exit-vertex miss from entrance point: 0.0024 mm (hole r = 1.3 mm)
