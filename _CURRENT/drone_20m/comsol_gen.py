@@ -46,7 +46,8 @@ def f(x: float) -> str:
     return f"{x:.12g}"
 
 
-def gen(design: str, out_dir: str, dt_ns: float = 0.02) -> str:
+def gen(design: str, out_dir: str, dt_ns: float = 0.02,
+        with_image: bool = False) -> str:
     geom = pd.read_csv(os.path.join(_HERE, "designs", "comsol",
                                     f"comsol_geom_{design}.csv"))
     mirrors = geom[geom["item"].str.startswith("mirror_")]
@@ -216,6 +217,49 @@ def gen(design: str, out_dir: str, dt_ns: float = 0.02) -> str:
     L.append('    model.result().export("exp1").set("fullprec", true);')
     L.append('    model.result().export("exp1").run();')
     L.append(f'    System.out.println("EXPORTED: {out_txt}");')
+
+    if with_image:
+        png = os.path.join(out_dir, f"{design}_comsol.png").replace("\\", "/")
+        L.append('    model.result().create("pg1", "PlotGroup3D");')
+        L.append('    model.result("pg1").set("data", "rayd");')
+        L.append('    model.result("pg1").create("rtraj1", "RayTrajectories");')
+        L.append('    try { model.result("pg1").feature("rtraj1")'
+                 '.set("linetype", "tube"); } catch (Exception e) { }')
+        L.append('    try { model.result("pg1").feature("rtraj1")'
+                 '.set("tuberadiusexpr", "0.4[mm]"); } catch (Exception e) { }')
+        L.append('    model.result("pg1").run();')
+        # top-down camera (ring lies in z = 0) + white background
+        L.append('    try {')
+        L.append('      model.result("pg1").set("view", "view1");')
+        L.append(f'      model.view("view1").camera()'
+                 f'.set("target", new double[]{{0, 0, 0}});')
+        L.append(f'      model.view("view1").camera()'
+                 f'.set("position", new double[]{{0, 0, {f(3.2 * r_env)}}});')
+        L.append('      model.view("view1").camera()'
+                 '.set("up", new double[]{0, 1, 0});')
+        L.append('      model.view("view1").set("showgrid", "off");')
+        L.append('      model.view("view1").set("showaxisorientation", "off");')
+        L.append('    } catch (Exception e) { '
+                 'System.out.println("view set failed: " + e.getMessage()); }')
+        L.append('    model.result().export().create("img1", "Image3D");')
+        L.append('    model.result().export("img1").set("plotgroup", "pg1");')
+        L.append('    model.result().export("img1").set("sourceobject", "pg1");')
+        L.append(f'    model.result().export("img1")'
+                 f'.set("pngfilename", "{png}");')
+        L.append('    try { model.result().export("img1")'
+                 '.set("size", "manual"); '
+                 'model.result().export("img1").set("unit", "px"); '
+                 'model.result().export("img1").set("width", "1600"); '
+                 'model.result().export("img1").set("height", "1200"); '
+                 'model.result().export("img1").set("resolution", "96"); } '
+                 'catch (Exception e) { }')
+        L.append('    try { model.result().export("img1")'
+                 '.set("background", "color"); '
+                 'model.result().export("img1").set("bgcolor", "white"); } '
+                 'catch (Exception e) { }')
+        L.append('    model.result().export("img1").run();')
+        L.append(f'    System.out.println("IMAGE: {png}");')
+
     L.append("    return model;")
     L.append("  }")
     L.append("}")
@@ -235,9 +279,11 @@ def main() -> int:
     ap.add_argument("--out-dir", default=os.path.join(
         _HERE, "designs", "comsol", "java"))
     ap.add_argument("--dt-ns", type=float, default=0.02)
+    ap.add_argument("--image", action="store_true",
+                    help="also export a COMSOL ray-trajectory PNG")
     args = ap.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
-    gen(args.design, args.out_dir, args.dt_ns)
+    gen(args.design, args.out_dir, args.dt_ns, with_image=args.image)
     return 0
 
 
