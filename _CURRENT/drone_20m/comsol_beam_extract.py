@@ -233,14 +233,23 @@ def main() -> int:
 
     rel_hi = (wA[good] - ref_hi[good]) / ref_hi[good] * 100.0
     rel_lo = (wB[good] - ref_lo[good]) / ref_lo[good] * 100.0
+    # In a periodic focusing lattice a tiny per-bounce model difference
+    # accumulates as a PHASE drift of the width oscillation, so pointwise
+    # deviation is a dephasing indicator, not an amplitude error.  The
+    # design-relevant quantities are the band edges (clipping margins).
+    band_c = (float(np.nanmin(wB[good])), float(np.nanmax(wA[good])))
+    band_r = (float(np.nanmin(ref_lo[good])), float(np.nanmax(ref_hi[good])))
+    band_dev = (100.0 * (band_c[0] / band_r[0] - 1.0),
+                100.0 * (band_c[1] / band_r[1] - 1.0))
     print(f"{args.design}: {n_rays} rays, {n_t} steps, chief={chief}, "
           f"{int(good.sum())} scored steps, path {s[good].max() / 1e3:.3f} m")
-    print(f"  w range COMSOL: {np.nanmin(wB[good]):.4f} - "
-          f"{np.nanmax(wA[good]):.4f} mm")
-    print(f"  major-axis dev vs ABCD: mean {np.mean(np.abs(rel_hi)):.3f}% "
-          f" max {np.max(np.abs(rel_hi)):.3f}%")
-    print(f"  minor-axis dev vs ABCD: mean {np.mean(np.abs(rel_lo)):.3f}% "
-          f" max {np.max(np.abs(rel_lo)):.3f}%")
+    print(f"  beam-radius band: COMSOL [{band_c[0]:.4f}, {band_c[1]:.4f}] mm"
+          f"  ABCD [{band_r[0]:.4f}, {band_r[1]:.4f}] mm")
+    print(f"  band-edge dev (design-relevant): min {band_dev[0]:+.2f}%  "
+          f"max {band_dev[1]:+.2f}%")
+    print(f"  pointwise dev (dephasing indicator): major mean "
+          f"{np.mean(np.abs(rel_hi)):.2f}% (signed {np.mean(rel_hi):+.2f}%), "
+          f"minor mean {np.mean(np.abs(rel_lo)):.2f}%")
 
     fig_path = args.fig or os.path.join(
         _HERE, "designs", "figures", f"comsol_beam_{args.design}.png")
@@ -263,7 +272,8 @@ def main() -> int:
         ttl = ("Free space: COMSOL ray bundle vs Gaussian law"
                if args.design == "freespace"
                else f"{args.design}: COMSOL ray bundle vs astigmatic ABCD")
-        ax.set_title(ttl + f"  (max dev {np.max(np.abs(rel_hi)):.2f}%)")
+        ax.set_title(ttl + f"  (band-edge dev {band_dev[0]:+.2f}% / "
+                     f"{band_dev[1]:+.2f}%)")
         ax.legend(fontsize=8)
         ax.grid(alpha=0.25)
         fig.tight_layout()
@@ -276,12 +286,12 @@ def main() -> int:
     out = os.path.join(_HERE, "designs", "comsol", "comsol_beam.csv")
     row = dict(design=args.design, n_rays=n_rays, n_steps=int(good.sum()),
                path_m=float(s[good].max() / 1e3),
-               w_min_mm=float(np.nanmin(wB[good])),
-               w_max_mm=float(np.nanmax(wA[good])),
-               dev_major_mean_pct=float(np.mean(np.abs(rel_hi))),
-               dev_major_max_pct=float(np.max(np.abs(rel_hi))),
-               dev_minor_mean_pct=float(np.mean(np.abs(rel_lo))),
-               dev_minor_max_pct=float(np.max(np.abs(rel_lo))))
+               w_min_mm=band_c[0], w_max_mm=band_c[1],
+               w_min_abcd_mm=band_r[0], w_max_abcd_mm=band_r[1],
+               band_dev_min_pct=float(band_dev[0]),
+               band_dev_max_pct=float(band_dev[1]),
+               dephase_major_mean_pct=float(np.mean(np.abs(rel_hi))),
+               dephase_signed_mean_pct=float(np.mean(rel_hi)))
     df = pd.DataFrame([row])
     if os.path.exists(out):
         old = pd.read_csv(out)
