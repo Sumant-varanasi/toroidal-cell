@@ -169,6 +169,19 @@ def main() -> int:
     print(f"  worst{um.max():9.3f} um (bounce {int(um.argmax())})")
     print(f"  median{np.median(um):8.3f} um")
 
+    # integrated optical path over the aligned chord sequence: the sum of
+    # inter-bounce chord lengths from COMSOL's traced vertices vs ours.
+    # n=1 medium, so geometric path = optical path.
+    comsol_opl_mm = float(np.linalg.norm(
+        np.diff(verts[:n], axis=0), axis=1).sum())
+    ours_opl_mm = float(np.linalg.norm(
+        np.diff(ours[off:off + n], axis=0), axis=1).sum())
+    opl_diff_mm = comsol_opl_mm - ours_opl_mm
+    opl_ppm = opl_diff_mm / ours_opl_mm * 1e6
+    print(f"  OPL over {n - 1} chords: COMSOL {comsol_opl_mm / 1e3:.6f} m"
+          f"  ours {ours_opl_mm / 1e3:.6f} m"
+          f"  diff {opl_diff_mm * 1e3:+.1f} um ({opl_ppm:+.2f} ppm)")
+
     # exit check: vertex at design exit bounce near hole centre
     exit_ok = ""
     j = n_exit - off
@@ -184,6 +197,8 @@ def main() -> int:
     row = dict(design=args.design, n_vertices=len(verts), n_compared=n,
                align_offset=off, rms_um=float(np.sqrt((um ** 2).mean())),
                worst_um=float(um.max()), median_um=float(np.median(um)),
+               opl_comsol_m=comsol_opl_mm / 1e3, opl_ours_m=ours_opl_mm / 1e3,
+               opl_diff_um=opl_diff_mm * 1e3, opl_diff_ppm=opl_ppm,
                exit_note=exit_ok)
     df = pd.DataFrame([row])
     if os.path.exists(out):
