@@ -8,7 +8,15 @@
 > [comsol/comsol_agreement.csv](comsol/comsol_agreement.csv); the model
 > generator/scorer are `comsol_gen.py` / `comsol_extract.py`; figures
 > `figures/comsol_agreement.png` and `figures/comsol_raytrace_montage.png`.
-> Now in the paper as §6.7 (Table 11, Figs 17–18). The section below
+> Follow-ups also executed: integrated OPL agrees to 0.01–0.24 ppm
+> (< 5 µm over 9–29 m) on all 9 designs, and the ray-bundle moment
+> beam-width validation (`comsol_beam_gen.py` / `comsol_beam_extract.py`,
+> [comsol/comsol_beam.csv](comsol/comsol_beam.csv),
+> `figures/comsol_beam_*.png`) shows the astigmatic ABCD width band is
+> conservative for every design (COMSOL max never exceeds the model band,
+> 0.4–18 % margin; free-space control exact to 2×10⁻⁴ %; flight design
+> band edges to 0.43 %/0.73 %).
+> Now in the paper as §6.7 (Tables 11–12, Figs 17–21). The section below
 > documents the (now-executed) protocol for reproducibility.
 
 
